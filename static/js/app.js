@@ -7,6 +7,7 @@ const App = (() => {
   const state = {
     currentPage: 'home',
     programs: [],
+    totalTokensSaved: 0,
     chatHistory: [],
     selectedProgram: null,
     checklistProgram: null,
@@ -25,15 +26,15 @@ const App = (() => {
 
     state.currentPage = page;
 
-    if (page === 'home'      && typeof loadHomeUniGrid !== 'undefined') loadHomeUniGrid();
-    if (page === 'programs'  && typeof Programs !== 'undefined') Programs.init();
-    if (page === 'chat'      && typeof Chat     !== 'undefined') Chat.init();
-    if (page === 'checklist' && typeof Checklist!== 'undefined') Checklist.init();
+    if (page === 'home'      ) loadHomeUniGrid();
+    if (page === 'programs'  && typeof Programs  !== 'undefined') Programs.init();
+    if (page === 'chat'      && typeof Chat      !== 'undefined') Chat.init();
+    if (page === 'checklist' && typeof Checklist !== 'undefined') Checklist.init();
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ── Toast ──────────────────────────────────────────────────────────
+  // ── Toast ───────────────────────────────────────────────────────────
   function toast(message, type = 'info', duration = 3500) {
     const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
     const container = document.getElementById('toast-container');
@@ -49,7 +50,13 @@ const App = (() => {
     }, duration);
   }
 
-  // ── API helper ─────────────────────────────────────────────────────
+  // ── Token counter (kept for chat.js compatibility) ──────────────────
+  function addTokensSaved(n) {
+    if (!n || n <= 0) return;
+    state.totalTokensSaved += n;
+  }
+
+  // ── API helper ──────────────────────────────────────────────────────
   async function api(endpoint, options = {}) {
     const defaults = { headers: { 'Content-Type': 'application/json' } };
     const res = await fetch(endpoint, { ...defaults, ...options });
@@ -60,14 +67,14 @@ const App = (() => {
     return res.json();
   }
 
-  // ── Bind nav tabs ──────────────────────────────────────────────────
+  // ── Bind nav tabs ───────────────────────────────────────────────────
   function bindNav() {
     document.querySelectorAll('.nav-tab').forEach(tab => {
       tab.addEventListener('click', () => navigate(tab.dataset.page));
     });
   }
 
-  // ── Init ───────────────────────────────────────────────────────────
+  // ── Init ────────────────────────────────────────────────────────────
   function init() {
     bindNav();
     window.addEventListener('load', () => {
@@ -75,7 +82,7 @@ const App = (() => {
     });
   }
 
-  return { navigate, toast, api, state, init };
+  return { navigate, toast, api, state, addTokensSaved, init };
 })();
 
 // ── Home page university grid ────────────────────────────────────────
