@@ -23,7 +23,7 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL   = "llama3-8b-8192"
+GROQ_MODEL   = "llama-3.3-70b-versatile"
 
 SYSTEM_PROMPT = """You are AdmissAI, a friendly and knowledgeable assistant. You are an expert college admissions counselor but you can also answer general questions on any topic.
 

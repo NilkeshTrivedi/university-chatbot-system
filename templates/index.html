@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AdmissAI – College Admissions Assistant</title>
-  <meta name="description" content="AI-powered college admissions assistant. Navigate program requirements, essays, and deadlines with intelligent guidance and Scaledown-compressed insights." />
+  <meta name="description" content="AI-powered college admissions assistant. Navigate program requirements, essays, and deadlines with intelligent guidance." />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -22,7 +22,9 @@
   <!-- ══ NAVBAR ══════════════════════════════════════════════════════════ -->
   <nav class="navbar" id="navbar">
     <div class="nav-inner">
-      <div class="nav-logo">
+
+      <!-- Logo → always goes to home -->
+      <div class="nav-logo" id="nav-logo" onclick="App.navigate('home')" style="cursor:pointer">
         <div class="logo-icon">
           <i class="fa-solid fa-graduation-cap"></i>
         </div>
@@ -33,19 +35,13 @@
       </div>
 
       <div class="nav-tabs" id="nav-tabs">
-        <button class="nav-tab active" data-page="dashboard" id="tab-dashboard">
-          <i class="fa-solid fa-gauge-high"></i>
-          <span>Dashboard</span>
-        </button>
-        <!-- FIX #14: fa-university is deprecated in FA 6; use fa-building-columns -->
         <button class="nav-tab" data-page="programs" id="tab-programs">
-          <i class="fa-solid fa-building-columns"></i>
+          <i class="fa-solid fa-university"></i>
           <span>Programs</span>
         </button>
         <button class="nav-tab" data-page="chat" id="tab-chat">
           <i class="fa-solid fa-comments"></i>
           <span>AI Chat</span>
-          <span class="nav-badge" id="chat-badge" style="display:none"></span>
         </button>
         <button class="nav-tab" data-page="checklist" id="tab-checklist">
           <i class="fa-solid fa-list-check"></i>
@@ -53,221 +49,253 @@
         </button>
       </div>
 
-      <div class="nav-right">
-        <div class="compression-pill" id="nav-compression-pill">
-          <i class="fa-solid fa-bolt"></i>
-          <span id="nav-tokens-saved">0</span> tokens saved
-        </div>
-      </div>
+      <button class="nav-cta" onclick="App.navigate('chat')">
+        <i class="fa-solid fa-sparkles"></i> Ask AI Now
+      </button>
+
     </div>
   </nav>
 
   <!-- ══ MAIN ════════════════════════════════════════════════════════════ -->
   <main class="main-content">
 
-    <!-- ── PAGE: DASHBOARD ──────────────────────────────────────────── -->
-    <section class="page active" id="page-dashboard">
+    <!-- ── PAGE: HOME ──────────────────────────────────────────────────── -->
+    <section class="page active" id="page-home">
 
       <!-- Hero -->
-      <div class="hero">
-        <div class="hero-mesh"></div>
+      <div class="home-hero">
+        <div class="hero-bg">
+          <div class="hero-orb orb-1"></div>
+          <div class="hero-orb orb-2"></div>
+          <div class="hero-orb orb-3"></div>
+          <div class="hero-grid"></div>
+        </div>
+
         <div class="hero-content">
-          <div class="hero-badge">
-            <!-- FIX #13: fa-sparkles is FA Pro only; use fa-wand-magic-sparkles (free) -->
-            <i class="fa-solid fa-wand-magic-sparkles"></i> AI-Powered · Scaledown Compressed
+          <div class="hero-eyebrow">
+            <span class="eyebrow-dot"></span>
+            AI-Powered Admissions Guidance
           </div>
+
           <h1 class="hero-title">
-            Your Path to <span class="hero-gradient">Top Universities</span><br/>
-            Starts Here
+            Get into your<br/>
+            <em>dream university</em><br/>
+            with confidence
           </h1>
+
           <p class="hero-subtitle">
-            Navigate admissions requirements, craft standout essays, and track every deadline —
-            all powered by advanced AI with <em>Scaledown smart compression</em> for blazing-fast insights.
+            AdmissAI is your personal college admissions counselor — available 24/7.
+            Browse real requirements, get essay tips, track deadlines, and chat with
+            an AI that actually knows what top universities are looking for.
           </p>
+
           <div class="hero-actions">
-            <button class="btn btn-primary btn-lg" onclick="App.navigate('programs')">
-              <i class="fa-solid fa-building-columns"></i> Explore Programs
+            <button class="btn-hero-primary" onclick="App.navigate('chat')">
+              <i class="fa-solid fa-comments"></i>
+              Chat with AI Advisor
             </button>
-            <button class="btn btn-ghost btn-lg" onclick="App.navigate('chat')">
-              <i class="fa-solid fa-comments"></i> Ask AI Advisor
+            <button class="btn-hero-secondary" onclick="App.navigate('programs')">
+              Explore Programs
+              <i class="fa-solid fa-arrow-right"></i>
             </button>
+          </div>
+
+          <div class="hero-trust">
+            <span class="trust-item"><i class="fa-solid fa-check"></i> Free to use</span>
+            <span class="trust-item"><i class="fa-solid fa-check"></i> 8 top programs</span>
+            <span class="trust-item"><i class="fa-solid fa-check"></i> Real requirements data</span>
+            <span class="trust-item"><i class="fa-solid fa-check"></i> No signup needed</span>
           </div>
         </div>
 
-        <div class="hero-stats-row">
-          <div class="hero-stat">
-            <div class="stat-number" id="stat-programs">8</div>
-            <div class="stat-label">Top Programs</div>
-          </div>
-          <div class="hero-stat">
-            <div class="stat-number" id="stat-compression">47%</div>
-            <div class="stat-label">Avg. Token Reduction</div>
-          </div>
-          <!-- FIX #8: Start token counter at 0 to match App.state.totalTokensSaved initial value.
-               The old value of 1,240 was hardcoded/fake and diverged from actual session data. -->
-          <div class="hero-stat">
-            <div class="stat-number" id="stat-tokens">0</div>
-            <div class="stat-label">Tokens Saved This Session</div>
-          </div>
-          <div class="hero-stat">
-            <div class="stat-number">Real-time</div>
-            <div class="stat-label">AI Guidance</div>
+        <div class="hero-visual">
+          <div class="chat-preview">
+            <div class="chat-preview-header">
+              <div class="cp-dot cp-red"></div>
+              <div class="cp-dot cp-yellow"></div>
+              <div class="cp-dot cp-green"></div>
+              <span>AI Chat</span>
+            </div>
+            <div class="chat-preview-body">
+              <div class="cp-msg cp-ai">
+                <div class="cp-avatar"><i class="fa-solid fa-robot"></i></div>
+                <div class="cp-bubble">Hey! What university are you applying to? I can give you specific guidance on requirements and strategy. 🎓</div>
+              </div>
+              <div class="cp-msg cp-user">
+                <div class="cp-bubble">I want to apply to MIT Computer Science</div>
+                <div class="cp-avatar"><i class="fa-solid fa-user"></i></div>
+              </div>
+              <div class="cp-msg cp-ai">
+                <div class="cp-avatar"><i class="fa-solid fa-robot"></i></div>
+                <div class="cp-bubble">Great choice! MIT CS is extremely competitive at 3.9% acceptance. You'll need a 4.0+ GPA, SAT 1540–1590, and strong CS projects. Want me to walk you through the full strategy? 🚀</div>
+              </div>
+              <div class="cp-typing">
+                <div class="cp-avatar"><i class="fa-solid fa-robot"></i></div>
+                <div class="cp-dots"><span></span><span></span><span></span></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Dashboard Body -->
-      <div class="dashboard-grid">
+      <!-- What is this section -->
+      <div class="home-section what-section">
+        <div class="section-inner">
+          <div class="section-label">What is AdmissAI?</div>
+          <h2 class="section-title">Everything you need for college admissions, in one place</h2>
+          <p class="section-desc">Applying to top universities is stressful and confusing. AdmissAI cuts through the noise — giving you real, specific, school-by-school guidance powered by AI.</p>
 
-        <!-- Compression Meter -->
-        <div class="card card-glass compression-card">
-          <div class="card-header">
-            <div class="card-icon icon-purple">
-              <i class="fa-solid fa-compress-arrows-alt"></i>
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-icon" style="background: rgba(99,102,241,0.12); color: #818cf8">
+                <i class="fa-solid fa-comments"></i>
+              </div>
+              <h3>AI Chat Advisor</h3>
+              <p>Ask anything — essay tips, score requirements, application strategy. Get real answers, not generic advice. The AI knows the actual requirements for each school.</p>
+              <button class="feature-link" onclick="App.navigate('chat')">Start chatting <i class="fa-solid fa-arrow-right"></i></button>
             </div>
-            <div>
-              <h3 class="card-title">Scaledown Compression</h3>
-              <p class="card-subtitle">Token efficiency powered by Scaledown API</p>
-            </div>
-          </div>
-          <div class="compression-meter-wrap">
-            <div class="meter-ring" id="meter-ring">
-              <svg viewBox="0 0 120 120">
-                <circle class="ring-bg" cx="60" cy="60" r="52" />
-                <circle class="ring-fill" id="ring-fill" cx="60" cy="60" r="52"
-                  stroke-dasharray="326.7"
-                  stroke-dashoffset="326.7" />
-              </svg>
-              <div class="meter-label">
-                <span class="meter-value" id="meter-value">0%</span>
-                <span class="meter-sub">compressed</span>
-              </div>
-            </div>
-            <div class="meter-stats">
-              <div class="mstat">
-                <span class="mstat-val" id="ms-original">—</span>
-                <span class="mstat-lab">Original Tokens</span>
-              </div>
-              <div class="mstat">
-                <span class="mstat-val" id="ms-compressed">—</span>
-                <span class="mstat-lab">Compressed Tokens</span>
-              </div>
-              <div class="mstat">
-                <span class="mstat-val" id="ms-saved">—</span>
-                <span class="mstat-lab">Tokens Saved</span>
-              </div>
-              <div class="mstat">
-                <span class="mstat-val" id="ms-provider">—</span>
-                <span class="mstat-lab">Provider</span>
-              </div>
-            </div>
-          </div>
-          <button class="btn btn-sm btn-secondary" id="demo-compress-btn">
-            <i class="fa-solid fa-play"></i> Run Sample Compression
-          </button>
-        </div>
 
-        <!-- Quick Start Programs -->
-        <div class="card card-glass">
-          <div class="card-header">
-            <div class="card-icon icon-blue">
-              <i class="fa-solid fa-fire-flame-curved"></i>
+            <div class="feature-card">
+              <div class="feature-icon" style="background: rgba(20,184,166,0.12); color: #2dd4bf">
+                <i class="fa-solid fa-university"></i>
+              </div>
+              <h3>Program Explorer</h3>
+              <p>Browse 8 of the most competitive programs — MIT, Stanford, Harvard, Wharton, CMU, Oxford, Columbia, and Caltech — with full requirements, tips, and deadlines.</p>
+              <button class="feature-link" onclick="App.navigate('programs')">View programs <i class="fa-solid fa-arrow-right"></i></button>
             </div>
-            <div>
-              <h3 class="card-title">Featured Programs</h3>
-              <p class="card-subtitle">Most competitive this cycle</p>
-            </div>
-          </div>
-          <div class="quick-programs" id="quick-programs">
-            <div class="loading-row">
-              <div class="skeleton skeleton-line"></div>
-              <div class="skeleton skeleton-line w70"></div>
-              <div class="skeleton skeleton-line w85"></div>
-            </div>
-          </div>
-          <button class="btn btn-sm btn-ghost" onclick="App.navigate('programs')">
-            View All Programs <i class="fa-solid fa-arrow-right"></i>
-          </button>
-        </div>
 
-        <!-- How it works -->
-        <div class="card card-glass how-card">
-          <div class="card-header">
-            <div class="card-icon icon-green">
-              <i class="fa-solid fa-wand-magic-sparkles"></i>
-            </div>
-            <div>
-              <h3 class="card-title">How AdmissAI Works</h3>
-              <p class="card-subtitle">Your 4-step admissions journey</p>
-            </div>
-          </div>
-          <div class="steps">
-            <div class="step">
-              <div class="step-num">01</div>
-              <div class="step-desc">
-                <strong>Explore Programs</strong>
-                <span>Browse 8 top university programs with full requirements</span>
+            <div class="feature-card">
+              <div class="feature-icon" style="background: rgba(245,158,11,0.12); color: #fbbf24">
+                <i class="fa-solid fa-list-check"></i>
               </div>
-            </div>
-            <div class="step">
-              <div class="step-num">02</div>
-              <div class="step-desc">
-                <strong>Scaledown Compresses Context</strong>
-                <span>Program guidelines are compressed 40–50% before AI processes them</span>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-num">03</div>
-              <div class="step-desc">
-                <strong>Ask Your AI Advisor</strong>
-                <span>Get personalized, school-specific admissions guidance</span>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-num">04</div>
-              <div class="step-desc">
-                <strong>Track with Checklist</strong>
-                <span>Never miss a deadline with your interactive to-do list</span>
-              </div>
+              <h3>Application Checklist</h3>
+              <p>Never miss a step. Every program comes with a personalized checklist — essays, recommendations, tests, fees — organized by category and saved automatically.</p>
+              <button class="feature-link" onclick="App.navigate('checklist')">Open checklist <i class="fa-solid fa-arrow-right"></i></button>
             </div>
           </div>
         </div>
-
-        <!-- Quick Ask -->
-        <div class="card card-glass quick-ask-card">
-          <div class="card-header">
-            <div class="card-icon icon-orange">
-              <i class="fa-solid fa-bolt"></i>
-            </div>
-            <div>
-              <h3 class="card-title">Quick Ask</h3>
-              <p class="card-subtitle">Instant AI answers</p>
-            </div>
-          </div>
-          <div class="quick-prompts">
-            <button class="quick-prompt" data-q="What GPA do I need for MIT Computer Science?">
-              <i class="fa-solid fa-graduation-cap"></i> GPA for MIT CS?
-            </button>
-            <button class="quick-prompt" data-q="How do I write a strong personal statement for Stanford?">
-              <i class="fa-solid fa-pen-nib"></i> Stanford essay tips?
-            </button>
-            <button class="quick-prompt" data-q="What are the key application deadlines I need to know?">
-              <i class="fa-regular fa-calendar"></i> Key deadlines?
-            </button>
-            <button class="quick-prompt" data-q="How important are recommendation letters and who should I ask?">
-              <i class="fa-solid fa-envelope-open-text"></i> Recommendation letters?
-            </button>
-          </div>
-        </div>
-
       </div>
+
+      <!-- How it works -->
+      <div class="home-section how-section">
+        <div class="section-inner">
+          <div class="section-label">How It Works</div>
+          <h2 class="section-title">Simple. Specific. Actually helpful.</h2>
+
+          <div class="steps-row">
+            <div class="step-card">
+              <div class="step-number">01</div>
+              <h3>Pick your program</h3>
+              <p>Browse the Programs page and select the university you're targeting. Each card shows acceptance rates, average GPA, SAT/ACT scores, and deadlines.</p>
+            </div>
+            <div class="step-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            <div class="step-card">
+              <div class="step-number">02</div>
+              <h3>Chat with the AI</h3>
+              <p>Select that program in the AI Chat sidebar, then ask anything — "What essays do I need?", "Is my GPA good enough?", "What extracurriculars matter most?"</p>
+            </div>
+            <div class="step-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            <div class="step-card">
+              <div class="step-number">03</div>
+              <h3>Track your progress</h3>
+              <p>Open the Checklist for your target program. Check off tasks as you complete them. Your progress is saved automatically in your browser.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Programs preview -->
+      <div class="home-section programs-preview-section">
+        <div class="section-inner">
+          <div class="section-label">Featured Programs</div>
+          <h2 class="section-title">Top universities we cover</h2>
+
+          <div class="uni-grid" id="home-uni-grid">
+            <!-- Filled by JS -->
+          </div>
+
+          <div style="text-align:center; margin-top: 40px">
+            <button class="btn-hero-secondary" onclick="App.navigate('programs')">
+              See all programs & requirements
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="home-section faq-section">
+        <div class="section-inner faq-inner">
+          <div>
+            <div class="section-label">FAQ</div>
+            <h2 class="section-title">Common questions</h2>
+          </div>
+
+          <div class="faq-list">
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                Is this free to use?
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+              <div class="faq-a">Yes, completely free. Just open the website and start using it — no account, no payment, no signup required.</div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                How accurate is the admissions information?
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+              <div class="faq-a">The program data (GPA ranges, test scores, essays, deadlines) is carefully curated from official university sources. Always verify final details on the university's official website before submitting.</div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                Can the AI help with my specific essay?
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+              <div class="faq-a">Yes! You can paste your essay draft in the chat and ask for feedback, or ask for tips on how to approach a specific prompt. The AI gives honest, specific advice.</div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                Which universities are covered?
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+              <div class="faq-a">Currently: MIT (CS), Stanford (CS), Harvard (Pre-Med), Wharton (Business), CMU (CS), Oxford (Law), Columbia (Economics), and Caltech (Physics). More coming soon.</div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                Is my chat history saved?
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+              <div class="faq-a">Chat history is kept during your session but resets when you close or refresh the page. Your checklist progress is saved permanently in your browser's local storage.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="home-footer">
+        <div class="footer-inner">
+          <div class="footer-logo" onclick="App.navigate('home')" style="cursor:pointer">
+            <div class="logo-icon" style="width:32px;height:32px;font-size:0.85rem">
+              <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <span class="logo-brand" style="font-size:1rem">AdmissAI</span>
+          </div>
+          <p class="footer-note">Built to help students navigate the college admissions process. Always verify requirements on official university websites.</p>
+          <div class="footer-links">
+            <button onclick="App.navigate('programs')">Programs</button>
+            <button onclick="App.navigate('chat')">AI Chat</button>
+            <button onclick="App.navigate('checklist')">Checklist</button>
+          </div>
+        </div>
+      </footer>
+
     </section>
 
     <!-- ── PAGE: PROGRAMS ──────────────────────────────────────────────── -->
     <section class="page" id="page-programs">
       <div class="page-header">
         <h2 class="page-title">Program Explorer</h2>
-        <p class="page-desc">Browse top university programs. Click any card for full requirements — Scaledown-compressed for your AI advisor.</p>
+        <p class="page-desc">Browse top university programs. Click any card for full requirements and tips.</p>
       </div>
 
       <div class="programs-toolbar">
@@ -275,65 +303,58 @@
           <i class="fa-solid fa-search"></i>
           <input type="text" id="programs-search" placeholder="Search universities or programs…" />
         </div>
-        <div class="category-filters" id="category-filters">
-          <!-- Filled by JS -->
-        </div>
+        <div class="category-filters" id="category-filters"></div>
       </div>
 
       <div class="programs-grid" id="programs-grid">
-        <!-- Skeletons -->
         <div class="program-card skeleton-card"><div class="skeleton sk-full"></div></div>
         <div class="program-card skeleton-card"><div class="skeleton sk-full"></div></div>
         <div class="program-card skeleton-card"><div class="skeleton sk-full"></div></div>
         <div class="program-card skeleton-card"><div class="skeleton sk-full"></div></div>
       </div>
 
-      <!-- Program Detail Drawer -->
       <div class="detail-overlay" id="detail-overlay"></div>
       <div class="detail-drawer" id="detail-drawer">
         <button class="drawer-close" id="drawer-close"><i class="fa-solid fa-xmark"></i></button>
-        <div class="drawer-content" id="drawer-content"><!-- Filled by JS --></div>
+        <div class="drawer-content" id="drawer-content"></div>
       </div>
     </section>
 
     <!-- ── PAGE: CHAT ──────────────────────────────────────────────────── -->
     <section class="page" id="page-chat">
       <div class="chat-layout">
-
-        <!-- Sidebar -->
         <div class="chat-sidebar">
           <div class="sidebar-header">
-            <h3>Context</h3>
-            <p>Select a program for tailored advice</p>
+            <h3>Program Context</h3>
+            <p>Select a program for specific advice</p>
           </div>
           <div class="program-select-list" id="program-select-list">
             <div class="program-select-item active" data-id="">
               <div class="psi-dot" style="background:#6366f1"></div>
               <div class="psi-text">
                 <span class="psi-name">General Admissions</span>
-                <span class="psi-sub">No specific program context</span>
+                <span class="psi-sub">Ask anything about college apps</span>
               </div>
             </div>
-            <!-- Filled by JS -->
           </div>
           <div class="compression-badge-box" id="compression-badge-box" style="display:none">
-            <div class="cb-header">
-              <i class="fa-solid fa-bolt"></i> Last Compression
-            </div>
+            <div class="cb-header"><i class="fa-solid fa-bolt"></i> Last Response Stats</div>
             <div class="cb-stats" id="cb-stats"></div>
           </div>
         </div>
 
-        <!-- Chat Window -->
         <div class="chat-window">
           <div class="chat-messages" id="chat-messages">
             <div class="chat-welcome">
-              <div class="welcome-icon">
-                <i class="fa-solid fa-graduation-cap"></i>
+              <div class="welcome-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+              <h3>Hi! I'm your AdmissAI Advisor 👋</h3>
+              <p>I can help with college application strategy, essay tips, program requirements, deadlines, and more. Select a program on the left for school-specific advice, or just ask me anything!</p>
+              <div class="welcome-suggestions">
+                <button class="suggestion-chip" onclick="Chat.sendQuick('What GPA do I need for MIT?')">What GPA for MIT?</button>
+                <button class="suggestion-chip" onclick="Chat.sendQuick('How do I write a strong personal statement?')">Essay tips?</button>
+                <button class="suggestion-chip" onclick="Chat.sendQuick('What are the application deadlines I need to know?')">Key deadlines?</button>
+                <button class="suggestion-chip" onclick="Chat.sendQuick('How important are extracurriculars for top schools?')">Extracurriculars?</button>
               </div>
-              <h3>Welcome to AdmissAI</h3>
-              <p>Your AI-powered college admissions counselor. Ask me anything about applications, essays, requirements, or strategy.</p>
-              <p class="welcome-sub">Program context is <strong>Scaledown-compressed</strong> before being sent to the AI — saving tokens on every message.</p>
             </div>
           </div>
 
@@ -345,23 +366,17 @@
 
           <div class="chat-input-area">
             <div class="chat-input-wrap">
-              <textarea
-                id="chat-input"
-                placeholder="Ask about requirements, essays, deadlines, strategy…"
-                rows="1"
-                maxlength="2000"
-              ></textarea>
+              <textarea id="chat-input" placeholder="Ask about requirements, essays, deadlines, strategy…" rows="1" maxlength="2000"></textarea>
               <button class="send-btn" id="send-btn">
                 <i class="fa-solid fa-paper-plane"></i>
               </button>
             </div>
             <div class="chat-input-meta">
               <span id="char-count">0 / 2000</span>
-              <span>Press <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</span>
+              <span><kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</span>
             </div>
           </div>
         </div>
-
       </div>
     </section>
 
@@ -369,7 +384,7 @@
     <section class="page" id="page-checklist">
       <div class="page-header">
         <h2 class="page-title">Application Checklist</h2>
-        <p class="page-desc">Track every step of your application. Your progress is saved automatically.</p>
+        <p class="page-desc">Track every step of your application. Progress is saved automatically in your browser.</p>
       </div>
 
       <div class="checklist-program-select">
@@ -386,22 +401,30 @@
         <div class="checklist-empty">
           <i class="fa-solid fa-list-check"></i>
           <h3>Select a program above to load your checklist</h3>
-          <p>We'll show you every step you need to complete, organized by category.</p>
+          <p>We'll show you every step organized by category.</p>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- ══ TOAST ════════════════════════════════════════════════════════════ -->
+  <!-- Toast -->
   <div class="toast-container" id="toast-container"></div>
 
-  <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+  <!-- Scripts -->
   <script src="/static/js/app.js"></script>
-  <script src="/static/js/dashboard.js"></script>
   <script src="/static/js/programs.js"></script>
   <script src="/static/js/chat.js"></script>
   <script src="/static/js/checklist.js"></script>
+
+  <script>
+    function toggleFaq(btn) {
+      const item = btn.parentElement;
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    }
+  </script>
 
 </body>
 </html>
