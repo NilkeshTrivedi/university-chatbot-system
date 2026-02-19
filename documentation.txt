@@ -1,0 +1,517 @@
+AdmissAI — Project Documentation
+Repository: github.com/your-username/admissai
+Built for: GenAI4GenZ program by HPE
+Stack: Python · Flask · Groq · Scaledown · Vanilla JS
+
+────────────────────────────────────────────────────────────────────────────
+WHAT IS THIS
+────────────────────────────────────────────────────────────────────────────
+
+AdmissAI is a college admissions assistant I built as a practical challenge
+in the GenAI4GenZ program by HPE. You pick a university program — MIT CS,
+Stanford, Harvard Pre-Med, Wharton, and five others — and chat with an AI
+that actually knows what that specific school is looking for. Real GPA ranges,
+SAT scores, essay prompts, deadlines, tips. Not approximations from training
+data — the actual requirements loaded into every response.
+
+The idea came from a simple frustration. Most admissions advice online is too
+generic to act on. Telling someone to "write a strong essay" or "get good
+grades" is not useful when they need to know whether a 3.8 GPA is competitive
+for Caltech Physics, or what MIT looks for in the Why MIT essay specifically.
+Grounding the AI in real program data fixes that.
+
+There is also a checklist for each program — every task you need to complete
+(essays, recommendation letters, tests, fee, interviews) organized by category
+and saved automatically in your browser. And a program explorer where you can
+browse all eight schools with their key stats and open a full detail view.
+
+
+────────────────────────────────────────────────────────────────────────────
+ARCHITECTURE
+────────────────────────────────────────────────────────────────────────────
+
+The backend is Flask with four route blueprints. The frontend is a vanilla JS
+single-page application — one HTML file, one CSS file, four JS modules. No
+database. All program data lives in a Python dictionary in admissions_data.py.
+
+When you chat with the AI, this is what actually happens:
+
+  1. Your message arrives at POST /api/chat with an optional program_id
+  2. If a program is selected, its full requirements text is fetched from
+     admissions_data.py
+  3. That text goes through compression.py — Groq-powered if available,
+     rule-based fallback otherwise
+  4. The compressed context is appended to the AI system prompt
+  5. The last 10 turns of conversation history go in as the messages array
+  6. Everything gets sent to Groq running Llama 3.3 70B
+  7. The response comes back with compression stats attached
+  8. The frontend renders the reply and updates the sidebar stats
+
+Without a program selected it is just a direct chat. The AI answers from
+general training knowledge — useful for broad questions like how financial aid
+works or what a college essay structure should look like.
+
+
+Program data
+─────────────
+
+Eight programs are included. Each one is a Python dict in admissions_data.py:
+
+  - Basic info: university name, short name, program, category, logo colour
+  - Stats: GPA range, SAT range, ACT range, deadline, application fee
+  - Requirements: GPA, tests, essays, recommendations, extracurriculars
+  - Tips: application tips specific to this program
+  - Common mistakes: what applicants to this school typically get wrong
+  - Checklist: ordered task list with category tags for grouping
+
+No database. A new program means adding a dict and restarting. Easy to run,
+harder to update without touching code.
+
+
+Context injection
+──────────────────
+
+The AI does not know program requirements by default — or if it does from
+training, those numbers might be a year out of date and vary by model. Instead,
+the actual requirements are fetched at request time and injected into the
+system prompt. The model answers from that data.
+
+After compression, the injected block looks roughly like:
+
+  === MIT Computer Science (B.S.) ===
+  Acceptance: 3.9%  |  GPA: 4.0+  |  SAT: 1540-1590  |  Deadline: Jan 1
+  Essays: 650w personal + 5 short activities + 250w Why MIT
+  Recs: 2 teacher (math/sci) + 1 counselor
+  Tips: Emphasise original research, open-source work...
+  Mistakes: Generic essays, weak Why MIT response...
+
+The system prompt also tells the model not to fabricate statistics. Without
+that instruction a language model will sometimes invent a plausible-sounding
+number. With it, it sticks to what is actually in the context.
+
+
+Compression
+────────────
+
+Program requirements in full text run to about 300-500 tokens. Sending that
+with every message adds up. Two tiers:
+
+  Primary:  Groq is asked to compress the context to ~50% of its length
+            while keeping every specific number, deadline, and requirement.
+
+  Fallback: Rule-based abbreviation — "recommendations" → "recs.",
+            "personal statement" → "PS", "extracurricular" → "EC", etc.
+
+Nothing breaks for the user either way. Compression stats (tokens saved,
+ratio, provider) are returned with every response and shown in the UI.
+
+I added this late expecting a minor optimisation. It made a more noticeable
+difference than expected — tighter context means the model focuses on the
+relevant parts rather than parsing filler phrasing.
+
+
+Conversation history
+─────────────────────
+
+The last 10 message turns are included in every API call. This lets the AI
+answer follow-up questions correctly — "What GPA do I need?" then "What about
+test scores?" works without repeating yourself. History beyond 10 turns is
+dropped so token usage stays predictable.
+
+
+────────────────────────────────────────────────────────────────────────────
+FILE BREAKDOWN
+────────────────────────────────────────────────────────────────────────────
+
+Project structure
+──────────────────
+
+  admissai/
+  ├── app.py                      Flask entry point
+  ├── routes/
+  │   ├── chat.py                 POST /api/chat
+  │   ├── programs.py             GET  /api/programs, /api/programs/<id>
+  │   ├── checklist.py            GET  /api/checklist/<id>
+  │   └── compress.py             POST /api/compress
+  ├── services/
+  │   ├── ai_service.py           Groq call + prompt builder + error handling
+  │   ├── admissions_data.py      All program data as Python dicts
+  │   └── compression.py          Groq compression with rule-based fallback
+  ├── templates/
+  │   └── index.html              Single-page app — all four pages in one file
+  ├── static/
+  │   ├── css/main.css            Design system, dark theme, responsive
+  │   └── js/
+  │       ├── app.js              SPA router, global state, API helper, toasts
+  │       ├── programs.js         Program grid, search, filter, detail drawer
+  │       ├── chat.js             Chat UI, message rendering, markdown parser
+  │       └── checklist.js        Task toggle, localStorage, progress ring
+  ├── .env.example
+  └── requirements.txt
+
+
+Backend files
+──────────────
+
+app.py
+  Flask application factory. Creates the app, registers the four blueprints,
+  configures CORS. GET / returns index.html and /static/ serves the JS/CSS.
+
+routes/chat.py
+  Handles POST /api/chat. Reads message, history, and program_id from the
+  request body. If a program is given, fetches its requirements, compresses
+  them, builds the system prompt, calls ai_service. Returns the reply and
+  compression_stats.
+
+routes/programs.py
+  GET /api/programs returns the full list with optional ?q= search and
+  ?category= filter. GET /api/programs/<id> returns one program in full.
+  Both just read from admissions_data.py — no database.
+
+routes/checklist.py
+  Pulls the checklist array from the program dict, groups tasks by category,
+  returns them with university name, deadline, and total count. All state
+  (which tasks are done, progress) is handled by the frontend in localStorage.
+
+services/ai_service.py
+  Builds the system prompt, appends compressed context if a program is
+  selected, combines with conversation history, and sends the full payload to
+  Groq over HTTP using the requests library — no SDK. Returns the reply text
+  or a specific readable error for each failure case:
+
+    - GROQ_API_KEY not set → setup instructions
+    - Key is still a placeholder → explanation with example
+    - 401 Unauthorized → verify key and restart
+    - 429 Rate limited → wait and try again
+    - Connection error → check internet
+    - Timeout → try again
+    - Anything else → the actual exception message
+
+  Specific errors matter. The first version returned a generic "something went
+  wrong" on any failure. That made it impossible to tell whether the key was
+  missing, wrong, or rate-limited. Now each case has its own message.
+
+services/admissions_data.py
+  All program data in one place. Single source of truth for the explorer, AI
+  context, and checklists. Requirements, tips, common mistakes, and ordered
+  checklist tasks with category tags.
+
+services/compression.py
+  Tries Groq-powered compression first. Falls back to rule-based abbreviation.
+  Returns the compressed text and a stats object: original_tokens,
+  compressed_tokens, tokens_saved, compression_ratio, provider.
+
+
+Frontend files
+───────────────
+
+index.html
+  One HTML file. All four pages — Home, Programs, Chat, Checklist — exist
+  inside it. JavaScript swaps which one is visible. No build step, no
+  templating engine.
+
+static/css/main.css
+  About 1000 lines. Dark theme with CSS custom properties for all colours.
+  Chat uses a fixed-height grid so the input stays pinned to the bottom while
+  messages scroll. Checklist progress ring is SVG with stroke-dashoffset.
+  Responsive at 768px and 1024px.
+
+static/js/app.js
+  SPA router and shared utilities. App.navigate(page) hides all pages, shows
+  the target one, and calls that module's init(). App.state holds shared data.
+  App.api() wraps fetch() with JSON parsing and error throwing. App.toast()
+  shows temporary notifications. App.addTokensSaved() updates session total.
+
+static/js/programs.js
+  Renders the program grid, handles search and category filter (client-side on
+  cached data — no API call per keystroke), manages the detail drawer that
+  slides in from the right.
+
+static/js/chat.js
+  Loads the program list into the sidebar, tracks the selected program, sends
+  messages, renders responses. Markdown in AI replies (bold, lists, code,
+  headings) is converted by a line-by-line processor. The first attempt used
+  regex — it produced broken HTML on multi-line lists. Line-by-line is more
+  verbose and far more reliable.
+
+static/js/checklist.js
+  Fetches the checklist, renders tasks grouped by category, handles
+  check/uncheck, saves to localStorage. The progress ring, percentage, done
+  count, and subtitle text all update through a single updateProgress()
+  function. Earlier they updated separately which caused a decrement bug —
+  unchecking a task fixed the ring but left the subtitle showing the wrong
+  number until refresh.
+
+  localStorage key: checklist_{program_id}
+  Value: JSON object mapping task IDs to booleans.
+  If the stored JSON is corrupted, the error is caught, the key is cleared,
+  and the checklist resets to clean state instead of crashing.
+
+
+────────────────────────────────────────────────────────────────────────────
+API REFERENCE
+────────────────────────────────────────────────────────────────────────────
+
+  Method   Endpoint                 Description
+  ───────────────────────────────────────────────────────────────────────────
+  GET      /api/health              Returns {"status": "ok"}
+  GET      /api/programs            List all programs (?q= and ?category=)
+  GET      /api/programs/<id>       Full detail for one program
+  POST     /api/chat                Send a message, get a reply
+  GET      /api/checklist/<id>      Checklist tasks grouped by category
+  POST     /api/compress            Compress any text string
+
+
+POST /api/chat — Request
+─────────────────────────
+
+  {
+    "message":    "What GPA do I need for MIT?",
+    "history":    [
+      { "role": "user",      "content": "..." },
+      { "role": "assistant", "content": "..." }
+    ],
+    "program_id": "mit-cs"    // omit for general chat
+  }
+
+
+POST /api/chat — Response
+──────────────────────────
+
+  {
+    "reply":      "MIT requires a 4.0+ unweighted GPA...",
+    "model_used": "groq/llama-3.3-70b-versatile",
+    "compression_stats": {          // only present when program_id was sent
+      "original_tokens":   320,
+      "compressed_tokens": 176,
+      "compression_ratio": 0.45,
+      "tokens_saved":      144,
+      "provider":          "rule-based"    // or "groq-ai"
+    }
+  }
+
+
+Program IDs
+────────────
+
+  mit-cs            MIT — Computer Science (B.S.)
+  stanford-cs       Stanford — Computer Science (B.S.)
+  harvard-premed    Harvard — Pre-Medicine / Biological Sciences
+  wharton-business  UPenn Wharton — Business Economics & Management
+  cmu-cs            Carnegie Mellon — Computer Science (B.S.)
+  oxford-law        Oxford — Law (BA/LLB)
+  columbia-econ     Columbia — Economics (B.A.)
+  caltech-physics   Caltech — Physics (B.S.)
+
+
+────────────────────────────────────────────────────────────────────────────
+SETUP
+────────────────────────────────────────────────────────────────────────────
+
+Requirements
+─────────────
+
+  - Python 3.8 or higher
+  - A Groq API key from console.groq.com (free tier works fine)
+  - Internet connection for API calls at runtime
+
+
+Local
+──────
+
+  git clone https://github.com/your-username/admissai.git
+  cd admissai
+  pip install flask flask-cors python-dotenv requests
+
+Copy .env.example to .env and fill in your key:
+
+  GROQ_API_KEY=gsk_your_actual_key_here
+  FLASK_DEBUG=1
+  PORT=5000
+
+Start the server:
+
+  python app.py
+
+Open http://localhost:5000. Go to AI Chat and send a message to verify Groq
+is connected.
+
+
+Environment variables
+──────────────────────
+
+  GROQ_API_KEY       Required. From console.groq.com. Without it every chat
+                     response returns a setup error explaining how to fix it.
+
+  FLASK_DEBUG        Optional. 1 for development (auto-reload). 0 for prod.
+
+  PORT               Optional. Defaults to 5000.
+
+  SCALEDOWN_API_KEY  Optional. Reserved for future Scaledown integration.
+                     Not currently used.
+
+
+Dependencies
+─────────────
+
+  flask          3.0.0   Web framework — routing, blueprints, templates
+  flask-cors     4.0.0   CORS headers so the browser allows API calls
+  python-dotenv  1.0.0   Loads .env into os.environ at startup
+  requests       2.31.0  HTTP client for calling Groq directly
+
+No Groq SDK. The SDK caused installation issues in certain environments.
+Calling the API directly over HTTP worked everywhere and is simpler to
+debug when something goes wrong.
+
+
+────────────────────────────────────────────────────────────────────────────
+PROBLEMS I RAN INTO
+────────────────────────────────────────────────────────────────────────────
+
+Gemini integration silently failing
+─────────────────────────────────────
+
+The original plan was Gemini. The google-generativeai package was in
+requirements.txt but not actually installed in the environment. The code
+failed at import time and fell through to a hardcoded fallback response.
+Every single AI reply was that same fallback string. No visible error — it
+just looked like the AI was always saying the same unhelpful thing.
+
+Switched entirely to Groq and dropped the SDK approach. Direct HTTP with
+requests removed the external package dependency and the silent failure mode.
+
+
+Model decommissioned
+─────────────────────
+
+After getting Groq working, the model in the code was llama3-8b-8192. That
+model was decommissioned by Groq. Requests started returning HTTP 400 with
+an error about model availability. Updated to llama-3.3-70b-versatile.
+
+
+App.addTokensSaved is not a function
+──────────────────────────────────────
+
+When the frontend was rewritten to add the home page, app.js got reorganised
+and addTokensSaved() was removed from the App module's public API. chat.js
+still called it on every program-context response.
+
+General chat worked fine because compression_stats is only returned when a
+program_id is sent — so the bug only showed up when you selected a specific
+program and sent a message. The error crashed the entire response render.
+
+Added the function back. Simple fix, annoying to track down because it only
+appeared in one specific path.
+
+
+Checklist decrement not updating the subtitle
+──────────────────────────────────────────────
+
+Checking a task incremented the progress ring and the X/11 counter. Unchecking
+correctly decremented both. But the subtitle text — "MIT CS · 5/11 tasks
+completed" — never updated on either action. It was only set during the
+initial renderChecklist() call and never touched again.
+
+So if you checked 3 tasks, the ring showed 3/11 but the subtitle still showed
+"0/11 tasks completed". If you unchecked one, the ring correctly dropped to
+2/11 but the subtitle stayed wrong until you refreshed the page.
+
+Fixed by extracting updateProgress() as a single function that updates the
+ring, percentage, counter, and subtitle all at once. Both renderChecklist()
+and toggle() now call this one function. Two separate code paths updating the
+same UI was always going to cause drift.
+
+
+Markdown lists rendering broken HTML
+──────────────────────────────────────
+
+AI responses often contain bullet lists. The first approach to converting
+markdown to HTML used a regex pass over the full text. On responses with
+multi-line lists it would double-wrap ul tags and produce broken structure.
+
+Replaced with a line-by-line processor that tracks whether a list is currently
+open and closes it properly before switching to a new block type. More code,
+much more reliable output.
+
+
+Checklist refetching on every tab switch
+─────────────────────────────────────────
+
+Every time you clicked the Checklist tab, populateSelect() rebuilt the dropdown
+and refetched the program list from the API. If a program was already loaded
+it got wiped and the body reset to the empty state. You could see it flash.
+
+Fixed with a guard — only rebuild the dropdown if options have not been added
+yet, only refetch checklist data if the selected program actually changed.
+
+
+Strikethrough on completed tasks
+──────────────────────────────────
+
+Not a functional bug. Checking a task applied text-decoration: line-through
+which made it hard to read the task description, especially for longer ones.
+The green checkbox already confirms something is done. Removed the strikethrough,
+kept only the colour fade.
+
+
+────────────────────────────────────────────────────────────────────────────
+LIMITATIONS
+────────────────────────────────────────────────────────────────────────────
+
+  - Program data is hardcoded in Python. Adding a university means editing
+    admissions_data.py and redeploying.
+
+  - No user accounts. Chat history resets on page refresh. Checklist state
+    is browser-local — different device means starting over.
+
+  - Eight programs only: MIT CS, Stanford CS, Harvard Pre-Med, Wharton
+    Business, CMU CS, Oxford Law, Columbia Economics, Caltech Physics.
+
+  - Data is from one point in time. Deadlines, fees, and essay prompts change
+    every application cycle. Always verify on the official university website
+    before actually applying.
+
+  - Chat sidebar is hidden on mobile. Program context selection is not
+    accessible on small screens.
+
+  - Token counts use the 4-characters-per-token approximation, not exact
+    model tokenization.
+
+  - No way to save or revisit a previous chat session.
+
+
+────────────────────────────────────────────────────────────────────────────
+WHAT I LEARNED
+────────────────────────────────────────────────────────────────────────────
+
+Going in I had basic Python knowledge and had not built anything with an LLM
+API before. Coming out I understand prompt engineering, context injection, API
+integration without SDKs, how to structure a Flask app with blueprints, and
+what actually goes wrong when AI integrations fail silently.
+
+The context injection pattern was the biggest thing that clicked. Fine-tuning
+a model to know specific admissions requirements would be expensive, slow, and
+brittle every time requirements change. Injecting the real data into the system
+prompt at request time is free, instant, and always current when you update the
+dict. That is how most practical LLM applications actually work and building
+it made it stick in a way that reading about it did not.
+
+The debugging was real learning too. When every AI response was a fallback
+string, I had no idea where to start. Going through the call stack and finding
+the silent import failure taught me to never trust a generic fallback — surface
+every error specifically, because "something went wrong" tells you nothing at
+11pm when the thing you built is not working.
+
+Compression was a late addition. I expected maybe a small improvement in
+response quality. It made a more noticeable difference — tighter context means
+the model focuses on the relevant parts rather than parsing boilerplate
+phrasing. The stuff between fetching data and sending it to the model matters
+more than I assumed going in.
+
+Had help from AI along the way for certain parts. But the learning was real —
+a lot of things clicked that just would not have from watching tutorials.
+
+Building something real is just a different kind of learning.
+
+
+────────────────────────────────────────────────────────────────────────────
