@@ -1,5 +1,5 @@
 /**
- * chat.js – AI Chat interface with live messaging and compression stats display.
+ * chat.js – AI Chat interface with live messaging.
  */
 
 const Chat = (() => {
@@ -8,25 +8,26 @@ const Chat = (() => {
     let isLoading = false;
     let initialized = false;
 
-    // ── Render Messages ───────────────────────────────────────────────────
-    function renderMessage(role, content, compressionStats = null, scrollSmooth = true) {
+    // ── Render a message bubble ───────────────────────────────────────
+    function renderMessage(role, content, compressionStats = null) {
         const container = document.getElementById('chat-messages');
 
+        // Remove welcome screen on first real message
         const welcome = container.querySelector('.chat-welcome');
         if (welcome) welcome.remove();
 
         const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const isUser = role === 'user';
-
         const avatarIcon = isUser ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-robot"></i>';
 
+        // Show compression badge only when a program is selected and tokens were saved
         let compBadgeHtml = '';
         if (!isUser && compressionStats && compressionStats.tokens_saved > 0) {
             compBadgeHtml = `
-        <div class="msg-compress-badge">
-          <i class="fa-solid fa-bolt"></i>
-          ${compressionStats.tokens_saved} tokens saved (${Math.round(compressionStats.compression_ratio * 100)}%)
-        </div>`;
+                <div class="msg-compress-badge">
+                    <i class="fa-solid fa-bolt"></i>
+                    ${compressionStats.tokens_saved} tokens saved
+                </div>`;
         }
 
         const formattedContent = formatMarkdown(content);
@@ -34,71 +35,53 @@ const Chat = (() => {
         const msgEl = document.createElement('div');
         msgEl.className = `message ${role}`;
         msgEl.innerHTML = `
-      <div class="msg-avatar">${avatarIcon}</div>
-      <div class="msg-body">
-        <div class="msg-bubble">${formattedContent}</div>
-        <div class="msg-meta">
-          <span class="msg-time">${now}</span>
-          ${compBadgeHtml}
-        </div>
-      </div>
-    `;
+            <div class="msg-avatar">${avatarIcon}</div>
+            <div class="msg-body">
+                <div class="msg-bubble">${formattedContent}</div>
+                <div class="msg-meta">
+                    <span class="msg-time">${now}</span>
+                    ${compBadgeHtml}
+                </div>
+            </div>
+        `;
 
         container.appendChild(msgEl);
-        container.scrollTo({
-            top: container.scrollHeight,
-            behavior: scrollSmooth ? 'smooth' : 'instant',
-        });
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
     }
 
-    // ── Markdown Formatter ────────────────────────────────────────────────
-    // FIX #7: Rewrote list handling to correctly separate bullet <ul> from
-    // numbered <ol> lists, and avoid the greedy regex swallowing non-list content.
+    // ── Basic markdown → HTML ─────────────────────────────────────────
     function formatMarkdown(text) {
-        // Step 1: apply inline formatting
-        let result = text
+        // Process lists line by line to avoid broken regex
+        const lines = text.split('\n');
+        const processed = [];
+        let inUl = false;
+
+        for (const line of lines) {
+            if (/^[-*] (.+)$/.test(line)) {
+                if (!inUl) { processed.push('<ul>'); inUl = true; }
+                processed.push('<li>' + line.replace(/^[-*] /, '') + '</li>');
+            } else if (/^\d+\. (.+)$/.test(line)) {
+                if (!inUl) { processed.push('<ul>'); inUl = true; }
+                processed.push('<li>' + line.replace(/^\d+\. /, '') + '</li>');
+            } else {
+                if (inUl) { processed.push('</ul>'); inUl = false; }
+                processed.push(line);
+            }
+        }
+        if (inUl) processed.push('</ul>');
+
+        return processed.join('\n')
             .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.+?)\*/g, '<em>$1</em>')
             .replace(/`(.+?)`/g, '<code>$1</code>')
             .replace(/^### (.+)$/gm, '<h4 style="margin:10px 0 4px;color:var(--text-primary)">$1</h4>')
             .replace(/^## (.+)$/gm, '<h3 style="margin:12px 0 6px;color:var(--text-primary)">$1</h3>')
-            .replace(/^---$/gm, '<hr style="border-color:rgba(255,255,255,0.08);margin:10px 0">');
-
-        // Step 2: convert lists line-by-line to avoid cross-contamination
-        const lines = result.split('\n');
-        const output = [];
-        let inUl = false;
-        let inOl = false;
-
-        for (const line of lines) {
-            const bulletMatch = line.match(/^[\-\*] (.+)$/);
-            const numberedMatch = line.match(/^\d+\. (.+)$/);
-
-            if (bulletMatch) {
-                if (inOl) { output.push('</ol>'); inOl = false; }
-                if (!inUl) { output.push('<ul>'); inUl = true; }
-                output.push(`<li>${bulletMatch[1]}</li>`);
-            } else if (numberedMatch) {
-                if (inUl) { output.push('</ul>'); inUl = false; }
-                if (!inOl) { output.push('<ol>'); inOl = true; }
-                output.push(`<li>${numberedMatch[1]}</li>`);
-            } else {
-                if (inUl) { output.push('</ul>'); inUl = false; }
-                if (inOl) { output.push('</ol>'); inOl = false; }
-                output.push(line);
-            }
-        }
-        if (inUl) output.push('</ul>');
-        if (inOl) output.push('</ol>');
-
-        // Step 3: paragraph and line break handling
-        return output
-            .join('\n')
+            .replace(/^---$/gm, '<hr style="border-color:rgba(255,255,255,0.08);margin:10px 0">')
             .replace(/\n{2,}/g, '</p><p>')
             .replace(/\n/g, '<br>');
     }
 
-    // ── Send Message ──────────────────────────────────────────────────────
+    // ── Send message ──────────────────────────────────────────────────
     async function send() {
         if (isLoading) return;
 
@@ -114,6 +97,7 @@ const Chat = (() => {
         renderMessage('user', message);
         history.push({ role: 'user', content: message });
 
+        // Show typing indicator
         const typingEl = document.getElementById('typing-indicator');
         if (typingEl) typingEl.style.display = 'flex';
 
@@ -132,37 +116,61 @@ const Chat = (() => {
 
             history.push({ role: 'assistant', content: response.reply });
 
+            // Safely update compression badge if stats exist
             if (response.compression_stats) {
                 updateCompressionBadge(response.compression_stats);
+                // addTokensSaved exists safely in app.js now
                 App.addTokensSaved(response.compression_stats.tokens_saved ?? 0);
             }
 
             renderMessage('assistant', response.reply, response.compression_stats);
 
         } catch (e) {
-            renderMessage('assistant', `⚠️ Error: ${e.message}. Please check your API keys in .env.`);
+            renderMessage('assistant', `⚠️ Error: ${e.message}`);
         } finally {
             isLoading = false;
             if (typingEl) typingEl.style.display = 'none';
         }
     }
 
-    // ── Compression Badge (Sidebar) ───────────────────────────────────────
+    // ── Send from suggestion chip or quick prompt ─────────────────────
+    function sendQuick(text) {
+        const input = document.getElementById('chat-input');
+        if (input) {
+            input.value = text;
+            input.dispatchEvent(new Event('input'));
+        }
+        send();
+    }
+
+    // ── Update sidebar compression stats box ──────────────────────────
     function updateCompressionBadge(stats) {
-        const box = document.getElementById('compression-badge-box');
+        const box     = document.getElementById('compression-badge-box');
         const statsEl = document.getElementById('cb-stats');
         if (!box || !statsEl) return;
 
         box.style.display = 'block';
         statsEl.innerHTML = `
-      <div class="cb-stat"><span class="cb-val">${stats.original_tokens}</span><span class="cb-lab">Original Tokens</span></div>
-      <div class="cb-stat"><span class="cb-val">${stats.compressed_tokens}</span><span class="cb-lab">Compressed</span></div>
-      <div class="cb-stat"><span class="cb-val">${stats.tokens_saved}</span><span class="cb-lab">Tokens Saved</span></div>
-      <div class="cb-stat"><span class="cb-val">${Math.round(stats.compression_ratio * 100)}%</span><span class="cb-lab">Reduction</span></div>
-    `;
+            <div class="cb-stat">
+                <span class="cb-val">${stats.original_tokens ?? '—'}</span>
+                <span class="cb-lab">Original Tokens</span>
+            </div>
+            <div class="cb-stat">
+                <span class="cb-val">${stats.compressed_tokens ?? '—'}</span>
+                <span class="cb-lab">Compressed</span>
+            </div>
+            <div class="cb-stat">
+                <span class="cb-val">${stats.tokens_saved ?? '—'}</span>
+                <span class="cb-lab">Tokens Saved</span>
+            </div>
+            <div class="cb-stat">
+                <span class="cb-val">${stats.compression_ratio ? Math.round(stats.compression_ratio * 100) + '%' : '—'}</span>
+                <span class="cb-lab">Reduction</span>
+            </div>
+        `;
     }
 
-    // ── Load Program List into Sidebar ────────────────────────────────────
+    // ── Load program list into sidebar ────────────────────────────────
     async function loadProgramList() {
         const list = document.getElementById('program-select-list');
         if (!list) return;
@@ -176,6 +184,7 @@ const Chat = (() => {
             } catch { return; }
         }
 
+        // Remove old dynamically added items
         list.querySelectorAll('.dynamic-prog-item').forEach(el => el.remove());
 
         progs.forEach(p => {
@@ -183,33 +192,40 @@ const Chat = (() => {
             item.className = 'program-select-item dynamic-prog-item';
             item.dataset.id = p.id;
             item.innerHTML = `
-        <div class="psi-dot" style="background:${p.logo_color}"></div>
-        <div class="psi-text">
-          <span class="psi-name">${p.short_name}</span>
-          <span class="psi-sub">${p.program}</span>
-        </div>
-      `;
+                <div class="psi-dot" style="background:${p.logo_color}"></div>
+                <div class="psi-text">
+                    <span class="psi-name">${p.short_name}</span>
+                    <span class="psi-sub">${p.program}</span>
+                </div>
+            `;
             item.addEventListener('click', () => selectProgram(p.id));
             list.appendChild(item);
         });
 
+        // Bind the "General" item
         const generalItem = list.querySelector('[data-id=""]');
         if (generalItem) {
             generalItem.addEventListener('click', () => selectProgram(''));
         }
     }
 
-    // ── Select Program Context ────────────────────────────────────────────
+    // ── Select a program context ──────────────────────────────────────
     function selectProgram(programId) {
         selectedProgramId = programId;
         document.querySelectorAll('.program-select-item').forEach(item => {
             item.classList.toggle('active', item.dataset.id === programId);
         });
+
+        // Hide compression box when switching to general
+        if (!programId) {
+            const box = document.getElementById('compression-badge-box');
+            if (box) box.style.display = 'none';
+        }
     }
 
-    // ── Auto-resize textarea ──────────────────────────────────────────────
+    // ── Auto-resize textarea ──────────────────────────────────────────
     function bindInputAutoResize() {
-        const textarea = document.getElementById('chat-input');
+        const textarea  = document.getElementById('chat-input');
         const charCount = document.getElementById('char-count');
         if (!textarea) return;
 
@@ -227,7 +243,7 @@ const Chat = (() => {
         });
     }
 
-    // ── Init ──────────────────────────────────────────────────────────────
+    // ── Init ──────────────────────────────────────────────────────────
     function init() {
         if (!initialized) {
             initialized = true;
@@ -237,5 +253,5 @@ const Chat = (() => {
         loadProgramList();
     }
 
-    return { init, send, selectProgram };
+    return { init, send, sendQuick, selectProgram };
 })();
