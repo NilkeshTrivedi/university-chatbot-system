@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AdmissAI – College Admissions Assistant</title>
+  <meta name="description" content="AI-powered college admissions assistant. Navigate program requirements, essays, and deadlines with intelligent guidance and Scaledown-compressed insights." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/static/css/main.css" />
+</head>
+<body>
+
+  <!-- ══ NAVBAR ══════════════════════════════════════════════════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <div class="nav-logo">
+        <div class="logo-icon">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div class="logo-text">
+          <span class="logo-brand">AdmissAI</span>
+          <span class="logo-tagline">College Admissions Assistant</span>
+        </div>
+      </div>
+
+      <div class="nav-tabs" id="nav-tabs">
+        <button class="nav-tab active" data-page="dashboard" id="tab-dashboard">
+          <i class="fa-solid fa-gauge-high"></i>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-tab" data-page="programs" id="tab-programs">
+          <i class="fa-solid fa-university"></i>
+          <span>Programs</span>
+        </button>
+        <button class="nav-tab" data-page="chat" id="tab-chat">
+          <i class="fa-solid fa-comments"></i>
+          <span>AI Chat</span>
+          <span class="nav-badge" id="chat-badge" style="display:none"></span>
+        </button>
+        <button class="nav-tab" data-page="checklist" id="tab-checklist">
+          <i class="fa-solid fa-list-check"></i>
+          <span>Checklist</span>
+        </button>
+      </div>
+
+      <div class="nav-right">
+        <div class="compression-pill" id="nav-compression-pill">
+          <i class="fa-solid fa-bolt"></i>
+          <span id="nav-tokens-saved">0</span> tokens saved
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══ MAIN ════════════════════════════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- ── PAGE: DASHBOARD ──────────────────────────────────────────── -->
+    <section class="page active" id="page-dashboard">
+
+      <!-- Hero -->
+      <div class="hero">
+        <div class="hero-mesh"></div>
+        <div class="hero-content">
+          <div class="hero-badge">
+            <i class="fa-solid fa-sparkles"></i> AI-Powered · Scaledown Compressed
+          </div>
+          <h1 class="hero-title">
+            Your Path to <span class="hero-gradient">Top Universities</span><br/>
+            Starts Here
+          </h1>
+          <p class="hero-subtitle">
+            Navigate admissions requirements, craft standout essays, and track every deadline —
+            all powered by advanced AI with <em>Scaledown smart compression</em> for blazing-fast insights.
+          </p>
+          <div class="hero-actions">
+            <button class="btn btn-primary btn-lg" onclick="App.navigate('programs')">
+              <i class="fa-solid fa-university"></i> Explore Programs
+            </button>
+            <button class="btn btn-ghost btn-lg" onclick="App.navigate('chat')">
+              <i class="fa-solid fa-comments"></i> Ask AI Advisor
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-stats-row">
+          <div class="hero-stat">
+            <div class="stat-number" id="stat-programs">8</div>
+            <div class="stat-label">Top Programs</div>
+          </div>
+          <div class="hero-stat">
+            <div class="stat-number count-up" data-target="47" id="stat-compression">47%</div>
+            <div class="stat-label">Avg. Token Reduction</div>
+          </div>
+          <div class="hero-stat">
+            <div class="stat-number count-up" data-target="1240" id="stat-tokens">1,240</div>
+            <div class="stat-label">Tokens Saved This Session</div>
+          </div>
+          <div class="hero-stat">
+            <div class="stat-number">Real-time</div>
+            <div class="stat-label">AI Guidance</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Body -->
+      <div class="dashboard-grid">
+
+        <!-- Compression Meter -->
+        <div class="card card-glass compression-card">
+          <div class="card-header">
+            <div class="card-icon icon-purple">
+              <i class="fa-solid fa-compress-arrows-alt"></i>
+            </div>
+            <div>
+              <h3 class="card-title">Scaledown Compression</h3>
+              <p class="card-subtitle">Token efficiency powered by Scaledown API</p>
+            </div>
+          </div>
+          <div class="compression-meter-wrap">
+            <div class="meter-ring" id="meter-ring">
+              <svg viewBox="0 0 120 120">
+                <circle class="ring-bg" cx="60" cy="60" r="52" />
+                <circle class="ring-fill" id="ring-fill" cx="60" cy="60" r="52"
+                  stroke-dasharray="326.7"
+                  stroke-dashoffset="326.7" />
+              </svg>
+              <div class="meter-label">
+                <span class="meter-value" id="meter-value">0%</span>
+                <span class="meter-sub">compressed</span>
+              </div>
+            </div>
+            <div class="meter-stats">
+              <div class="mstat">
+                <span class="mstat-val" id="ms-original">—</span>
+                <span class="mstat-lab">Original Tokens</span>
+              </div>
+              <div class="mstat">
+                <span class="mstat-val" id="ms-compressed">—</span>
+                <span class="mstat-lab">Compressed Tokens</span>
+              </div>
+              <div class="mstat">
+                <span class="mstat-val" id="ms-saved">—</span>
+                <span class="mstat-lab">Tokens Saved</span>
+              </div>
+              <div class="mstat">
+                <span class="mstat-val" id="ms-provider">—</span>
+                <span class="mstat-lab">Provider</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-secondary" id="demo-compress-btn">
+            <i class="fa-solid fa-play"></i> Run Sample Compression
+          </button>
+        </div>
+
+        <!-- Quick Start Programs -->
+        <div class="card card-glass">
+          <div class="card-header">
+            <div class="card-icon icon-blue">
+              <i class="fa-solid fa-fire-flame-curved"></i>
+            </div>
+            <div>
+              <h3 class="card-title">Featured Programs</h3>
+              <p class="card-subtitle">Most competitive this cycle</p>
+            </div>
+          </div>
+          <div class="quick-programs" id="quick-programs">
+            <div class="loading-row">
+              <div class="skeleton skeleton-line"></div>
+              <div class="skeleton skeleton-line w70"></div>
+              <div class="skeleton skeleton-line w85"></div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-ghost" onclick="App.navigate('programs')">
+            View All Programs <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- How it works -->
+        <div class="card card-glass how-card">
+          <div class="card-header">
+            <div class="card-icon icon-green">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div>
+              <h3 class="card-title">How AdmissAI Works</h3>
+              <p class="card-subtitle">Your 4-step admissions journey</p>
+            </div>
+          </div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">01</div>
+              <div class="step-desc">
+                <strong>Explore Programs</strong>
+                <span>Browse 8 top university programs with full requirements</span>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">02</div>
+              <div class="step-desc">
+                <strong>Scaledown Compresses Context</strong>
+                <span>Program guidelines are compressed 40–50% before AI processes them</span>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">03</div>
+              <div class="step-desc">
+                <strong>Ask Your AI Advisor</strong>
+                <span>Get personalized, school-specific admissions guidance</span>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">04</div>
+              <div class="step-desc">
+                <strong>Track with Checklist</strong>
+                <span>Never miss a deadline with your interactive to-do list</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Ask -->
+        <div class="card card-glass quick-ask-card">
+          <div class="card-header">
+            <div class="card-icon icon-orange">
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div>
+              <h3 class="card-title">Quick Ask</h3>
+              <p class="card-subtitle">Instant AI answers</p>
+            </div>
+          </div>
+          <div class="quick-prompts">
+            <button class="quick-prompt" data-q="What GPA do I need for MIT Computer Science?">
+              <i class="fa-solid fa-graduation-cap"></i> GPA for MIT CS?
+            </button>
+            <button class="quick-prompt" data-q="How do I write a strong personal statement for Stanford?">
+              <i class="fa-solid fa-pen-nib"></i> Stanford essay tips?
+            </button>
+            <button class="quick-prompt" data-q="What are the key application deadlines I need to know?">
+              <i class="fa-regular fa-calendar"></i> Key deadlines?
+            </button>
+            <button class="quick-prompt" data-q="How important are recommendation letters and who should I ask?">
+              <i class="fa-solid fa-envelope-open-text"></i> Recommendation letters?
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── PAGE: PROGRAMS ──────────────────────────────────────────────── -->
+    <section class="page" id="page-programs">
+      <div class="page-header">
+        <h2 class="page-title">Program Explorer</h2>
+        <p class="page-desc">Browse top university programs. Click any card for full requirements — Scaledown-compressed for your AI advisor.</p>
+      </div>
+
+      <div class="programs-toolbar">
+        <div class="search-box">
+          <i class="fa-solid fa-search"></i>
+          <input type="text" id="programs-search" placeholder="Search universities or programs…" />
+        </div>
+        <div class="category-filters" id="category-filters">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+
+      <div class="programs-grid" id="programs-grid">
+        <!-- Skeletons -->
+        <div class="program-card skeleton-card"><div class="skeleton sk-full"></div></div>
+        <div class="program-card skeleton-card"><div class="skeleton sk-full"></div></div>
+        <div class="program-card skeleton-card"><div class="skeleton sk-full"></div></div>
+        <div class="program-card skeleton-card"><div class="skeleton sk-full"></div></div>
+      </div>
+
+      <!-- Program Detail Drawer -->
+      <div class="detail-overlay" id="detail-overlay"></div>
+      <div class="detail-drawer" id="detail-drawer">
+        <button class="drawer-close" id="drawer-close"><i class="fa-solid fa-xmark"></i></button>
+        <div class="drawer-content" id="drawer-content"><!-- Filled by JS --></div>
+      </div>
+    </section>
+
+    <!-- ── PAGE: CHAT ──────────────────────────────────────────────────── -->
+    <section class="page" id="page-chat">
+      <div class="chat-layout">
+
+        <!-- Sidebar -->
+        <div class="chat-sidebar">
+          <div class="sidebar-header">
+            <h3>Context</h3>
+            <p>Select a program for tailored advice</p>
+          </div>
+          <div class="program-select-list" id="program-select-list">
+            <div class="program-select-item active" data-id="">
+              <div class="psi-dot" style="background:#6366f1"></div>
+              <div class="psi-text">
+                <span class="psi-name">General Admissions</span>
+                <span class="psi-sub">No specific program context</span>
+              </div>
+            </div>
+            <!-- Filled by JS -->
+          </div>
+          <div class="compression-badge-box" id="compression-badge-box" style="display:none">
+            <div class="cb-header">
+              <i class="fa-solid fa-bolt"></i> Last Compression
+            </div>
+            <div class="cb-stats" id="cb-stats"></div>
+          </div>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="chat-window">
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-welcome">
+              <div class="welcome-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+              </div>
+              <h3>Welcome to AdmissAI</h3>
+              <p>Your AI-powered college admissions counselor. Ask me anything about applications, essays, requirements, or strategy.</p>
+              <p class="welcome-sub">Program context is <strong>Scaledown-compressed</strong> before being sent to the AI — saving tokens on every message.</p>
+            </div>
+          </div>
+
+          <div class="typing-indicator" id="typing-indicator" style="display:none">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+
+          <div class="chat-input-area">
+            <div class="chat-input-wrap">
+              <textarea
+                id="chat-input"
+                placeholder="Ask about requirements, essays, deadlines, strategy…"
+                rows="1"
+                maxlength="2000"
+              ></textarea>
+              <button class="send-btn" id="send-btn">
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            </div>
+            <div class="chat-input-meta">
+              <span id="char-count">0 / 2000</span>
+              <span>Press <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── PAGE: CHECKLIST ────────────────────────────────────────────── -->
+    <section class="page" id="page-checklist">
+      <div class="page-header">
+        <h2 class="page-title">Application Checklist</h2>
+        <p class="page-desc">Track every step of your application. Your progress is saved automatically.</p>
+      </div>
+
+      <div class="checklist-program-select">
+        <label>Select Program:</label>
+        <div class="cl-select-wrap">
+          <select id="checklist-program-select">
+            <option value="">Choose a program…</option>
+          </select>
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+      </div>
+
+      <div class="checklist-body" id="checklist-body">
+        <div class="checklist-empty">
+          <i class="fa-solid fa-list-check"></i>
+          <h3>Select a program above to load your checklist</h3>
+          <p>We'll show you every step you need to complete, organized by category.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══ TOAST ════════════════════════════════════════════════════════════ -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/dashboard.js"></script>
+  <script src="/static/js/programs.js"></script>
+  <script src="/static/js/chat.js"></script>
+  <script src="/static/js/checklist.js"></script>
+
+</body>
+</html>
