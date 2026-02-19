@@ -1,6 +1,11 @@
 """
-AI service using Google Gemini to power the college admissions chatbot.
+AI service using Groq API to power the college admissions chatbot.
 Program guidelines are compressed via Scaledown before injecting into the prompt.
+
+HOW THE API KEY WORKS:
+  - You only need to put GROQ_API_KEY in your .env file
+  - python-dotenv loads it automatically when the app starts
+  - os.getenv("GROQ_API_KEY") reads it here — you never hardcode it anywhere
 """
 
 import os
@@ -12,16 +17,21 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
+# ── Try importing Groq ─────────────────────────────────────────────────────
 try:
-    import google.generativeai as genai
-    GEMINI_AVAILABLE = True
+    from groq import Groq
+    GROQ_AVAILABLE = True
 except ImportError:
-    GEMINI_AVAILABLE = False
+    GROQ_AVAILABLE = False
+    logger.warning("groq package not installed. Run: pip install groq")
 
-# FIX #9: Maximum history turns to send to Gemini.
-# The JS also slices to 12, but we enforce this server-side as well
-# to protect against direct API calls or future client changes.
-MAX_HISTORY_TURNS = 12
+# ── Model to use ───────────────────────────────────────────────────────────
+# Groq's fastest & free models (pick one):
+#   "llama3-8b-8192"       → fastest, good quality
+#   "llama3-70b-8192"      → slower, better quality
+#   "mixtral-8x7b-32768"   → large context window
+#   "gemma2-9b-it"         → Google's Gemma via Groq
+GROQ_MODEL = "llama3-8b-8192"
 
 SYSTEM_PROMPT = """You are AdmissAI, an expert college admissions counselor assistant. 
 You help students navigate the college application process with confidence and clarity.
@@ -47,7 +57,7 @@ Guidelines:
 
 def chat(message: str, history: list, program_context: str = None) -> dict:
     """
-    Generate an AI response to the student's message.
+    Generate an AI response to the student's message using Groq.
 
     Args:
         message: The student's current message.
@@ -61,12 +71,11 @@ def chat(message: str, history: list, program_context: str = None) -> dict:
             "model_used": str
         }
     """
-    api_key = os.getenv("AIzaSyCefAAyO_im0GXDeZ6AOl3knhHLsi90IMo", "")
+    # ── Read API key from environment (set once in .env, never hardcode) ──
+    api_key = os.getenv("GROQ_API_KEY", "")
+
     compression_stats = None
     context_to_inject = ""
-
-    # FIX #9: Enforce history limit server-side regardless of what the client sends.
-    history = history[-MAX_HISTORY_TURNS:]
 
     # ── Compress program context via Scaledown ─────────────────────────────
     if program_context:
@@ -79,47 +88,70 @@ def chat(message: str, history: list, program_context: str = None) -> dict:
             "provider": result["provider"],
         }
         context_to_inject = f"""
---- Program Requirements Context (Scaledown compressed: {result['compression_ratio']*100:.1f}% reduction) ---
+--- Program Requirements Context (compressed {result['compression_ratio']*100:.1f}% via Scaledown) ---
 {result['compressed_text']}
 ---
 """
 
+    # Build the full system prompt (with optional program context appended)
     full_system = SYSTEM_PROMPT
     if context_to_inject:
         full_system += f"\n\nCONTEXT FOR THIS CONVERSATION:\n{context_to_inject}"
 
-    if GEMINI_AVAILABLE and api_key and not api_key.startswith("your-gemini"):
+    # ── Try Groq API ───────────────────────────────────────────────────────
+    if GROQ_AVAILABLE and api_key and not api_key.startswith("gsk_your"):
         try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel(
-                model_name="gemini-2.0-flash",
-                system_instruction=full_system,
+            client = Groq(api_key=api_key)
+
+            # Build messages array for Groq (OpenAI-compatible format)
+            # Structure: [system] + [history turns] + [current user message]
+            messages = [{"role": "system", "content": full_system}]
+
+            # Add conversation history (skip last item if it's the current message)
+            for turn in history:
+                role = turn.get("role", "user")
+                content = turn.get("content", "")
+                # Groq only accepts "user" or "assistant" roles
+                if role in ("user", "assistant") and content:
+                    messages.append({"role": role, "content": content})
+
+            # Add the current user message
+            messages.append({"role": "user", "content": message})
+
+            response = client.chat.completions.create(
+                model=GROQ_MODEL,
+                messages=messages,
+                max_tokens=1024,
+                temperature=0.7,
             )
 
-            # Build Gemini history format
-            gemini_history = []
-            for turn in history:
-                role = "user" if turn["role"] == "user" else "model"
-                gemini_history.append({"role": role, "parts": [turn["content"]]})
-
-            chat_session = model.start_chat(history=gemini_history)
-            response = chat_session.send_message(message)
-            reply = response.text
+            reply = response.choices[0].message.content
 
             return {
                 "reply": reply,
                 "compression_stats": compression_stats,
-                "model_used": "gemini-1.5-flash",
+                "model_used": f"groq/{GROQ_MODEL}",
             }
+
         except Exception as e:
-            logger.error(f"Gemini API error: {e}")
+            logger.error(f"Groq API error: {e}")
+            # Show real error in debug mode so you can fix it
+            if os.getenv("FLASK_DEBUG", "0") == "1":
+                return {
+                    "reply": f"⚠️ Groq API Error: {str(e)}\n\nCheck your GROQ_API_KEY in the .env file.",
+                    "compression_stats": compression_stats,
+                    "model_used": "error",
+                }
             return {
                 "reply": _fallback_response(message, program_context),
                 "compression_stats": compression_stats,
                 "model_used": "fallback",
             }
 
-    # ── Demo fallback if no API key configured ─────────────────────────────
+    # ── No API key configured → show helpful message ───────────────────────
+    if not api_key or api_key.startswith("gsk_your"):
+        logger.warning("GROQ_API_KEY not set or still has placeholder value in .env")
+
     return {
         "reply": _fallback_response(message, program_context),
         "compression_stats": compression_stats,
@@ -128,7 +160,7 @@ def chat(message: str, history: list, program_context: str = None) -> dict:
 
 
 def _fallback_response(message: str, program_context: str = None) -> str:
-    """Smart rule-based fallback when Gemini API is unavailable."""
+    """Smart rule-based fallback when Groq API is unavailable."""
     message_lower = message.lower()
 
     if any(kw in message_lower for kw in ["gpa", "grade"]):
@@ -202,5 +234,5 @@ def _fallback_response(message: str, program_context: str = None) -> str:
             "- 💡 **School-specific advice** – Tailored to your dream schools\n\n"
             "What would you like to explore first? Select a program from the Programs tab "
             "or ask me anything about the admissions process! 🚀\n\n"
-            "*(To get AI-powered responses, add your Gemini API key to the `.env` file.)*"
+            "*(To get AI-powered responses, add your Groq API key to the `.env` file as GROQ_API_KEY)*"
         )

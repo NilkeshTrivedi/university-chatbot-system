@@ -1,8 +1,6 @@
 flask==3.0.0
 flask-cors==4.0.0
 python-dotenv==1.0.0
-google-generativeai==0.8.3
-# FIX #16: Pin scaledown to a specific version to prevent breaking changes.
-# Update this version after verifying the latest stable release.
-scaledown==1.0.0
+groq==0.9.0
 requests==2.31.0
+# scaledown   ← uncomment if you have a real scaledown API key
