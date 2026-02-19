@@ -7,10 +7,8 @@ from flask import Flask, render_template
 from flask_cors import CORS
 from dotenv import load_dotenv
 
-# Load env before anything else
 load_dotenv()
 
-# ── Import Blueprints ──────────────────────────────────────────────────────
 from routes.chat import chat_bp
 from routes.programs import programs_bp
 from routes.compress import compress_bp
@@ -23,26 +21,19 @@ def create_app() -> Flask:
         template_folder="templates",
         static_folder="static",
     )
+    app.config["JSON_SORT_KEYS"] = False
 
-    # FIX #17: Flask 3.x removed JSON_SORT_KEYS from app.config.
-    # Use app.json.sort_keys instead.
-    app.json.sort_keys = False
-
-    # CORS for all /api/* routes
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-    # Register blueprints
     app.register_blueprint(chat_bp)
     app.register_blueprint(programs_bp)
     app.register_blueprint(compress_bp)
     app.register_blueprint(checklist_bp)
 
-    # Health check
     @app.route("/api/health")
     def health():
         return {"status": "ok", "service": "College Admissions Assistant API"}, 200
 
-    # Serve the SPA for all non-API routes
     @app.route("/", defaults={"path": ""})
     @app.route("/<path:path>")
     def serve_spa(path):

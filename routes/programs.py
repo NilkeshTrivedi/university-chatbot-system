@@ -34,7 +34,6 @@ def get_program_detail(program_id):
     if not program:
         return jsonify({"error": "Program not found"}), 404
 
-    # Compress the full context text and include it
     context_text = get_program_context_text(program_id)
     compression_result = compress(context_text)
 

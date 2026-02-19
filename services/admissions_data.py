@@ -1,6 +1,5 @@
 """
 Curated admissions data for top university programs.
-Used as context for AI compression and Q&A.
 """
 
 PROGRAMS = {
@@ -240,7 +239,6 @@ PROGRAMS = {
             "recommendations": "2 teacher recommendations (Math + CS/Science preferred) + counselor.",
             "extracurriculars": "Competitive programming, open-source contributions, hackathons, research, personal app/game development.",
             "interviews": "CMU does not typically offer undergraduate interviews.",
-            "international": "TOEFL iBT 102+ or IELTS 7.5+ recommended.",
         },
         "tips": [
             "CMU SCS is hyper-competitive — demonstrate extraordinary CS ability.",
@@ -290,7 +288,6 @@ PROGRAMS = {
             "recommendations": "1 academic reference through UCAS.",
             "extracurriculars": "Mooting, debate, law work experience, legal aid volunteering, reading legal journals.",
             "interviews": "Shortlisted candidates interviewed at Oxford in December (2 interviews typical).",
-            "international": "IELTS 7.5+ (with no component below 7.0) or equivalent required for non-native English speakers.",
         },
         "tips": [
             "LNAT is the single biggest factor after grades — practice extensively.",
@@ -339,8 +336,6 @@ PROGRAMS = {
             ],
             "recommendations": "2 teacher recommendations + counselor recommendation.",
             "extracurriculars": "Research, economics competitions, Model UN, policy writing, internships.",
-            "interviews": "Columbia does not offer admission interviews.",
-            "international": "TOEFL iBT 100+ or IELTS 7.0+ recommended.",
         },
         "tips": [
             "Columbia's Core Curriculum is central — show genuine interest in broad liberal arts.",
@@ -389,9 +384,6 @@ PROGRAMS = {
             ],
             "recommendations": "2 teacher recommendations (Physics + Math required).",
             "extracurriculars": "Physics Olympiad (IPhO/USAPhO), research publications, science fairs (ISEF).",
-            # FIX #12: Added missing interviews and international fields for Caltech.
-            "interviews": "Caltech does not offer formal undergraduate admission interviews.",
-            "international": "TOEFL iBT 100+ or IELTS 7.0+ required for non-native English speakers.",
         },
         "tips": [
             "Caltech wants pure scientific curiosity — show you do physics for the love of it.",
@@ -419,8 +411,8 @@ PROGRAMS = {
 
 CATEGORIES = ["All", "Technology", "Medicine", "Business", "Law", "Science", "Social Sciences"]
 
+
 def get_all_programs():
-    """Return list of all programs with summary fields."""
     return [
         {
             "id": p["id"],
@@ -438,19 +430,20 @@ def get_all_programs():
         for p in PROGRAMS.values()
     ]
 
+
 def get_program(program_id):
     return PROGRAMS.get(program_id)
 
+
 def get_program_context_text(program_id):
-    """Return full program description as text for AI context / compression."""
     p = PROGRAMS.get(program_id)
     if not p:
         return ""
-    reqs = p["requirements"]
+    reqs   = p["requirements"]
     essays = "\n    - ".join(reqs.get("essays", []))
-    tips = "\n    - ".join(p.get("tips", []))
+    tips   = "\n    - ".join(p.get("tips", []))
     mistakes = "\n    - ".join(p.get("common_mistakes", []))
-    text = f"""
+    return f"""
 UNIVERSITY: {p['university']}
 PROGRAM: {p['program']}
 ACCEPTANCE RATE: {p['acceptance_rate']}
@@ -463,7 +456,6 @@ REQUIREMENTS:
 - Recommendations: {reqs.get('recommendations', 'N/A')}
 - Extracurriculars: {reqs.get('extracurriculars', 'N/A')}
 - Interviews: {reqs.get('interviews', 'No interviews offered')}
-- International Students: {reqs.get('international', 'N/A')}
 
 APPLICATION TIPS:
     - {tips}
@@ -475,4 +467,3 @@ DEADLINE: {p['application_deadline']}
 DECISION DATE: {p['decision_date']}
 APPLICATION FEE: {p['application_fee']}
 """.strip()
-    return text
