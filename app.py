@@ -23,7 +23,10 @@ def create_app() -> Flask:
         template_folder="templates",
         static_folder="static",
     )
-    app.config["JSON_SORT_KEYS"] = False
+
+    # FIX #17: Flask 3.x removed JSON_SORT_KEYS from app.config.
+    # Use app.json.sort_keys instead.
+    app.json.sort_keys = False
 
     # CORS for all /api/* routes
     CORS(app, resources={r"/api/*": {"origins": "*"}})

@@ -63,7 +63,12 @@ def compress(text: str, ratio: float = 0.5) -> dict:
                 "provider": "scaledown",
             }
         except Exception as e:
-            logger.error(f"Scaledown compression failed: {e}. Falling back.")
+            # FIX #2: Log the specific exception class so API mismatches are visible.
+            logger.error(
+                "Scaledown compression failed (%s: %s). Falling back to local compressor.",
+                type(e).__name__,
+                e,
+            )
 
     # ── Fallback: intelligent text shortening ──────────────────────────────
     compressed_text = _fallback_compress(text, ratio)
@@ -94,7 +99,11 @@ def _fallback_compress(text: str, ratio: float) -> str:
     Intelligent fallback compression:
     - Remove duplicate whitespace
     - Abbreviate common long phrases
-    - Trim redundant connective words
+
+    FIX #3: Removed the hard truncation that was silently cutting structured
+    content (program requirements). The AI needs the full context to give
+    accurate answers. Abbreviations alone reduce tokens meaningfully without
+    destroying information.
     """
     import re
 
@@ -112,6 +121,9 @@ def _fallback_compress(text: str, ratio: float) -> str:
         "strongly recommended": "strongly rec.",
         "is required": "required",
         "is not required": "not required",
+        "highly recommended": "highly rec.",
+        "competitive programming": "comp. prog.",
+        "research experience": "research exp.",
     }
 
     result = text
@@ -120,14 +132,9 @@ def _fallback_compress(text: str, ratio: float) -> str:
 
     # Remove multiple blank lines
     result = re.sub(r"\n{3,}", "\n\n", result)
-    # Remove trailing spaces
+    # Remove trailing spaces on each line
     result = re.sub(r"[ \t]+\n", "\n", result)
     # Collapse multiple spaces
     result = re.sub(r" {2,}", " ", result)
-
-    # If we're still well above the target length, truncate the trailing portion
-    target_len = int(len(text) * (1 - ratio + 0.15))
-    if len(result) > target_len:
-        result = result[:target_len].rsplit("\n", 1)[0] + "\n[...compressed]"
 
     return result.strip()

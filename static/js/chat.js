@@ -12,7 +12,6 @@ const Chat = (() => {
     function renderMessage(role, content, compressionStats = null, scrollSmooth = true) {
         const container = document.getElementById('chat-messages');
 
-        // Remove welcome screen on first message
         const welcome = container.querySelector('.chat-welcome');
         if (welcome) welcome.remove();
 
@@ -30,7 +29,6 @@ const Chat = (() => {
         </div>`;
         }
 
-        // Convert basic markdown to HTML
         const formattedContent = formatMarkdown(content);
 
         const msgEl = document.createElement('div');
@@ -54,25 +52,48 @@ const Chat = (() => {
     }
 
     // ── Markdown Formatter ────────────────────────────────────────────────
+    // FIX #7: Rewrote list handling to correctly separate bullet <ul> from
+    // numbered <ol> lists, and avoid the greedy regex swallowing non-list content.
     function formatMarkdown(text) {
-        return text
-            // Bold
+        // Step 1: apply inline formatting
+        let result = text
             .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-            // Italic
             .replace(/\*(.+?)\*/g, '<em>$1</em>')
-            // Inline code
             .replace(/`(.+?)`/g, '<code>$1</code>')
-            // Headers
             .replace(/^### (.+)$/gm, '<h4 style="margin:10px 0 4px;color:var(--text-primary)">$1</h4>')
             .replace(/^## (.+)$/gm, '<h3 style="margin:12px 0 6px;color:var(--text-primary)">$1</h3>')
-            // Horizontal rule
-            .replace(/^---$/gm, '<hr style="border-color:rgba(255,255,255,0.08);margin:10px 0">')
-            // Bullet lists
-            .replace(/^[\-\*] (.+)$/gm, '<li>$1</li>')
-            .replace(/(<li>.*<\/li>[\s\S]*?)+/g, m => `<ul>${m}</ul>`)
-            // Numbered lists
-            .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-            // Line breaks
+            .replace(/^---$/gm, '<hr style="border-color:rgba(255,255,255,0.08);margin:10px 0">');
+
+        // Step 2: convert lists line-by-line to avoid cross-contamination
+        const lines = result.split('\n');
+        const output = [];
+        let inUl = false;
+        let inOl = false;
+
+        for (const line of lines) {
+            const bulletMatch = line.match(/^[\-\*] (.+)$/);
+            const numberedMatch = line.match(/^\d+\. (.+)$/);
+
+            if (bulletMatch) {
+                if (inOl) { output.push('</ol>'); inOl = false; }
+                if (!inUl) { output.push('<ul>'); inUl = true; }
+                output.push(`<li>${bulletMatch[1]}</li>`);
+            } else if (numberedMatch) {
+                if (inUl) { output.push('</ul>'); inUl = false; }
+                if (!inOl) { output.push('<ol>'); inOl = true; }
+                output.push(`<li>${numberedMatch[1]}</li>`);
+            } else {
+                if (inUl) { output.push('</ul>'); inUl = false; }
+                if (inOl) { output.push('</ol>'); inOl = false; }
+                output.push(line);
+            }
+        }
+        if (inUl) output.push('</ul>');
+        if (inOl) output.push('</ol>');
+
+        // Step 3: paragraph and line break handling
+        return output
+            .join('\n')
             .replace(/\n{2,}/g, '</p><p>')
             .replace(/\n/g, '<br>');
     }
@@ -93,11 +114,9 @@ const Chat = (() => {
         renderMessage('user', message);
         history.push({ role: 'user', content: message });
 
-        // Show typing
         const typingEl = document.getElementById('typing-indicator');
         if (typingEl) typingEl.style.display = 'flex';
 
-        // Scroll into view
         const messagesEl = document.getElementById('chat-messages');
         if (messagesEl) messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
 
@@ -106,14 +125,13 @@ const Chat = (() => {
                 method: 'POST',
                 body: JSON.stringify({
                     message,
-                    history: history.slice(-12), // send last 12 turns for context
+                    history: history.slice(-12),
                     program_id: selectedProgramId || undefined,
                 }),
             });
 
             history.push({ role: 'assistant', content: response.reply });
 
-            // Update compression stats display
             if (response.compression_stats) {
                 updateCompressionBadge(response.compression_stats);
                 App.addTokensSaved(response.compression_stats.tokens_saved ?? 0);
@@ -158,7 +176,6 @@ const Chat = (() => {
             } catch { return; }
         }
 
-        // Remove existing dynamic items
         list.querySelectorAll('.dynamic-prog-item').forEach(el => el.remove());
 
         progs.forEach(p => {
@@ -176,7 +193,6 @@ const Chat = (() => {
             list.appendChild(item);
         });
 
-        // Bind "General" item
         const generalItem = list.querySelector('[data-id=""]');
         if (generalItem) {
             generalItem.addEventListener('click', () => selectProgram(''));

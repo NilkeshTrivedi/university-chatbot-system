@@ -9,13 +9,12 @@ const App = (() => {
     programs: [],
     totalTokensSaved: 0,
     chatHistory: [],
-    selectedProgram: null,   // for chat context
+    selectedProgram: null,
     checklistProgram: null,
   };
 
   // ── Navigation ───────────────────────────────────────────────────────
   function navigate(page) {
-    // Hide all pages
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
 
@@ -27,13 +26,11 @@ const App = (() => {
 
     state.currentPage = page;
 
-    // Trigger page-specific init
     if (page === 'programs' && typeof Programs !== 'undefined') Programs.init();
     if (page === 'chat'     && typeof Chat     !== 'undefined') Chat.init();
     if (page === 'checklist'&& typeof Checklist!== 'undefined') Checklist.init();
     if (page === 'dashboard'&& typeof Dashboard!== 'undefined') Dashboard.init();
 
-    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -91,10 +88,15 @@ const App = (() => {
         navigate('chat');
         setTimeout(() => {
           const input = document.getElementById('chat-input');
-          if (input) {
+          // FIX #10: Guard against Chat module not being available (e.g. script load failure).
+          if (input && typeof Chat !== 'undefined') {
             input.value = q;
             input.dispatchEvent(new Event('input'));
             Chat.send();
+          } else if (!input) {
+            console.warn('AdmissAI: chat-input element not found.');
+          } else {
+            console.warn('AdmissAI: Chat module not loaded. Cannot send quick prompt.');
           }
         }, 200);
       });
@@ -105,10 +107,12 @@ const App = (() => {
   function init() {
     bindNav();
 
-    // Wait for all JS to load before binding prompts
     window.addEventListener('load', () => {
       bindQuickPrompts();
-      Dashboard.init();
+      // FIX #10: Guard Dashboard reference for consistency.
+      if (typeof Dashboard !== 'undefined') {
+        Dashboard.init();
+      }
     });
   }
 
@@ -116,5 +120,4 @@ const App = (() => {
   return { navigate, toast, api, state, addTokensSaved, init };
 })();
 
-// Kick off on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => App.init());

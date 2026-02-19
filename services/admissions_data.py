@@ -240,6 +240,7 @@ PROGRAMS = {
             "recommendations": "2 teacher recommendations (Math + CS/Science preferred) + counselor.",
             "extracurriculars": "Competitive programming, open-source contributions, hackathons, research, personal app/game development.",
             "interviews": "CMU does not typically offer undergraduate interviews.",
+            "international": "TOEFL iBT 102+ or IELTS 7.5+ recommended.",
         },
         "tips": [
             "CMU SCS is hyper-competitive — demonstrate extraordinary CS ability.",
@@ -289,6 +290,7 @@ PROGRAMS = {
             "recommendations": "1 academic reference through UCAS.",
             "extracurriculars": "Mooting, debate, law work experience, legal aid volunteering, reading legal journals.",
             "interviews": "Shortlisted candidates interviewed at Oxford in December (2 interviews typical).",
+            "international": "IELTS 7.5+ (with no component below 7.0) or equivalent required for non-native English speakers.",
         },
         "tips": [
             "LNAT is the single biggest factor after grades — practice extensively.",
@@ -337,6 +339,8 @@ PROGRAMS = {
             ],
             "recommendations": "2 teacher recommendations + counselor recommendation.",
             "extracurriculars": "Research, economics competitions, Model UN, policy writing, internships.",
+            "interviews": "Columbia does not offer admission interviews.",
+            "international": "TOEFL iBT 100+ or IELTS 7.0+ recommended.",
         },
         "tips": [
             "Columbia's Core Curriculum is central — show genuine interest in broad liberal arts.",
@@ -385,6 +389,9 @@ PROGRAMS = {
             ],
             "recommendations": "2 teacher recommendations (Physics + Math required).",
             "extracurriculars": "Physics Olympiad (IPhO/USAPhO), research publications, science fairs (ISEF).",
+            # FIX #12: Added missing interviews and international fields for Caltech.
+            "interviews": "Caltech does not offer formal undergraduate admission interviews.",
+            "international": "TOEFL iBT 100+ or IELTS 7.0+ required for non-native English speakers.",
         },
         "tips": [
             "Caltech wants pure scientific curiosity — show you do physics for the love of it.",
@@ -456,6 +463,7 @@ REQUIREMENTS:
 - Recommendations: {reqs.get('recommendations', 'N/A')}
 - Extracurriculars: {reqs.get('extracurriculars', 'N/A')}
 - Interviews: {reqs.get('interviews', 'No interviews offered')}
+- International Students: {reqs.get('international', 'N/A')}
 
 APPLICATION TIPS:
     - {tips}

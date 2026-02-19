@@ -12,7 +12,6 @@ const Checklist = (() => {
         if (!programId) return;
         currentProgramId = programId;
 
-        // Update select if visible
         const sel = document.getElementById('checklist-program-select');
         if (sel) sel.value = programId;
 
@@ -31,18 +30,30 @@ const Checklist = (() => {
         }
     }
 
-    // ── Get Saved State ───────────────────────────────────────────────────
+    // ── Get / Save State via localStorage ─────────────────────────────────
+    // FIX #4: Wrap the localStorage.getItem call itself inside the try block.
+    // In some browsers (private mode, strict security policies), accessing
+    // localStorage throws a SecurityError before .getItem is even called.
     function getState(programId) {
         try {
-            return JSON.parse(localStorage.getItem(`checklist_${programId}`) || '{}');
-        } catch { return {}; }
+            const raw = localStorage.getItem(`checklist_${programId}`);
+            return JSON.parse(raw || '{}');
+        } catch {
+            return {};
+        }
     }
 
     function saveState(programId, state) {
-        localStorage.setItem(`checklist_${programId}`, JSON.stringify(state));
+        try {
+            localStorage.setItem(`checklist_${programId}`, JSON.stringify(state));
+        } catch {
+            console.warn('Could not save checklist state to localStorage.');
+        }
     }
 
     // ── Render Checklist ──────────────────────────────────────────────────
+    // FIX #15: Removed inline onclick="Checklist.toggle(...)" from innerHTML.
+    // Uses event delegation on the container instead.
     function renderChecklist(data) {
         const body = document.getElementById('checklist-body');
         if (!body) return;
@@ -52,21 +63,18 @@ const Checklist = (() => {
         const total = data.total;
         const pct = total > 0 ? Math.round((totalDone / total) * 100) : 0;
 
-        // Group by category
         const categories = {};
         data.items.forEach(item => {
             if (!categories[item.category]) categories[item.category] = [];
             categories[item.category].push(item);
         });
 
-        // Deadline warning
         const deadlineHtml = `
       <div class="cl-deadline-warn">
         <i class="fa-regular fa-calendar"></i> Deadline: ${data.deadline}
       </div>`;
 
-        // Progress ring
-        const circumference = 201.1; // 2 * pi * 32
+        const circumference = 201.1;
         const offset = circumference - (pct / 100) * circumference;
 
         body.innerHTML = `
@@ -100,9 +108,7 @@ const Checklist = (() => {
               <span class="cl-cat-count">${items.length}</span>
             </div>
             ${items.map(item => `
-              <div class="cl-item ${state[item.id] ? 'done' : ''}"
-                   data-id="${item.id}"
-                   onclick="Checklist.toggle('${item.id}')">
+              <div class="cl-item ${state[item.id] ? 'done' : ''}" data-id="${item.id}">
                 <div class="cl-check">${state[item.id] ? '<i class="fa-solid fa-check"></i>' : ''}</div>
                 <span class="cl-task">${item.task}</span>
               </div>
@@ -111,6 +117,17 @@ const Checklist = (() => {
         `).join('')}
       </div>
     `;
+
+        // FIX #15: Single delegated listener — no inline onclick needed.
+        const categoriesEl = body.querySelector('#cl-categories');
+        if (categoriesEl) {
+            categoriesEl.addEventListener('click', (e) => {
+                const item = e.target.closest('.cl-item');
+                if (item && item.dataset.id) {
+                    toggle(item.dataset.id);
+                }
+            });
+        }
     }
 
     // ── Toggle a checklist item ───────────────────────────────────────────
@@ -121,7 +138,6 @@ const Checklist = (() => {
         state[itemId] = !state[itemId];
         saveState(currentProgramId, state);
 
-        // Update item UI
         const itemEl = document.querySelector(`.cl-item[data-id="${itemId}"]`);
         if (itemEl) {
             const isDone = state[itemId];
@@ -129,12 +145,10 @@ const Checklist = (() => {
             itemEl.querySelector('.cl-check').innerHTML = isDone ? '<i class="fa-solid fa-check"></i>' : '';
         }
 
-        // Recalculate progress
         const totalDone = Object.values(state).filter(Boolean).length;
         const total = checklistData.total;
         const pct = total > 0 ? Math.round((totalDone / total) * 100) : 0;
 
-        // Update ring
         const circumference = 201.1;
         const offset = circumference - (pct / 100) * circumference;
         const fill = document.getElementById('progress-ring-fill');
@@ -177,7 +191,6 @@ const Checklist = (() => {
             } catch { return; }
         }
 
-        // Clear old options (keep placeholder)
         sel.innerHTML = '<option value="">Choose a program…</option>';
         progs.forEach(p => {
             const opt = document.createElement('option');
@@ -199,8 +212,9 @@ const Checklist = (() => {
             const sel = document.getElementById('checklist-program-select');
             if (sel) {
                 sel.addEventListener('change', () => {
-                    if (sel.value) loadForProgram(sel.value);
-                    else {
+                    if (sel.value) {
+                        loadForProgram(sel.value);
+                    } else {
                         const body = document.getElementById('checklist-body');
                         if (body) body.innerHTML = `
               <div class="checklist-empty">

@@ -37,8 +37,9 @@
           <i class="fa-solid fa-gauge-high"></i>
           <span>Dashboard</span>
         </button>
+        <!-- FIX #14: fa-university is deprecated in FA 6; use fa-building-columns -->
         <button class="nav-tab" data-page="programs" id="tab-programs">
-          <i class="fa-solid fa-university"></i>
+          <i class="fa-solid fa-building-columns"></i>
           <span>Programs</span>
         </button>
         <button class="nav-tab" data-page="chat" id="tab-chat">
@@ -72,7 +73,8 @@
         <div class="hero-mesh"></div>
         <div class="hero-content">
           <div class="hero-badge">
-            <i class="fa-solid fa-sparkles"></i> AI-Powered · Scaledown Compressed
+            <!-- FIX #13: fa-sparkles is FA Pro only; use fa-wand-magic-sparkles (free) -->
+            <i class="fa-solid fa-wand-magic-sparkles"></i> AI-Powered · Scaledown Compressed
           </div>
           <h1 class="hero-title">
             Your Path to <span class="hero-gradient">Top Universities</span><br/>
@@ -84,7 +86,7 @@
           </p>
           <div class="hero-actions">
             <button class="btn btn-primary btn-lg" onclick="App.navigate('programs')">
-              <i class="fa-solid fa-university"></i> Explore Programs
+              <i class="fa-solid fa-building-columns"></i> Explore Programs
             </button>
             <button class="btn btn-ghost btn-lg" onclick="App.navigate('chat')">
               <i class="fa-solid fa-comments"></i> Ask AI Advisor
@@ -98,11 +100,13 @@
             <div class="stat-label">Top Programs</div>
           </div>
           <div class="hero-stat">
-            <div class="stat-number count-up" data-target="47" id="stat-compression">47%</div>
+            <div class="stat-number" id="stat-compression">47%</div>
             <div class="stat-label">Avg. Token Reduction</div>
           </div>
+          <!-- FIX #8: Start token counter at 0 to match App.state.totalTokensSaved initial value.
+               The old value of 1,240 was hardcoded/fake and diverged from actual session data. -->
           <div class="hero-stat">
-            <div class="stat-number count-up" data-target="1240" id="stat-tokens">1,240</div>
+            <div class="stat-number" id="stat-tokens">0</div>
             <div class="stat-label">Tokens Saved This Session</div>
           </div>
           <div class="hero-stat">

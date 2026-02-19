@@ -18,6 +18,11 @@ try:
 except ImportError:
     GEMINI_AVAILABLE = False
 
+# FIX #9: Maximum history turns to send to Gemini.
+# The JS also slices to 12, but we enforce this server-side as well
+# to protect against direct API calls or future client changes.
+MAX_HISTORY_TURNS = 12
+
 SYSTEM_PROMPT = """You are AdmissAI, an expert college admissions counselor assistant. 
 You help students navigate the college application process with confidence and clarity.
 
@@ -56,9 +61,12 @@ def chat(message: str, history: list, program_context: str = None) -> dict:
             "model_used": str
         }
     """
-    api_key = os.getenv("GEMINI_API_KEY", "")
+    api_key = os.getenv("AIzaSyCefAAyO_im0GXDeZ6AOl3knhHLsi90IMo", "")
     compression_stats = None
     context_to_inject = ""
+
+    # FIX #9: Enforce history limit server-side regardless of what the client sends.
+    history = history[-MAX_HISTORY_TURNS:]
 
     # ── Compress program context via Scaledown ─────────────────────────────
     if program_context:
@@ -84,7 +92,7 @@ def chat(message: str, history: list, program_context: str = None) -> dict:
         try:
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel(
-                model_name="gemini-1.5-flash",
+                model_name="gemini-2.0-flash",
                 system_instruction=full_system,
             )
 
