@@ -1,430 +1,2198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AdmissAI – College Admissions Assistant</title>
-  <meta name="description" content="AI-powered college admissions assistant. Navigate program requirements, essays, and deadlines with intelligent guidance." />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AdmissAI India — College Admissions Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Satoshi:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+/* ═══════════════════════════════════════════════════
+   DESIGN SYSTEM — Deep midnight, saffron spark
+   Fonts: Clash Display + Satoshi + JetBrains Mono
+   ═══════════════════════════════════════════════════ */
+:root{
+  --bg:#04070f;--bg1:#070c18;--bg2:#0a1020;--bg3:#0d1628;
+  --card:rgba(10,16,34,.9);--glass:rgba(255,255,255,.04);--glassH:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.07);--borderS:rgba(255,255,255,.13);
+  --p:#f97316;--pl:#fb923c;--pd:#ea580c;--pg:rgba(249,115,22,.2);
+  --b:#6366f1;--bl:#818cf8;--bd:#4f46e5;--bg_:rgba(99,102,241,.15);
+  --g:#22c55e;--gl:#4ade80;
+  --t:#f0f4ff;--t2:#8899bb;--t3:#3d5080;
+  --r:10px;--rl:16px;--rf:9999px;
+  --nav:64px;--tr:.18s cubic-bezier(.4,0,.2,1);
+  --fd:'Clash Display',sans-serif;
+  --fb:'Satoshi',sans-serif;
+  --fm:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--bg);color:var(--t);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--fd);line-height:1.15}
+p{line-height:1.7;color:var(--t2)}
+button{cursor:pointer;font-family:var(--fb)}
+input,textarea,select{font-family:var(--fb)}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--t3);border-radius:99px}
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+/* ── NAVBAR ─────────────────────────────────────────── */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav);z-index:900;
+  background:rgba(4,7,15,.88);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border)}
+.nav-in{max-width:1400px;margin:0 auto;height:100%;display:flex;align-items:center;gap:12px;padding:0 28px}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;text-decoration:none}
+.logo-mk{width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,var(--p),var(--b));
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:.85rem;
+  box-shadow:0 4px 18px var(--pg)}
+.logo-nm{font-family:var(--fd);font-size:1.05rem;font-weight:700;color:var(--t)}
+.logo-sub{font-size:.6rem;color:var(--pl);font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  background:rgba(249,115,22,.12);padding:2px 6px;border-radius:4px;margin-left:3px}
+.nav-links{display:flex;flex:1;gap:2px}
+.nb{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--r);
+  border:none;background:transparent;color:var(--t2);font-size:.8rem;font-weight:500;
+  transition:all var(--tr);white-space:nowrap}
+.nb:hover{color:var(--t);background:var(--glass)}
+.nb.on{color:var(--t);background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.18)}
+.nb.on i{color:var(--bl)}
+.nav-cta{display:flex;align-items:center;gap:7px;padding:8px 18px;border-radius:var(--rf);
+  border:none;background:linear-gradient(135deg,var(--p),var(--pd));
+  color:#fff;font-size:.8rem;font-weight:700;transition:all var(--tr);white-space:nowrap;
+  box-shadow:0 4px 16px var(--pg)}
+.nav-cta:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.hbg{display:none;background:none;border:none;color:var(--t2);font-size:1rem;padding:6px;margin-left:auto}
 
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+/* ── PAGE SYSTEM ────────────────────────────────────── */
+main{padding-top:var(--nav)}
+.page{display:none;animation:fadeUp .3s ease}
+.page.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="/static/css/main.css" />
+.ph{max-width:1280px;margin:0 auto;padding:44px 36px 24px}
+.ph h2{font-size:clamp(1.7rem,2.8vw,2.4rem);font-weight:700;color:var(--t);margin-bottom:8px}
+.ph p{font-size:.92rem;color:var(--t2);max-width:560px}
+
+/* toolbar */
+.tb{max-width:1280px;margin:0 auto;padding:0 36px 22px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.sw{display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:8px 13px;flex:1;max-width:320px;transition:border-color var(--tr)}
+.sw:focus-within{border-color:var(--b)}
+.sw i{color:var(--t3);font-size:.8rem}
+.sw input{background:none;border:none;outline:none;color:var(--t);font-size:.84rem;width:100%}
+.sw input::placeholder{color:var(--t3)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.ch{padding:6px 14px;border-radius:var(--rf);border:1px solid var(--border);background:transparent;
+  color:var(--t2);font-size:.75rem;font-weight:600;transition:all var(--tr)}
+.ch:hover{color:var(--t);border-color:var(--bl)}
+.ch.on{background:rgba(99,102,241,.1);border-color:var(--b);color:var(--bl)}
+
+/* ── CARDS GRID ─────────────────────────────────────── */
+.g3{max-width:1280px;margin:0 auto;padding:0 36px 80px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(296px,1fr));gap:16px}
+
+/* course card */
+.cc{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);
+  padding:20px;cursor:pointer;transition:all var(--tr);position:relative;overflow:hidden}
+.cc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--b),var(--p));opacity:0;transition:opacity var(--tr)}
+.cc:hover{border-color:var(--b);transform:translateY(-3px);box-shadow:0 8px 32px rgba(99,102,241,.14)}
+.cc:hover::after{opacity:1}
+.cc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.cc-ico{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:.95rem;color:#fff;flex-shrink:0}
+.badge{padding:3px 9px;border-radius:var(--rf);font-size:.65rem;font-weight:700;font-family:var(--fm)}
+.ug{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.pg{background:rgba(249,115,22,.1);color:var(--pl);border:1px solid rgba(249,115,22,.2)}
+.cc-nm{font-family:var(--fd);font-size:1rem;font-weight:700;color:var(--t);margin-bottom:2px}
+.cc-fn{font-size:.72rem;color:var(--t3);margin-bottom:9px}
+.cc-desc{font-size:.8rem;line-height:1.6;margin-bottom:12px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.ctag{font-size:.65rem;padding:2px 7px;background:var(--glass);border:1px solid var(--border);
+  border-radius:var(--rf);color:var(--t2)}
+.cc-ft{display:flex;justify-content:space-between;align-items:center;
+  padding-top:10px;border-top:1px solid var(--border);font-size:.75rem;color:var(--t3)}
+.cc-ft span{display:flex;align-items:center;gap:4px}
+.cc-ft i.fa-clock{color:var(--bl);font-size:.68rem}
+.arr{color:var(--t3);transition:all var(--tr);font-size:.8rem}
+.cc:hover .arr{color:var(--bl);transform:translateX(4px)}
+
+/* college card */
+.colc{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);
+  padding:20px;cursor:pointer;transition:all var(--tr)}
+.colc:hover{border-color:var(--b);transform:translateY(-3px);box-shadow:0 8px 32px rgba(99,102,241,.14)}
+.colc-top{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.colc-logo{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:.8rem;font-weight:800;color:#fff;flex-shrink:0}
+.colc-nm{font-family:var(--fd);font-size:.92rem;font-weight:700;color:var(--t)}
+.colc-loc{font-size:.7rem;color:var(--t3);display:flex;align-items:center;gap:4px;margin-top:2px}
+.tier-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;
+  border-radius:var(--rf);font-size:.64rem;font-weight:700;margin-bottom:8px}
+.tier1{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2)}
+.tier2{background:rgba(99,102,241,.1);color:var(--bl);border:1px solid rgba(99,102,241,.2)}
+.tier3{background:rgba(148,163,184,.08);color:var(--t2);border:1px solid var(--border)}
+.colc-courses{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.ctag2{font-size:.65rem;padding:2px 8px;background:var(--bg_);border:1px solid rgba(99,102,241,.18);
+  border-radius:var(--rf);color:var(--bl)}
+.colc-ft{display:flex;justify-content:space-between;padding-top:10px;
+  border-top:1px solid var(--border);font-size:.74rem;color:var(--t3)}
+
+/* ── DRAWER ─────────────────────────────────────────── */
+.ovl{display:none;position:fixed;inset:0;background:rgba(4,7,15,.82);
+  backdrop-filter:blur(5px);z-index:800}
+.ovl.on{display:block}
+.drw{position:fixed;top:0;right:0;bottom:0;width:min(580px,100vw);
+  background:var(--bg2);border-left:1px solid var(--borderS);z-index:801;
+  overflow-y:auto;transform:translateX(100%);transition:transform .36s cubic-bezier(.4,0,.2,1)}
+.drw.on{transform:translateX(0)}
+.drw-close{position:sticky;top:14px;float:right;margin:14px 14px 0 0;
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--border);
+  background:var(--glass);color:var(--t2);display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;transition:all var(--tr);z-index:1;cursor:pointer}
+.drw-close:hover{background:var(--glassH);color:var(--t)}
+.drw-body{padding:24px 24px 40px;clear:both}
+.d-ico{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:1.1rem;color:#fff;margin-bottom:14px}
+.d-nm{font-family:var(--fd);font-size:1.35rem;font-weight:700;color:var(--t);margin-bottom:3px}
+.d-fn{font-size:.78rem;color:var(--t3);margin-bottom:13px}
+.d-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.d-chip{display:flex;align-items:center;gap:5px;padding:4px 11px;
+  background:var(--glass);border:1px solid var(--border);border-radius:var(--rf);
+  font-size:.72rem;color:var(--t2)}
+.d-chip i{color:var(--bl);font-size:.65rem}
+.dsec{margin-bottom:18px}
+.dsec-t{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--t3);margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:6px}
+.dsec-t i{color:var(--pl)}
+.d-row{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:.8rem}
+.d-row:last-child{border:none}
+.dk{color:var(--t3);min-width:110px;flex-shrink:0;font-weight:500}
+.dv{color:var(--t2);flex:1}
+.d-list{list-style:none;display:flex;flex-direction:column;gap:0}
+.d-list li{font-size:.8rem;color:var(--t2);padding:6px 0;border-bottom:1px solid var(--border);
+  display:flex;gap:8px;align-items:flex-start}
+.d-list li:last-child{border:none}
+.d-list li::before{content:'→';color:var(--gl);flex-shrink:0;font-weight:700}
+.sem-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.sem-box{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px}
+.sem-n{font-size:.65rem;font-weight:700;color:var(--bl);margin-bottom:5px;font-family:var(--fm)}
+.sem-sub{font-size:.72rem;color:var(--t2);line-height:1.6}
+.d-careers{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.d-career{padding:4px 10px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.18);
+  border-radius:var(--rf);font-size:.71rem;color:var(--bl)}
+.d-exams2{display:flex;flex-wrap:wrap;gap:5px}
+.d-exam2{padding:4px 10px;background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.18);
+  border-radius:var(--rf);font-size:.71rem;color:var(--pl)}
+.d-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.btn-p{display:inline-flex;align-items:center;gap:7px;padding:9px 17px;border-radius:var(--r);
+  border:none;background:linear-gradient(135deg,var(--b),var(--bd));color:#fff;font-size:.82rem;
+  font-weight:600;cursor:pointer;transition:all var(--tr);box-shadow:0 4px 14px var(--bg_)}
+.btn-p:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-s{display:inline-flex;align-items:center;gap:7px;padding:9px 17px;border-radius:var(--r);
+  border:1px solid var(--borderS);background:var(--glass);color:var(--t);font-size:.82rem;
+  font-weight:600;cursor:pointer;transition:all var(--tr)}
+.btn-s:hover{background:var(--glassH);border-color:var(--b)}
+
+/* ── COMPARISON BAR ─────────────────────────────────── */
+.cmp-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);
+  border-top:1px solid var(--borderS);padding:12px 36px;z-index:700;
+  display:none;align-items:center;gap:12px;flex-wrap:wrap}
+.cmp-bar.on{display:flex}
+.cmp-items{display:flex;gap:8px;flex:1;flex-wrap:wrap}
+.cmp-item{display:flex;align-items:center;gap:7px;padding:6px 12px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);font-size:.78rem;color:var(--t2)}
+.cmp-item button{background:none;border:none;color:var(--t3);cursor:pointer;font-size:.65rem;margin-left:4px}
+.cmp-item button:hover{color:#fb7185}
+.cmp-go{display:flex;align-items:center;gap:7px;padding:9px 20px;border-radius:var(--r);
+  border:none;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;
+  font-size:.82rem;font-weight:700;cursor:pointer;transition:all var(--tr);white-space:nowrap}
+.cmp-go:hover{filter:brightness(1.1)}
+.cmp-clear{background:none;border:none;color:var(--t3);font-size:.75rem;cursor:pointer}
+.cmp-clear:hover{color:var(--t2)}
+
+/* ══════════════════════════════════════════════════════
+   HOME PAGE
+   ══════════════════════════════════════════════════════ */
+.hero{position:relative;min-height:calc(100vh - var(--nav));display:flex;align-items:center}
+.hero-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.3;pointer-events:none}
+.o1{width:700px;height:700px;background:radial-gradient(circle,rgba(249,115,22,.5),transparent 70%);
+  top:-220px;right:-80px;animation:fl 15s ease-in-out infinite}
+.o2{width:600px;height:600px;background:radial-gradient(circle,rgba(99,102,241,.45),transparent 70%);
+  bottom:-150px;left:-100px;animation:fl 19s ease-in-out infinite reverse}
+.o3{width:400px;height:400px;background:radial-gradient(circle,rgba(34,197,94,.18),transparent 70%);
+  top:40%;left:40%;animation:fl 11s ease-in-out infinite 3s}
+@keyframes fl{0%,100%{transform:translate(0,0)}40%{transform:translate(22px,-18px)}70%{transform:translate(-16px,14px)}}
+.grid-bg{position:absolute;inset:0;
+  background-image:linear-gradient(rgba(99,102,241,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(99,102,241,.03) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)}
+.hero-in{position:relative;z-index:1;max-width:1400px;margin:0 auto;
+  padding:80px 36px 60px;display:grid;grid-template-columns:1fr 440px;gap:80px;align-items:center}
+.h-badge{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--pl);margin-bottom:20px}
+.h-dot{width:6px;height:6px;border-radius:50%;background:var(--p);
+  box-shadow:0 0 8px var(--p);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+h1{font-size:clamp(2.6rem,4vw,4rem);font-weight:700;color:var(--t);margin-bottom:20px}
+h1 em{font-style:italic;
+  background:linear-gradient(120deg,var(--bl),var(--pl));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-in p{font-size:.97rem;max-width:500px;margin-bottom:30px}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+.btn-main{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:var(--rf);
+  border:none;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;
+  font-size:.9rem;font-weight:700;cursor:pointer;transition:all var(--tr);
+  box-shadow:0 8px 28px var(--pg)}
+.btn-main:hover{filter:brightness(1.1);transform:translateY(-2px)}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:var(--rf);
+  border:1px solid var(--borderS);background:var(--glass);color:var(--t);
+  font-size:.9rem;font-weight:600;cursor:pointer;transition:all var(--tr)}
+.btn-ghost:hover{background:var(--glassH);border-color:var(--b)}
+.h-stats{display:flex;gap:24px;flex-wrap:wrap}
+.h-stat{display:flex;flex-direction:column}
+.h-stat strong{font-family:var(--fd);font-size:1.4rem;font-weight:700;color:var(--pl)}
+.h-stat span{font-size:.72rem;color:var(--t3)}
+/* hero right panel */
+.hero-panel{background:var(--card);border:1px solid var(--borderS);border-radius:var(--rl);
+  overflow:hidden;position:relative}
+.hp-top{background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(99,102,241,.12));
+  padding:20px;border-bottom:1px solid var(--border)}
+.hp-top h3{font-family:var(--fd);font-size:.92rem;font-weight:700;color:var(--t);margin-bottom:14px;
+  display:flex;align-items:center;gap:8px}
+.hp-top i{color:var(--pl)}
+.quick-links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ql{display:flex;align-items:center;gap:9px;padding:11px 12px;
+  background:var(--glass);border:1px solid var(--border);border-radius:var(--r);
+  cursor:pointer;transition:all var(--tr);text-decoration:none}
+.ql:hover{background:var(--glassH);border-color:var(--b);transform:translateY(-1px)}
+.ql-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:.8rem;flex-shrink:0}
+.ql strong{font-size:.78rem;font-weight:600;color:var(--t);display:block}
+.ql span{font-size:.65rem;color:var(--t3)}
+.hp-bot{padding:16px}
+.hp-bot p{font-size:.73rem;color:var(--t3);margin-bottom:11px;text-align:center}
+.stream-quick{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.sq{padding:6px 13px;border-radius:var(--rf);border:1px solid var(--border);
+  background:transparent;color:var(--t2);font-size:.75rem;font-weight:600;
+  cursor:pointer;transition:all var(--tr)}
+.sq:hover{border-color:var(--pl);color:var(--pl);background:rgba(249,115,22,.06)}
+
+/* home sections */
+.hs{padding:72px 0;position:relative}
+.hs.alt{background:rgba(255,255,255,.012)}
+.hs-in{max-width:1280px;margin:0 auto;padding:0 36px}
+.hs-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--bl);margin-bottom:11px}
+.hs h2{font-size:clamp(1.6rem,2.5vw,2.2rem);font-weight:700;color:var(--t);margin-bottom:32px}
+.pill-row{display:flex;flex-wrap:wrap;gap:9px}
+.pill{display:flex;align-items:center;gap:8px;padding:9px 17px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--rf);
+  cursor:pointer;transition:all var(--tr);font-size:.83rem;font-weight:600;color:var(--t2)}
+.pill:hover{background:var(--glassH);border-color:var(--b);color:var(--t)}
+.pill i{font-size:.78rem}
+.steps{display:grid;grid-template-columns:1fr 24px 1fr 24px 1fr;align-items:center;gap:12px}
+.step{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);
+  padding:24px 20px;transition:all var(--tr)}
+.step:hover{border-color:var(--b);transform:translateY(-3px)}
+.sn{font-family:var(--fm);font-size:.68rem;font-weight:600;color:var(--bl);
+  background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);
+  border-radius:var(--r);padding:2px 8px;display:inline-block;margin-bottom:12px}
+.step h3{font-size:.92rem;font-weight:700;color:var(--t);margin-bottom:7px}
+.step p{font-size:.8rem}
+.sl{width:1px;height:28px;background:var(--borderS)}
+.hfooter{border-top:1px solid var(--border);padding:32px 0}
+.hf-in{max-width:1280px;margin:0 auto;padding:0 36px;
+  display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.hf-in p{font-size:.75rem;color:var(--t3);flex:1}
+.fnav{display:flex;gap:3px;flex-wrap:wrap}
+.fnav button{background:none;border:none;color:var(--t3);font-size:.76rem;padding:5px 10px;
+  border-radius:var(--r);transition:all var(--tr);cursor:pointer}
+.fnav button:hover{color:var(--t);background:var(--glass)}
+
+/* ══════════════════════════════════════════════════════
+   ELIGIBILITY PAGE
+   ══════════════════════════════════════════════════════ */
+.elig-lay{max-width:1400px;margin:0 auto;padding:40px 36px;
+  display:grid;grid-template-columns:460px 1fr;gap:28px;min-height:calc(100vh - var(--nav))}
+.ef-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);
+  padding:28px;height:fit-content;position:sticky;top:calc(var(--nav) + 16px)}
+.ef-hd{text-align:center;margin-bottom:24px}
+.ef-ico{width:56px;height:56px;border-radius:14px;
+  background:linear-gradient(135deg,var(--p),var(--b));
+  display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#fff;
+  margin:0 auto 14px;box-shadow:0 8px 24px rgba(249,115,22,.3)}
+.ef-hd h2{font-size:1.3rem;font-weight:700;color:var(--t);margin-bottom:6px}
+.ef-hd p{font-size:.8rem}
+.fg{margin-bottom:20px}
+.fg>label{display:block;font-size:.79rem;font-weight:600;color:var(--t2);margin-bottom:9px}
+.req{color:var(--pl)}
+.opt{color:var(--t3);font-weight:400}
+.stream-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sbtn{display:flex;flex-direction:column;align-items:flex-start;padding:9px 11px;
+  background:var(--glass);border:1px solid var(--border);border-radius:var(--r);
+  color:var(--t2);font-size:.76rem;font-weight:600;transition:all var(--tr);text-align:left;gap:2px;cursor:pointer}
+.sbtn i{font-size:.85rem;margin-bottom:2px}
+.sbtn em{font-size:.63rem;color:var(--t3);font-weight:400;font-style:normal}
+.sbtn:hover{border-color:var(--bl);color:var(--t);background:var(--glassH)}
+.sbtn.on{background:rgba(99,102,241,.1);border-color:var(--b);color:var(--bl)}
+.sbtn.on em{color:rgba(129,140,248,.65)}
+.mwrap{display:flex;align-items:center;background:var(--glass);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;transition:border-color var(--tr)}
+.mwrap:focus-within{border-color:var(--b)}
+.mwrap input{flex:1;background:none;border:none;outline:none;color:var(--t);
+  font-size:1rem;font-weight:600;padding:10px 13px}
+.munit{padding:0 13px;color:var(--t3);font-size:.83rem;font-weight:600}
+.mbar-w{height:4px;background:var(--border);border-radius:99px;margin-top:7px;overflow:hidden}
+.mbar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--b),var(--p));transition:width .4s ease}
+.mlabel{font-size:.7rem;color:var(--t3);margin-top:4px;text-align:right}
+.lvl-tog{display:flex;gap:5px}
+.lvl-btn{flex:1;padding:8px 10px;border-radius:var(--r);border:1px solid var(--border);
+  background:var(--glass);color:var(--t2);font-size:.75rem;font-weight:600;transition:all var(--tr);cursor:pointer}
+.lvl-btn:hover{border-color:var(--bl)}
+.lvl-btn.on{background:rgba(99,102,241,.1);border-color:var(--b);color:var(--bl)}
+.fg input[type=text]{width:100%;background:var(--glass);border:1px solid var(--border);
+  border-radius:var(--r);color:var(--t);font-size:.85rem;padding:9px 13px;outline:none;transition:border-color var(--tr)}
+.fg input[type=text]:focus{border-color:var(--b)}
+.scores-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sf label{display:block;font-size:.69rem;font-weight:600;color:var(--t3);margin-bottom:4px}
+.sf input{width:100%;background:var(--glass);border:1px solid var(--border);border-radius:var(--r);
+  color:var(--t);font-size:.85rem;padding:8px 10px;outline:none;transition:border-color var(--tr)}
+.sf input:focus{border-color:var(--b)}
+.sf input::placeholder{color:var(--t3);font-size:.77rem}
+.btn-full{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px;border-radius:var(--r);border:none;
+  background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;
+  font-size:.88rem;font-weight:700;cursor:pointer;transition:all var(--tr);margin-top:6px;
+  box-shadow:0 6px 22px var(--pg)}
+.btn-full:hover{filter:brightness(1.1)}
+/* results */
+.er-panel{display:flex;flex-direction:column;gap:13px}
+.er-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:55vh;text-align:center;color:var(--t3);gap:13px}
+.er-empty i{font-size:2.8rem;opacity:.25}
+.er-empty h3{font-family:var(--fd);font-size:1.05rem;color:var(--t2)}
+.er-sum{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);
+  padding:18px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.er-cnt{font-family:var(--fd);font-size:2rem;font-weight:700;color:var(--pl)}
+.er-txt strong{color:var(--t);display:block;font-size:.9rem}
+.er-txt span{font-size:.78rem;color:var(--t2)}
+.rc{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);
+  padding:18px 20px;transition:all var(--tr)}
+.rc:hover{border-color:var(--b);box-shadow:0 6px 22px rgba(99,102,241,.1)}
+.rc-top{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.rc-ico{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;
+  justify-content:center;font-size:.85rem;color:#fff;flex-shrink:0}
+.rc-info{flex:1}
+.rc-nm{font-family:var(--fd);font-size:.95rem;font-weight:700;color:var(--t)}
+.rc-fn{font-size:.69rem;color:var(--t3)}
+.match-badge{padding:3px 10px;border-radius:var(--rf);font-size:.68rem;font-weight:700;font-family:var(--fm)}
+.m-s{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.22)}
+.m-g{background:rgba(99,102,241,.1);color:var(--bl);border:1px solid rgba(99,102,241,.22)}
+.m-p{background:rgba(249,115,22,.1);color:var(--pl);border:1px solid rgba(249,115,22,.2)}
+.m-l{background:rgba(148,163,184,.08);color:var(--t2);border:1px solid var(--border)}
+.rc-bar-w{height:4px;background:var(--border);border-radius:99px;margin-bottom:11px;overflow:hidden}
+.rc-bar{height:100%;border-radius:99px;transition:width .6s ease}
+.rc-reasons{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:11px}
+.r-tag{font-size:.68rem;padding:2px 8px;background:rgba(34,197,94,.07);
+  border:1px solid rgba(34,197,94,.16);border-radius:var(--rf);color:#86efac}
+.rc-btns{display:flex;gap:7px;flex-wrap:wrap}
+.rcb{padding:6px 13px;border-radius:var(--r);border:1px solid var(--border);
+  background:var(--glass);color:var(--t2);font-size:.72rem;font-weight:600;
+  cursor:pointer;transition:all var(--tr)}
+.rcb:hover{border-color:var(--bl);color:var(--t);background:var(--glassH)}
+.rcb.pri{background:rgba(99,102,241,.1);border-color:var(--b);color:var(--bl)}
+.rcb.pri:hover{background:rgba(99,102,241,.18)}
+
+/* Admission probability */
+.prob-section{margin-top:16px;border-top:1px solid var(--border);padding-top:14px}
+.prob-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--t3);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.prob-title i{color:var(--pl)}
+.prob-list{display:flex;flex-direction:column;gap:7px}
+.prob-row{display:flex;align-items:center;gap:10px;font-size:.75rem}
+.prob-col{flex:1;font-weight:500;color:var(--t2)}
+.prob-bar-w{width:100px;height:5px;background:var(--border);border-radius:99px;overflow:hidden;flex-shrink:0}
+.prob-bar{height:100%;border-radius:99px}
+.ph-bar{background:linear-gradient(90deg,#22c55e,#4ade80)}
+.pm-bar{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.pl-bar{background:linear-gradient(90deg,#ef4444,#fb7185)}
+.prob-pct{font-family:var(--fm);font-size:.7rem;width:36px;text-align:right}
+.prob-ico{font-size:.7rem;width:16px;text-align:center}
+
+/* ══════════════════════════════════════════════════════
+   CAREER ADVISOR PAGE
+   ══════════════════════════════════════════════════════ */
+.career-lay{max-width:1100px;margin:0 auto;padding:40px 36px 80px}
+.career-steps{display:flex;gap:8px;margin-bottom:36px;flex-wrap:wrap}
+.cstep{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--t3)}
+.cstep-n{width:24px;height:24px;border-radius:50%;background:var(--glass);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;font-weight:700;font-family:var(--fm);flex-shrink:0}
+.cstep.done .cstep-n{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3);color:#4ade80}
+.cstep.cur .cstep-n{background:rgba(99,102,241,.15);border-color:var(--b);color:var(--bl)}
+.cstep-line{flex:1;height:1px;background:var(--border);min-width:20px}
+.ca-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:32px}
+.ca-panel h3{font-family:var(--fd);font-size:1.3rem;font-weight:700;color:var(--t);margin-bottom:8px}
+.ca-panel p{margin-bottom:24px;font-size:.88rem}
+.int-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.int-btn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 12px;
+  background:var(--glass);border:2px solid var(--border);border-radius:var(--rl);
+  cursor:pointer;transition:all var(--tr);text-align:center}
+.int-btn i{font-size:1.4rem}
+.int-btn span{font-size:.78rem;font-weight:600;color:var(--t2)}
+.int-btn:hover{background:var(--glassH);border-color:var(--borderS);transform:translateY(-2px)}
+.int-btn.on{border-color:var(--b);background:rgba(99,102,241,.08)}
+.int-btn.on span{color:var(--bl)}
+.str-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.str-btn{display:flex;align-items:center;gap:10px;padding:13px 16px;
+  background:var(--glass);border:2px solid var(--border);border-radius:var(--r);
+  cursor:pointer;transition:all var(--tr);text-align:left}
+.str-btn i{font-size:1.1rem;flex-shrink:0}
+.str-btn div strong{font-size:.82rem;font-weight:600;color:var(--t2);display:block}
+.str-btn div span{font-size:.7rem;color:var(--t3)}
+.str-btn:hover{background:var(--glassH);border-color:var(--borderS)}
+.str-btn.on{border-color:var(--p);background:rgba(249,115,22,.07)}
+.str-btn.on div strong{color:var(--pl)}
+.ca-nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px;flex-wrap:wrap;gap:10px}
+/* advisor results */
+.advisor-res{display:flex;flex-direction:column;gap:18px}
+.ar-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.ar-head{display:flex;align-items:center;gap:14px;padding:18px 20px;
+  background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(249,115,22,.06))}
+.ar-rank{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--p),var(--b));
+  display:flex;align-items:center;justify-content:center;font-family:var(--fd);
+  font-size:.9rem;font-weight:700;color:#fff;flex-shrink:0}
+.ar-title{flex:1}
+.ar-title h4{font-family:var(--fd);font-size:1.05rem;font-weight:700;color:var(--t);margin-bottom:2px}
+.ar-title span{font-size:.72rem;color:var(--t3)}
+.ar-match{padding:4px 11px;border-radius:var(--rf);font-size:.7rem;font-weight:700;font-family:var(--fm);
+  background:rgba(249,115,22,.1);color:var(--pl);border:1px solid rgba(249,115,22,.2)}
+.ar-body{padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.ar-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ar-block label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--t3);display:block;margin-bottom:7px}
+.ar-block ul{list-style:none}
+.ar-block li{font-size:.79rem;color:var(--t2);padding:3px 0;display:flex;align-items:center;gap:6px}
+.ar-block li::before{content:'›';color:var(--pl);font-weight:700}
+.ar-block .tags{display:flex;flex-wrap:wrap;gap:5px}
+.ar-block .tags span{padding:3px 9px;background:rgba(99,102,241,.08);
+  border:1px solid rgba(99,102,241,.18);border-radius:var(--rf);font-size:.7rem;color:var(--bl)}
+.ar-block .stags span{padding:3px 9px;background:rgba(34,197,94,.07);
+  border:1px solid rgba(34,197,94,.18);border-radius:var(--rf);font-size:.7rem;color:#86efac}
+.ar-salary{display:flex;align-items:center;justify-content:space-between;
+  padding:11px 14px;background:var(--glass);border-radius:var(--r);
+  border:1px solid var(--border);font-size:.8rem}
+.ar-salary strong{font-family:var(--fd);color:var(--pl);font-size:.95rem}
+
+/* ══════════════════════════════════════════════════════
+   EXAMS PAGE
+   ══════════════════════════════════════════════════════ */
+.exams-list{max-width:920px;margin:0 auto;padding:0 36px 80px;display:flex;flex-direction:column;gap:14px}
+.ec{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;transition:border-color var(--tr)}
+.ec:hover{border-color:var(--b)}
+.ec-head{display:flex;align-items:center;gap:13px;padding:18px 20px;cursor:pointer}
+.e-ico{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:.95rem;color:#fff;flex-shrink:0}
+.e-title{flex:1}
+.e-nm{font-family:var(--fd);font-size:1rem;font-weight:700;color:var(--t)}
+.e-sub{font-size:.72rem;color:var(--t3)}
+.e-chips{display:flex;gap:5px;flex-wrap:wrap}
+.diff-h{background:rgba(244,63,94,.08);color:#fb7185;border:1px solid rgba(244,63,94,.2);
+  padding:3px 8px;border-radius:var(--rf);font-size:.64rem;font-weight:700;font-family:var(--fm)}
+.diff-vh{background:rgba(168,85,247,.08);color:#c084fc;border:1px solid rgba(168,85,247,.2);
+  padding:3px 8px;border-radius:var(--rf);font-size:.64rem;font-weight:700;font-family:var(--fm)}
+.diff-m{background:rgba(34,197,94,.08);color:#4ade80;border:1px solid rgba(34,197,94,.2);
+  padding:3px 8px;border-radius:var(--rf);font-size:.64rem;font-weight:700;font-family:var(--fm)}
+.e-toggle{color:var(--t3);font-size:.75rem;transition:transform var(--tr)}
+.ec.open .e-toggle{transform:rotate(180deg)}
+.ec-body{display:none;padding:0 20px 18px;border-top:1px solid var(--border)}
+.ec.open .ec-body{display:block}
+.e-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:14px 0}
+.eg{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px}
+.eg-v{font-size:.85rem;font-weight:700;color:var(--t);font-family:var(--fm)}
+.eg-l{font-size:.64rem;color:var(--t3);margin-top:2px}
+.e-tip{background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.18);
+  border-radius:var(--r);padding:11px 14px;font-size:.79rem;color:var(--t2);
+  display:flex;gap:9px;align-items:flex-start;margin-top:10px}
+.e-tip i{color:var(--pl);flex-shrink:0;margin-top:2px}
+/* deadline section */
+.deadline-sec{max-width:920px;margin:0 auto 32px;padding:0 36px}
+.dl-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--t3);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.dl-title i{color:var(--pl)}
+.dl-row{display:flex;align-items:center;gap:12px;padding:11px 14px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  margin-bottom:7px;transition:border-color var(--tr)}
+.dl-row:hover{border-color:var(--b)}
+.dl-date{font-family:var(--fm);font-size:.78rem;color:var(--pl);min-width:80px;font-weight:600}
+.dl-name{flex:1;font-size:.82rem;color:var(--t2);font-weight:500}
+.dl-badge{padding:2px 8px;border-radius:var(--rf);font-size:.63rem;font-weight:700}
+.soon{background:rgba(244,63,94,.1);color:#fb7185;border:1px solid rgba(244,63,94,.2)}
+.upcoming{background:rgba(249,115,22,.1);color:var(--pl);border:1px solid rgba(249,115,22,.2)}
+.later{background:rgba(148,163,184,.08);color:var(--t2);border:1px solid var(--border)}
+
+/* ══════════════════════════════════════════════════════
+   COMPARE PAGE
+   ══════════════════════════════════════════════════════ */
+.compare-lay{max-width:1200px;margin:0 auto;padding:40px 36px 80px}
+.cmp-table{display:grid;gap:0;border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.cmp-hdr{display:grid;border-bottom:1px solid var(--borderS);background:var(--bg2)}
+.cmp-col-hd{padding:18px 16px;border-right:1px solid var(--border);
+  display:flex;flex-direction:column;gap:4px}
+.cmp-col-hd:last-child{border-right:none}
+.cmp-course-nm{font-family:var(--fd);font-size:1rem;font-weight:700;color:var(--t)}
+.cmp-course-fn{font-size:.72rem;color:var(--t3)}
+.cmp-tbody{display:flex;flex-direction:column}
+.cmp-tr{display:grid;border-bottom:1px solid var(--border)}
+.cmp-tr:last-child{border-bottom:none}
+.cmp-tr:nth-child(even){background:rgba(255,255,255,.015)}
+.cmp-td{padding:12px 16px;border-right:1px solid var(--border);font-size:.8rem;color:var(--t2)}
+.cmp-td:first-child{color:var(--t3);font-weight:600;font-size:.74rem}
+.cmp-td:last-child{border-right:none}
+.cmp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:320px;text-align:center;color:var(--t3);gap:13px}
+.cmp-empty i{font-size:2.6rem;opacity:.2}
+
+/* ══════════════════════════════════════════════════════
+   CHAT
+   ══════════════════════════════════════════════════════ */
+.chat-lay{height:calc(100vh - var(--nav));display:grid;grid-template-columns:250px 1fr}
+.cs{background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.cs-hd{padding:16px 14px 10px;border-bottom:1px solid var(--border)}
+.cs-hd h3{font-family:var(--fd);font-size:.9rem;font-weight:700;color:var(--t);margin-bottom:2px}
+.cs-hd p{font-size:.68rem;color:var(--t3)}
+.cs-sec{padding:9px 7px 3px;flex-shrink:0}
+.cs-lab{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--t3);padding:0 7px;margin-bottom:3px}
+.cs-ls{display:flex;flex-direction:column;gap:2px;overflow-y:auto;max-height:190px}
+.csi{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r);
+  cursor:pointer;border:1px solid transparent;transition:all var(--tr)}
+.csi:hover{background:var(--glass);border-color:var(--border)}
+.csi.on{background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.2)}
+.csi-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.csi-nm{font-size:.76rem;font-weight:600;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.csi-sub{font-size:.62rem;color:var(--t3)}
+.cw{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.cm{flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:14px}
+.cwelc{max-width:460px;margin:auto;text-align:center;animation:fadeUp .5s ease}
+.cwelc-ico{width:60px;height:60px;border-radius:15px;
+  background:linear-gradient(135deg,var(--p),var(--b));
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;
+  margin:0 auto 16px;box-shadow:0 8px 26px rgba(249,115,22,.3)}
+.cwelc h3{font-family:var(--fd);font-size:1.25rem;font-weight:700;color:var(--t);margin-bottom:7px}
+.cwelc p{font-size:.83rem;margin-bottom:20px}
+.sugg-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.sg{padding:6px 13px;background:var(--glass);border:1px solid var(--borderS);
+  border-radius:var(--rf);color:var(--t2);font-size:.73rem;font-weight:500;cursor:pointer;transition:all var(--tr)}
+.sg:hover{background:rgba(99,102,241,.08);border-color:var(--b);color:var(--t)}
+.msg{display:flex;gap:9px;animation:fadeUp .3s ease;max-width:760px}
+.msg.usr{flex-direction:row-reverse;align-self:flex-end}
+.msg.ai{align-self:flex-start}
+.msg-av{width:28px;height:28px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.72rem}
+.msg.usr .msg-av{background:linear-gradient(135deg,var(--b),var(--bd));color:#fff}
+.msg.ai .msg-av{background:rgba(249,115,22,.12);color:var(--pl);border:1px solid rgba(249,115,22,.18)}
+.bbl{padding:10px 14px;border-radius:var(--r);font-size:.84rem;line-height:1.65}
+.msg.usr .bbl{background:linear-gradient(135deg,var(--b),var(--bd));color:#fff;border-radius:var(--r) var(--r) 3px var(--r)}
+.msg.ai .bbl{background:var(--card);border:1px solid var(--border);color:var(--t2);border-radius:3px var(--r) var(--r) var(--r)}
+.bbl strong{color:var(--t)}.bbl ul,.bbl ol{padding-left:15px;margin:5px 0}.bbl li{margin-bottom:2px}
+.typing{display:flex;align-items:center;gap:4px;padding:0 22px 8px}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--bl);animation:bnc 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+@keyframes bnc{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-5px);opacity:1}}
+.chat-inp{padding:10px 18px 14px;border-top:1px solid var(--border);background:var(--bg1)}
+.cib{display:flex;gap:9px;align-items:flex-end;background:var(--card);
+  border:1px solid var(--border);border-radius:var(--rl);padding:8px 10px;transition:border-color var(--tr)}
+.cib:focus-within{border-color:var(--b);box-shadow:0 0 0 3px rgba(99,102,241,.07)}
+.cib textarea{flex:1;background:none;border:none;outline:none;color:var(--t);
+  font-size:.85rem;resize:none;max-height:140px;line-height:1.5}
+.cib textarea::placeholder{color:var(--t3)}
+.send{width:33px;height:33px;border-radius:var(--r);border:none;
+  background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:.75rem;
+  flex-shrink:0;cursor:pointer;transition:all var(--tr)}
+.send:hover{filter:brightness(1.12);transform:scale(1.05)}
+.cib-meta{display:flex;justify-content:space-between;font-size:.65rem;color:var(--t3);margin-top:5px;padding:0 2px}
+kbd{background:var(--glass);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:.68em}
+
+/* ── TOAST ──────────────────────────────────────────── */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:6px}
+.toast{display:flex;align-items:center;gap:8px;padding:10px 14px;
+  background:var(--bg2);border:1px solid var(--borderS);border-radius:var(--r);
+  font-size:.8rem;color:var(--t);animation:slideR .3s ease;max-width:280px;
+  box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.toast.ok i{color:var(--gl)}.toast.err i{color:#fb7185}.toast.inf i{color:var(--bl)}
+@keyframes slideR{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+
+/* ══════════════════════════════════════════════════════
+   COLLEGE FINDER PAGE
+   ══════════════════════════════════════════════════════ */
+.finder-lay{max-width:1280px;margin:0 auto;padding:40px 36px 80px}
+.finder-filters{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);
+  padding:24px;margin-bottom:28px;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:14px;align-items:end}
+.ff-group label{display:block;font-size:.72rem;font-weight:700;color:var(--t3);margin-bottom:7px;
+  text-transform:uppercase;letter-spacing:.05em}
+.ff-select{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  color:var(--t);font-size:.84rem;padding:9px 12px;outline:none;transition:border-color var(--tr);
+  appearance:none;cursor:pointer}
+.ff-select:focus{border-color:var(--b)}
+option{background:var(--bg2);color:var(--t)}
+.ff-find{display:flex;align-items:center;gap:8px;padding:10px 22px;border-radius:var(--r);
+  border:none;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;
+  font-size:.85rem;font-weight:700;cursor:pointer;transition:all var(--tr);white-space:nowrap;align-self:flex-end}
+.ff-find:hover{filter:brightness(1.1)}
+.finder-results{display:flex;flex-direction:column;gap:16px}
+.finder-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:300px;text-align:center;color:var(--t3);gap:12px}
+.finder-empty i{font-size:2.5rem;opacity:.2}
+.finder-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);
+  padding:20px 24px;display:grid;grid-template-columns:52px 1fr auto;gap:16px;align-items:center;
+  cursor:pointer;transition:all var(--tr)}
+.finder-card:hover{border-color:var(--b);transform:translateX(4px);box-shadow:0 4px 20px rgba(99,102,241,.1)}
+.fc-logo{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:.82rem;font-weight:800;color:#fff;flex-shrink:0}
+.fc-info{flex:1}
+.fc-nm{font-family:var(--fd);font-size:1rem;font-weight:700;color:var(--t);margin-bottom:3px}
+.fc-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:.75rem;color:var(--t3)}
+.fc-meta span{display:flex;align-items:center;gap:4px}
+.fc-meta i{font-size:.65rem;color:var(--bl)}
+.fc-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.fc-right{text-align:right;flex-shrink:0}
+.fc-rank{font-size:.72rem;color:var(--t3);margin-bottom:4px}
+.fc-pkg{font-family:var(--fd);font-size:.95rem;font-weight:700;color:var(--pl)}
+.fc-pkg-lab{font-size:.64rem;color:var(--t3)}
+
+/* ── RESPONSIVE ─────────────────────────────────────── */
+@media(max-width:1100px){
+  .hero-in{grid-template-columns:1fr;gap:44px}
+  .hero-panel{max-width:480px}
+  .elig-lay{grid-template-columns:1fr;padding:24px}
+  .ef-panel{position:static}
+}
+@media(max-width:768px){
+  .nav-links,.nav-cta{display:none}
+  .nav-links.open{display:flex;flex-direction:column;position:fixed;
+    top:var(--nav);left:0;right:0;background:rgba(4,7,15,.97);
+    border-bottom:1px solid var(--border);padding:10px;gap:3px;z-index:899}
+  .hbg{display:block}
+  .ph,.tb,.g3,.exams-list,.deadline-sec,.compare-lay,.career-lay,.finder-lay{padding-left:18px;padding-right:18px}
+  .hs-in,.hf-in{padding-left:18px;padding-right:18px}
+  .hero-in{padding:56px 18px 44px}
+  .finder-filters{grid-template-columns:1fr 1fr;gap:10px}
+  .finder-card{grid-template-columns:42px 1fr;}.fc-right{display:none}
+  .chat-lay{grid-template-columns:1fr}.cs{display:none}
+  .steps{grid-template-columns:1fr;gap:10px}.sl{display:none}
+  .e-grid{grid-template-columns:1fr 1fr}
+  .elig-lay{padding:14px}
+  .scores-grid{grid-template-columns:1fr}
+  .ar-row{grid-template-columns:1fr}
+  .str-grid{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
 
-  <!-- ══ NAVBAR ══════════════════════════════════════════════════════════ -->
-  <nav class="navbar" id="navbar">
-    <div class="nav-inner">
-
-      <!-- Logo → always goes to home -->
-      <div class="nav-logo" id="nav-logo" onclick="App.navigate('home')" style="cursor:pointer">
-        <div class="logo-icon">
-          <i class="fa-solid fa-graduation-cap"></i>
-        </div>
-        <div class="logo-text">
-          <span class="logo-brand">AdmissAI</span>
-          <span class="logo-tagline">College Admissions Assistant</span>
-        </div>
-      </div>
-
-      <div class="nav-tabs" id="nav-tabs">
-        <button class="nav-tab" data-page="programs" id="tab-programs">
-          <i class="fa-solid fa-university"></i>
-          <span>Programs</span>
-        </button>
-        <button class="nav-tab" data-page="chat" id="tab-chat">
-          <i class="fa-solid fa-comments"></i>
-          <span>AI Chat</span>
-        </button>
-        <button class="nav-tab" data-page="checklist" id="tab-checklist">
-          <i class="fa-solid fa-list-check"></i>
-          <span>Checklist</span>
-        </button>
-      </div>
-
-      <button class="nav-cta" onclick="App.navigate('chat')">
-        <i class="fa-solid fa-sparkles"></i> Ask AI Now
-      </button>
-
+<!-- NAVBAR -->
+<nav class="nav" id="nav">
+  <div class="nav-in">
+    <a class="logo" onclick="go('home')">
+      <div class="logo-mk"><i class="fa-solid fa-graduation-cap"></i></div>
+      <span class="logo-nm">AdmissAI</span>
+      <span class="logo-sub">India</span>
+    </a>
+    <div class="nav-links" id="nl">
+      <button class="nb" data-p="courses" onclick="go('courses')"><i class="fa-solid fa-book-open"></i> Courses</button>
+      <button class="nb" data-p="colleges" onclick="go('colleges')"><i class="fa-solid fa-university"></i> Colleges</button>
+      <button class="nb" data-p="eligibility" onclick="go('eligibility')"><i class="fa-solid fa-clipboard-check"></i> Eligibility</button>
+      <button class="nb" data-p="career" onclick="go('career')"><i class="fa-solid fa-compass"></i> Career Advisor</button>
+      <button class="nb" data-p="exams" onclick="go('exams')"><i class="fa-solid fa-pen-to-square"></i> Exams</button>
+      <button class="nb" data-p="finder" onclick="go('finder')"><i class="fa-solid fa-magnifying-glass-location"></i> College Finder</button>
+      <button class="nb" data-p="compare" onclick="go('compare')"><i class="fa-solid fa-scale-balanced"></i> Compare</button>
+      <button class="nb" data-p="chat" onclick="go('chat')"><i class="fa-solid fa-comments"></i> AI Chat</button>
     </div>
-  </nav>
+    <button class="nav-cta" onclick="go('eligibility')"><i class="fa-solid fa-bolt"></i> Check Eligibility</button>
+    <button class="hbg" id="hbg" onclick="toggleNav()"><i class="fa-solid fa-bars"></i></button>
+  </div>
+</nav>
 
-  <!-- ══ MAIN ════════════════════════════════════════════════════════════ -->
-  <main class="main-content">
+<main>
 
-    <!-- ── PAGE: HOME ──────────────────────────────────────────────────── -->
-    <section class="page active" id="page-home">
-
-      <!-- Hero -->
-      <div class="home-hero">
-        <div class="hero-bg">
-          <div class="hero-orb orb-1"></div>
-          <div class="hero-orb orb-2"></div>
-          <div class="hero-orb orb-3"></div>
-          <div class="hero-grid"></div>
-        </div>
-
-        <div class="hero-content">
-          <div class="hero-eyebrow">
-            <span class="eyebrow-dot"></span>
-            AI-Powered Admissions Guidance
+<!-- ═══ HOME ══════════════════════════════════════════ -->
+<section class="page on" id="page-home">
+<div class="hero">
+  <div class="hero-bg">
+    <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+    <div class="grid-bg"></div>
+  </div>
+  <div class="hero-in">
+    <div>
+      <div class="h-badge"><span class="h-dot"></span> GenAI4GenZ by HPE</div>
+      <h1>Your <em>Indian college</em><br/>admissions guide,<br/>powered by AI</h1>
+      <p>B.Tech, BCA, BBA, B.Com, MBA, MCA, MBBS and more — check eligibility, explore colleges, get career guidance, and ask the AI anything.</p>
+      <div class="hero-btns">
+        <button class="btn-main" onclick="go('eligibility')"><i class="fa-solid fa-bolt"></i> Check My Eligibility</button>
+        <button class="btn-ghost" onclick="go('career')"><i class="fa-solid fa-compass"></i> Career Advisor</button>
+      </div>
+      <div class="h-stats">
+        <div class="h-stat"><strong>12+</strong><span>Courses</span></div>
+        <div class="h-stat"><strong>20+</strong><span>Colleges</span></div>
+        <div class="h-stat"><strong>8</strong><span>Entrance Exams</span></div>
+        <div class="h-stat"><strong>IIT → State</strong><span>All Tiers</span></div>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <div class="hp-top">
+        <h3><i class="fa-solid fa-bolt"></i> Quick Start by Stream</h3>
+        <div class="quick-links">
+          <div class="ql" onclick="quickElig('pcm')">
+            <div class="ql-ico" style="background:rgba(99,102,241,.15);color:var(--bl)"><i class="fa-solid fa-calculator"></i></div>
+            <div><strong>PCM Stream</strong><span>B.Tech, BCA, B.Sc</span></div>
           </div>
-
-          <h1 class="hero-title">
-            Get into your<br/>
-            <em>dream university</em><br/>
-            with confidence
-          </h1>
-
-          <p class="hero-subtitle">
-            AdmissAI is your personal college admissions counselor — available 24/7.
-            Browse real requirements, get essay tips, track deadlines, and chat with
-            an AI that actually knows what top universities are looking for.
-          </p>
-
-          <div class="hero-actions">
-            <button class="btn-hero-primary" onclick="App.navigate('chat')">
-              <i class="fa-solid fa-comments"></i>
-              Chat with AI Advisor
-            </button>
-            <button class="btn-hero-secondary" onclick="App.navigate('programs')">
-              Explore Programs
-              <i class="fa-solid fa-arrow-right"></i>
-            </button>
+          <div class="ql" onclick="quickElig('pcb')">
+            <div class="ql-ico" style="background:rgba(34,197,94,.12);color:#4ade80"><i class="fa-solid fa-dna"></i></div>
+            <div><strong>PCB Stream</strong><span>MBBS, B.Pharm</span></div>
           </div>
-
-          <div class="hero-trust">
-            <span class="trust-item"><i class="fa-solid fa-check"></i> Free to use</span>
-            <span class="trust-item"><i class="fa-solid fa-check"></i> 8 top programs</span>
-            <span class="trust-item"><i class="fa-solid fa-check"></i> Real requirements data</span>
-            <span class="trust-item"><i class="fa-solid fa-check"></i> No signup needed</span>
+          <div class="ql" onclick="quickElig('commerce_maths')">
+            <div class="ql-ico" style="background:rgba(249,115,22,.12);color:var(--pl)"><i class="fa-solid fa-coins"></i></div>
+            <div><strong>Commerce</strong><span>BBA, BCA, B.Com</span></div>
           </div>
-        </div>
-
-        <div class="hero-visual">
-          <div class="chat-preview">
-            <div class="chat-preview-header">
-              <div class="cp-dot cp-red"></div>
-              <div class="cp-dot cp-yellow"></div>
-              <div class="cp-dot cp-green"></div>
-              <span>AI Chat</span>
-            </div>
-            <div class="chat-preview-body">
-              <div class="cp-msg cp-ai">
-                <div class="cp-avatar"><i class="fa-solid fa-robot"></i></div>
-                <div class="cp-bubble">Hey! What university are you applying to? I can give you specific guidance on requirements and strategy. 🎓</div>
-              </div>
-              <div class="cp-msg cp-user">
-                <div class="cp-bubble">I want to apply to MIT Computer Science</div>
-                <div class="cp-avatar"><i class="fa-solid fa-user"></i></div>
-              </div>
-              <div class="cp-msg cp-ai">
-                <div class="cp-avatar"><i class="fa-solid fa-robot"></i></div>
-                <div class="cp-bubble">Great choice! MIT CS is extremely competitive at 3.9% acceptance. You'll need a 4.0+ GPA, SAT 1540–1590, and strong CS projects. Want me to walk you through the full strategy? 🚀</div>
-              </div>
-              <div class="cp-typing">
-                <div class="cp-avatar"><i class="fa-solid fa-robot"></i></div>
-                <div class="cp-dots"><span></span><span></span><span></span></div>
-              </div>
-            </div>
+          <div class="ql" onclick="quickElig('arts')">
+            <div class="ql-ico" style="background:rgba(168,85,247,.12);color:#c084fc"><i class="fa-solid fa-palette"></i></div>
+            <div><strong>Arts / Humanities</strong><span>BA, LLB</span></div>
           </div>
         </div>
       </div>
-
-      <!-- What is this section -->
-      <div class="home-section what-section">
-        <div class="section-inner">
-          <div class="section-label">What is AdmissAI?</div>
-          <h2 class="section-title">Everything you need for college admissions, in one place</h2>
-          <p class="section-desc">Applying to top universities is stressful and confusing. AdmissAI cuts through the noise — giving you real, specific, school-by-school guidance powered by AI.</p>
-
-          <div class="features-grid">
-            <div class="feature-card">
-              <div class="feature-icon" style="background: rgba(99,102,241,0.12); color: #818cf8">
-                <i class="fa-solid fa-comments"></i>
-              </div>
-              <h3>AI Chat Advisor</h3>
-              <p>Ask anything — essay tips, score requirements, application strategy. Get real answers, not generic advice. The AI knows the actual requirements for each school.</p>
-              <button class="feature-link" onclick="App.navigate('chat')">Start chatting <i class="fa-solid fa-arrow-right"></i></button>
-            </div>
-
-            <div class="feature-card">
-              <div class="feature-icon" style="background: rgba(20,184,166,0.12); color: #2dd4bf">
-                <i class="fa-solid fa-university"></i>
-              </div>
-              <h3>Program Explorer</h3>
-              <p>Browse 8 of the most competitive programs — MIT, Stanford, Harvard, Wharton, CMU, Oxford, Columbia, and Caltech — with full requirements, tips, and deadlines.</p>
-              <button class="feature-link" onclick="App.navigate('programs')">View programs <i class="fa-solid fa-arrow-right"></i></button>
-            </div>
-
-            <div class="feature-card">
-              <div class="feature-icon" style="background: rgba(245,158,11,0.12); color: #fbbf24">
-                <i class="fa-solid fa-list-check"></i>
-              </div>
-              <h3>Application Checklist</h3>
-              <p>Never miss a step. Every program comes with a personalized checklist — essays, recommendations, tests, fees — organized by category and saved automatically.</p>
-              <button class="feature-link" onclick="App.navigate('checklist')">Open checklist <i class="fa-solid fa-arrow-right"></i></button>
-            </div>
-          </div>
+      <div class="hp-bot">
+        <p>Or go directly to a page:</p>
+        <div class="stream-quick">
+          <button class="sq" onclick="go('courses')">Courses</button>
+          <button class="sq" onclick="go('colleges')">Colleges</button>
+          <button class="sq" onclick="go('exams')">Exams</button>
+          <button class="sq" onclick="go('compare')">Compare</button>
+          <button class="sq" onclick="go('chat')">AI Chat</button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
 
-      <!-- How it works -->
-      <div class="home-section how-section">
-        <div class="section-inner">
-          <div class="section-label">How It Works</div>
-          <h2 class="section-title">Simple. Specific. Actually helpful.</h2>
+<div class="hs">
+  <div class="hs-in">
+    <div class="hs-label">Browse by Course</div>
+    <h2>Which degree are you targeting?</h2>
+    <div class="pill-row" id="home-pills"></div>
+  </div>
+</div>
 
-          <div class="steps-row">
-            <div class="step-card">
-              <div class="step-number">01</div>
-              <h3>Pick your program</h3>
-              <p>Browse the Programs page and select the university you're targeting. Each card shows acceptance rates, average GPA, SAT/ACT scores, and deadlines.</p>
-            </div>
-            <div class="step-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-            <div class="step-card">
-              <div class="step-number">02</div>
-              <h3>Chat with the AI</h3>
-              <p>Select that program in the AI Chat sidebar, then ask anything — "What essays do I need?", "Is my GPA good enough?", "What extracurriculars matter most?"</p>
-            </div>
-            <div class="step-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-            <div class="step-card">
-              <div class="step-number">03</div>
-              <h3>Track your progress</h3>
-              <p>Open the Checklist for your target program. Check off tasks as you complete them. Your progress is saved automatically in your browser.</p>
-            </div>
-          </div>
+<div class="hs alt">
+  <div class="hs-in">
+    <div class="hs-label">How It Works</div>
+    <h2>Three steps to your admission plan</h2>
+    <div class="steps">
+      <div class="step"><div class="sn">01</div><h3>Enter your details</h3><p>Stream, 12th percentage, and entrance exam scores if you have them.</p></div>
+      <div class="sl"></div>
+      <div class="step"><div class="sn">02</div><h3>See what you qualify for</h3><p>The eligibility checker shows which courses and colleges match your profile with probability scores.</p></div>
+      <div class="sl"></div>
+      <div class="step"><div class="sn">03</div><h3>Get your career roadmap</h3><p>The AI Career Advisor maps your interests and strengths to the best courses and career paths.</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="hfooter">
+  <div class="hf-in">
+    <div class="logo"><div class="logo-mk"><i class="fa-solid fa-graduation-cap"></i></div><span class="logo-nm">AdmissAI India</span></div>
+    <p>Built for GenAI4GenZ by HPE. Data is for guidance only — always verify with official university sources before applying.</p>
+    <div class="fnav">
+      <button onclick="go('courses')">Courses</button>
+      <button onclick="go('colleges')">Colleges</button>
+      <button onclick="go('eligibility')">Eligibility</button>
+      <button onclick="go('career')">Career Advisor</button>
+      <button onclick="go('exams')">Exams</button>
+      <button onclick="go('finder')">College Finder</button>
+      <button onclick="go('compare')">Compare</button>
+      <button onclick="go('chat')">AI Chat</button>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══ COURSES ════════════════════════════════════════ -->
+<section class="page" id="page-courses">
+  <div class="ph"><h2>Courses</h2><p>B.Tech to MBA — explore every major degree, requirements, subjects, and where it takes you.</p></div>
+  <div class="tb">
+    <div class="sw"><i class="fa-solid fa-search"></i><input type="text" id="cs-q" placeholder="Search courses…" oninput="Courses.filter()"/></div>
+    <div class="chips">
+      <button class="ch on" onclick="Courses.level('all',this)">All</button>
+      <button class="ch" onclick="Courses.level('UG',this)">UG</button>
+      <button class="ch" onclick="Courses.level('PG',this)">PG</button>
+    </div>
+  </div>
+  <div class="g3" id="courses-grid"></div>
+  <div class="ovl" id="co-ovl" onclick="Courses.close()"></div>
+  <div class="drw" id="co-drw"><button class="drw-close" onclick="Courses.close()"><i class="fa-solid fa-xmark"></i></button><div class="drw-body" id="co-body"></div></div>
+</section>
+
+<!-- ═══ COLLEGES ══════════════════════════════════════ -->
+<section class="page" id="page-colleges">
+  <div class="ph"><h2>Colleges</h2><p>IITs, NITs, IIMs, NLUs, and top private colleges including Parul, Marwadi, and Sigma — full details, cutoffs, fees, and placements.</p></div>
+  <div class="tb">
+    <div class="sw"><i class="fa-solid fa-search"></i><input type="text" id="col-q" placeholder="Search colleges…" oninput="Colleges.filter()"/></div>
+    <div class="chips">
+      <button class="ch on" onclick="Colleges.type('all',this)">All</button>
+      <button class="ch" onclick="Colleges.type('Government',this)">Government</button>
+      <button class="ch" onclick="Colleges.type('Private',this)">Private</button>
+      <button class="ch" onclick="Colleges.type('Deemed',this)">Deemed</button>
+    </div>
+  </div>
+  <div class="g3" id="colleges-grid"></div>
+  <div class="ovl" id="col-ovl" onclick="Colleges.close()"></div>
+  <div class="drw" id="col-drw"><button class="drw-close" onclick="Colleges.close()"><i class="fa-solid fa-xmark"></i></button><div class="drw-body" id="col-body"></div></div>
+</section>
+
+<!-- ═══ ELIGIBILITY ═══════════════════════════════════ -->
+<section class="page" id="page-eligibility">
+<div class="elig-lay">
+  <div class="ef-panel">
+    <div class="ef-hd">
+      <div class="ef-ico"><i class="fa-solid fa-clipboard-check"></i></div>
+      <h2>Eligibility Checker</h2>
+      <p>Enter your details — see exactly which courses and colleges match you, with admission probability scores.</p>
+    </div>
+    <form onsubmit="Elig.check(event)">
+      <div class="fg">
+        <label>Your 12th Stream <span class="req">*</span></label>
+        <div class="stream-grid">
+          <button type="button" class="sbtn" data-v="pcm" onclick="Elig.stream('pcm',this)"><i class="fa-solid fa-calculator" style="color:var(--bl)"></i> PCM <em>Physics · Chemistry · Maths</em></button>
+          <button type="button" class="sbtn" data-v="pcb" onclick="Elig.stream('pcb',this)"><i class="fa-solid fa-dna" style="color:#4ade80"></i> PCB <em>Physics · Chemistry · Bio</em></button>
+          <button type="button" class="sbtn" data-v="commerce_maths" onclick="Elig.stream('commerce_maths',this)"><i class="fa-solid fa-coins" style="color:var(--pl)"></i> Commerce + Maths <em>Business · Accounts · Maths</em></button>
+          <button type="button" class="sbtn" data-v="commerce" onclick="Elig.stream('commerce',this)"><i class="fa-solid fa-coins" style="color:#fbbf24"></i> Commerce <em>Without Maths</em></button>
+          <button type="button" class="sbtn" data-v="arts_maths" onclick="Elig.stream('arts_maths',this)"><i class="fa-solid fa-palette" style="color:#c084fc"></i> Arts + Maths <em>Humanities with Maths</em></button>
+          <button type="button" class="sbtn" data-v="arts" onclick="Elig.stream('arts',this)"><i class="fa-solid fa-palette" style="color:#f472b6"></i> Arts <em>Humanities / No Maths</em></button>
         </div>
       </div>
-
-      <!-- Programs preview -->
-      <div class="home-section programs-preview-section">
-        <div class="section-inner">
-          <div class="section-label">Featured Programs</div>
-          <h2 class="section-title">Top universities we cover</h2>
-
-          <div class="uni-grid" id="home-uni-grid">
-            <!-- Filled by JS -->
-          </div>
-
-          <div style="text-align:center; margin-top: 40px">
-            <button class="btn-hero-secondary" onclick="App.navigate('programs')">
-              See all programs & requirements
-              <i class="fa-solid fa-arrow-right"></i>
-            </button>
-          </div>
+      <div class="fg">
+        <label for="m-inp">12th Percentage <span class="req">*</span></label>
+        <div class="mwrap"><input type="number" id="m-inp" min="0" max="100" step="0.1" placeholder="e.g. 87.5" oninput="Elig.marks(this)" required/><span class="munit">%</span></div>
+        <div class="mbar-w"><div class="mbar" id="mbar" style="width:0%"></div></div>
+        <div class="mlabel" id="mlabel"></div>
+      </div>
+      <div class="fg">
+        <label>Looking for</label>
+        <div class="lvl-tog">
+          <button type="button" class="lvl-btn on" data-v="ug" onclick="Elig.lvl('ug',this)">UG (after 12th)</button>
+          <button type="button" class="lvl-btn" data-v="pg" onclick="Elig.lvl('pg',this)">PG (after graduation)</button>
         </div>
       </div>
-
-      <!-- FAQ -->
-      <div class="home-section faq-section">
-        <div class="section-inner faq-inner">
-          <div>
-            <div class="section-label">FAQ</div>
-            <h2 class="section-title">Common questions</h2>
-          </div>
-
-          <div class="faq-list">
-            <div class="faq-item">
-              <button class="faq-q" onclick="toggleFaq(this)">
-                Is this free to use?
-                <i class="fa-solid fa-chevron-down"></i>
-              </button>
-              <div class="faq-a">Yes, completely free. Just open the website and start using it — no account, no payment, no signup required.</div>
-            </div>
-            <div class="faq-item">
-              <button class="faq-q" onclick="toggleFaq(this)">
-                How accurate is the admissions information?
-                <i class="fa-solid fa-chevron-down"></i>
-              </button>
-              <div class="faq-a">The program data (GPA ranges, test scores, essays, deadlines) is carefully curated from official university sources. Always verify final details on the university's official website before submitting.</div>
-            </div>
-            <div class="faq-item">
-              <button class="faq-q" onclick="toggleFaq(this)">
-                Can the AI help with my specific essay?
-                <i class="fa-solid fa-chevron-down"></i>
-              </button>
-              <div class="faq-a">Yes! You can paste your essay draft in the chat and ask for feedback, or ask for tips on how to approach a specific prompt. The AI gives honest, specific advice.</div>
-            </div>
-            <div class="faq-item">
-              <button class="faq-q" onclick="toggleFaq(this)">
-                Which universities are covered?
-                <i class="fa-solid fa-chevron-down"></i>
-              </button>
-              <div class="faq-a">Currently: MIT (CS), Stanford (CS), Harvard (Pre-Med), Wharton (Business), CMU (CS), Oxford (Law), Columbia (Economics), and Caltech (Physics). More coming soon.</div>
-            </div>
-            <div class="faq-item">
-              <button class="faq-q" onclick="toggleFaq(this)">
-                Is my chat history saved?
-                <i class="fa-solid fa-chevron-down"></i>
-              </button>
-              <div class="faq-a">Chat history is kept during your session but resets when you close or refresh the page. Your checklist progress is saved permanently in your browser's local storage.</div>
-            </div>
-          </div>
+      <div class="fg" id="grad-fg" style="display:none">
+        <label>Graduation Degree</label>
+        <input type="text" id="grad-inp" placeholder="e.g. B.Tech CS, BCA, B.Com"/>
+      </div>
+      <div class="fg">
+        <label>Entrance Scores <span class="opt">(optional — improves accuracy)</span></label>
+        <div class="scores-grid">
+          <div class="sf"><label>JEE Main Percentile</label><input type="number" id="s-jee" min="0" max="100" step="0.01" placeholder="e.g. 97.5"/></div>
+          <div class="sf"><label>NEET Rank</label><input type="number" id="s-neet" min="1" placeholder="e.g. 4500"/></div>
+          <div class="sf"><label>CAT Percentile</label><input type="number" id="s-cat" min="0" max="100" step="0.01" placeholder="e.g. 95.2"/></div>
+          <div class="sf"><label>GATE Score</label><input type="number" id="s-gate" min="0" max="1000" placeholder="e.g. 680"/></div>
+          <div class="sf"><label>CLAT Rank</label><input type="number" id="s-clat" min="1" placeholder="e.g. 350"/></div>
+          <div class="sf"><label>CUET Score</label><input type="number" id="s-cuet" min="0" placeholder="e.g. 620"/></div>
         </div>
       </div>
+      <button type="submit" class="btn-full"><i class="fa-solid fa-bolt"></i> Check Eligibility</button>
+    </form>
+  </div>
+  <div class="er-panel" id="er-panel">
+    <div class="er-empty" id="er-empty"><i class="fa-solid fa-clipboard-check"></i><h3>Fill in your details</h3><p>Eligible courses with admission probability will appear here.</p></div>
+    <div id="er-results" style="display:none"></div>
+  </div>
+</div>
+</section>
 
-      <!-- Footer -->
-      <footer class="home-footer">
-        <div class="footer-inner">
-          <div class="footer-logo" onclick="App.navigate('home')" style="cursor:pointer">
-            <div class="logo-icon" style="width:32px;height:32px;font-size:0.85rem">
-              <i class="fa-solid fa-graduation-cap"></i>
-            </div>
-            <span class="logo-brand" style="font-size:1rem">AdmissAI</span>
-          </div>
-          <p class="footer-note">Built to help students navigate the college admissions process. Always verify requirements on official university websites.</p>
-          <div class="footer-links">
-            <button onclick="App.navigate('programs')">Programs</button>
-            <button onclick="App.navigate('chat')">AI Chat</button>
-            <button onclick="App.navigate('checklist')">Checklist</button>
-          </div>
+<!-- ═══ CAREER ADVISOR ════════════════════════════════ -->
+<section class="page" id="page-career">
+<div class="career-lay">
+  <div class="ph" style="padding:0 0 28px"><h2>AI Career Advisor</h2><p>Tell us your interests and strengths — we'll map the best courses and career paths for you.</p></div>
+  <div class="career-steps" id="ca-steps">
+    <div class="cstep cur" id="cas-1"><div class="cstep-n">1</div> Interests</div>
+    <div class="cstep-line"></div>
+    <div class="cstep" id="cas-2"><div class="cstep-n">2</div> Strengths</div>
+    <div class="cstep-line"></div>
+    <div class="cstep" id="cas-3"><div class="cstep-n">3</div> Stream</div>
+    <div class="cstep-line"></div>
+    <div class="cstep" id="cas-4"><div class="cstep-n">4</div> Results</div>
+  </div>
+
+  <!-- Step 1: Interests -->
+  <div class="ca-panel" id="ca-s1">
+    <h3>What are you interested in?</h3>
+    <p>Pick all that apply — the more you select, the better your recommendations.</p>
+    <div class="int-grid">
+      <button class="int-btn" data-v="coding" onclick="CA.tog(this)"><i class="fa-solid fa-code" style="color:var(--bl)"></i><span>Coding & Tech</span></button>
+      <button class="int-btn" data-v="business" onclick="CA.tog(this)"><i class="fa-solid fa-chart-line" style="color:var(--pl)"></i><span>Business</span></button>
+      <button class="int-btn" data-v="medicine" onclick="CA.tog(this)"><i class="fa-solid fa-stethoscope" style="color:#4ade80"></i><span>Medicine</span></button>
+      <button class="int-btn" data-v="design" onclick="CA.tog(this)"><i class="fa-solid fa-pen-nib" style="color:#c084fc"></i><span>Design</span></button>
+      <button class="int-btn" data-v="law" onclick="CA.tog(this)"><i class="fa-solid fa-scale-balanced" style="color:#fbbf24"></i><span>Law</span></button>
+      <button class="int-btn" data-v="finance" onclick="CA.tog(this)"><i class="fa-solid fa-coins" style="color:#34d399"></i><span>Finance</span></button>
+      <button class="int-btn" data-v="research" onclick="CA.tog(this)"><i class="fa-solid fa-microscope" style="color:#38bdf8"></i><span>Research</span></button>
+      <button class="int-btn" data-v="arts" onclick="CA.tog(this)"><i class="fa-solid fa-palette" style="color:#f472b6"></i><span>Arts & Humanities</span></button>
+      <button class="int-btn" data-v="entrepreneurship" onclick="CA.tog(this)"><i class="fa-solid fa-rocket" style="color:#fb923c"></i><span>Entrepreneurship</span></button>
+      <button class="int-btn" data-v="gaming" onclick="CA.tog(this)"><i class="fa-solid fa-gamepad" style="color:#a78bfa"></i><span>Gaming / Animation</span></button>
+    </div>
+    <div class="ca-nav"><span></span><button class="btn-p" onclick="CA.next(1)">Next: Strengths <i class="fa-solid fa-arrow-right"></i></button></div>
+  </div>
+
+  <!-- Step 2: Strengths -->
+  <div class="ca-panel" id="ca-s2" style="display:none">
+    <h3>What are your strengths?</h3>
+    <p>Select the areas where you feel naturally confident.</p>
+    <div class="str-grid">
+      <button class="str-btn" data-v="maths" onclick="CA.togStr(this)"><i class="fa-solid fa-square-root-variable" style="color:var(--bl)"></i><div><strong>Strong in Maths</strong><span>Numbers, logic, problem-solving</span></div></button>
+      <button class="str-btn" data-v="communication" onclick="CA.togStr(this)"><i class="fa-solid fa-comments" style="color:var(--pl)"></i><div><strong>Communication</strong><span>Writing, speaking, persuasion</span></div></button>
+      <button class="str-btn" data-v="memory" onclick="CA.togStr(this)"><i class="fa-solid fa-brain" style="color:#4ade80"></i><div><strong>Memory / Retention</strong><span>Good at memorising concepts</span></div></button>
+      <button class="str-btn" data-v="creativity" onclick="CA.togStr(this)"><i class="fa-solid fa-lightbulb" style="color:#fbbf24"></i><div><strong>Creativity</strong><span>Thinking outside the box</span></div></button>
+      <button class="str-btn" data-v="leadership" onclick="CA.togStr(this)"><i class="fa-solid fa-users" style="color:#f472b6"></i><div><strong>Leadership</strong><span>Team management, organising</span></div></button>
+      <button class="str-btn" data-v="analytical" onclick="CA.togStr(this)"><i class="fa-solid fa-chart-bar" style="color:#38bdf8"></i><div><strong>Analytical Thinking</strong><span>Data, patterns, strategy</span></div></button>
+    </div>
+    <div class="ca-nav">
+      <button class="btn-s" onclick="CA.back(2)"><i class="fa-solid fa-arrow-left"></i> Back</button>
+      <button class="btn-p" onclick="CA.next(2)">Next: Your Stream <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- Step 3: Stream -->
+  <div class="ca-panel" id="ca-s3" style="display:none">
+    <h3>What's your 12th stream?</h3>
+    <p>This helps us filter to courses you're actually eligible for.</p>
+    <div class="stream-grid">
+      <button type="button" class="sbtn" data-v="pcm" onclick="CA.stream('pcm',this)"><i class="fa-solid fa-calculator" style="color:var(--bl)"></i> PCM <em>Physics · Chemistry · Maths</em></button>
+      <button type="button" class="sbtn" data-v="pcb" onclick="CA.stream('pcb',this)"><i class="fa-solid fa-dna" style="color:#4ade80"></i> PCB <em>Physics · Chemistry · Bio</em></button>
+      <button type="button" class="sbtn" data-v="commerce_maths" onclick="CA.stream('commerce_maths',this)"><i class="fa-solid fa-coins" style="color:var(--pl)"></i> Commerce + Maths <em></em></button>
+      <button type="button" class="sbtn" data-v="commerce" onclick="CA.stream('commerce',this)"><i class="fa-solid fa-coins" style="color:#fbbf24"></i> Commerce <em>Without Maths</em></button>
+      <button type="button" class="sbtn" data-v="arts" onclick="CA.stream('arts',this)"><i class="fa-solid fa-palette" style="color:#c084fc"></i> Arts / Humanities <em></em></button>
+    </div>
+    <div class="fg" style="margin-top:16px;margin-bottom:0">
+      <label for="ca-marks">Your 12th % <span class="opt">(for probability scores)</span></label>
+      <div class="mwrap"><input type="number" id="ca-marks" min="0" max="100" step="0.1" placeholder="e.g. 82"/><span class="munit">%</span></div>
+    </div>
+    <div class="ca-nav">
+      <button class="btn-s" onclick="CA.back(3)"><i class="fa-solid fa-arrow-left"></i> Back</button>
+      <button class="btn-p" onclick="CA.getResults()"><i class="fa-solid fa-sparkles"></i> Get My Career Roadmap</button>
+    </div>
+  </div>
+
+  <!-- Step 4: Results -->
+  <div id="ca-s4" style="display:none">
+    <div class="advisor-res" id="ca-results"></div>
+    <div style="margin-top:20px">
+      <button class="btn-s" onclick="CA.restart()"><i class="fa-solid fa-rotate-left"></i> Start Over</button>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══ EXAMS ══════════════════════════════════════════ -->
+<section class="page" id="page-exams">
+  <div class="ph"><h2>Entrance Exams</h2><p>JEE, NEET, CAT, GATE, CLAT, CUET, BITSAT — everything you need including upcoming deadlines.</p></div>
+  <div class="tb">
+    <div class="chips">
+      <button class="ch on" onclick="Exams.filter('all',this)">All</button>
+      <button class="ch" onclick="Exams.filter('btech',this)">Engineering</button>
+      <button class="ch" onclick="Exams.filter('mba',this)">Management</button>
+      <button class="ch" onclick="Exams.filter('mbbs',this)">Medicine</button>
+      <button class="ch" onclick="Exams.filter('mtech',this)">PG Engg</button>
+      <button class="ch" onclick="Exams.filter('llb',this)">Law</button>
+      <button class="ch" onclick="Exams.filter('other',this)">Other UG</button>
+    </div>
+  </div>
+  <div class="deadline-sec">
+    <div class="dl-title"><i class="fa-solid fa-calendar-days"></i> Upcoming Deadlines & Exam Dates 2025</div>
+    <div id="dl-list"></div>
+  </div>
+  <div class="exams-list" id="exams-list"></div>
+</section>
+
+<!-- ═══ COMPARE ════════════════════════════════════════ -->
+<section class="page" id="page-compare">
+  <div class="ph"><h2>Compare Courses</h2><p>Select up to 4 courses to compare side by side — duration, fees, eligibility, exams, salary, and more.</p></div>
+  <div class="tb">
+    <div class="sw"><i class="fa-solid fa-search"></i><input type="text" id="cmp-q" placeholder="Add a course to compare…" oninput="Cmp.search()" onclick="Cmp.openDD()"/></div>
+    <div id="cmp-dd" style="display:none;position:relative"></div>
+    <span style="font-size:.75rem;color:var(--t3)" id="cmp-count">0 / 4 selected</span>
+  </div>
+  <div id="cmp-dd-abs" style="position:absolute;z-index:200;background:var(--bg2);border:1px solid var(--borderS);border-radius:var(--r);max-width:320px;overflow:hidden;display:none"></div>
+  <div class="compare-lay">
+    <div class="cmp-empty" id="cmp-empty"><i class="fa-solid fa-scale-balanced"></i><h3>Add courses to compare</h3><p>Search and select up to 4 courses using the search box above.</p></div>
+    <div id="cmp-table" style="display:none"></div>
+  </div>
+</section>
+
+<!-- ═══ COLLEGE FINDER ════════════════════════════════ -->
+<section class="page" id="page-finder">
+  <div class="ph">
+    <h2>College Finder</h2>
+    <p>Filter by course, city, college type, and budget — find the right college for your profile.</p>
+  </div>
+  <div class="finder-lay">
+    <div class="finder-filters">
+      <div class="ff-group">
+        <label><i class="fa-solid fa-book-open"></i> Course</label>
+        <select class="ff-select" id="ff-course">
+          <option value="">All Courses</option>
+        </select>
+      </div>
+      <div class="ff-group">
+        <label><i class="fa-solid fa-location-dot"></i> State / City</label>
+        <select class="ff-select" id="ff-state">
+          <option value="">All States</option>
+          <option value="Maharashtra">Maharashtra</option>
+          <option value="Tamil Nadu">Tamil Nadu</option>
+          <option value="Karnataka">Karnataka</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Gujarat">Gujarat</option>
+          <option value="Telangana">Telangana</option>
+          <option value="Rajasthan">Rajasthan</option>
+          <option value="Kerala">Kerala</option>
+          <option value="West Bengal">West Bengal</option>
+        </select>
+      </div>
+      <div class="ff-group">
+        <label><i class="fa-solid fa-building"></i> Type</label>
+        <select class="ff-select" id="ff-type">
+          <option value="">All Types</option>
+          <option value="Government">Government</option>
+          <option value="Deemed">Deemed / Autonomous</option>
+          <option value="Private">Private</option>
+        </select>
+      </div>
+      <button class="ff-find" onclick="Finder.search()"><i class="fa-solid fa-search"></i> Find Colleges</button>
+    </div>
+    <div id="finder-results">
+      <div class="finder-empty" id="finder-empty">
+        <i class="fa-solid fa-magnifying-glass-location"></i>
+        <h3>Set your filters and search</h3>
+        <p>Leave filters empty to browse all colleges.</p>
+        <button class="btn-p" onclick="Finder.search()" style="margin-top:4px"><i class="fa-solid fa-search"></i> Show All Colleges</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CHAT ═══════════════════════════════════════════ -->
+<section class="page" id="page-chat">
+<div class="chat-lay">
+  <div class="cs">
+    <div class="cs-hd"><h3>Context</h3><p>Select for specific answers</p></div>
+    <div class="cs-sec"><div class="cs-lab">Course</div>
+      <div class="cs-ls" id="chat-courses">
+        <div class="csi on" data-id="" onclick="Chat.sel(this,'course')">
+          <div class="csi-dot" style="background:#6366f1"></div>
+          <div><div class="csi-nm">General</div><div class="csi-sub">Any topic</div></div>
         </div>
-      </footer>
-
-    </section>
-
-    <!-- ── PAGE: PROGRAMS ──────────────────────────────────────────────── -->
-    <section class="page" id="page-programs">
-      <div class="page-header">
-        <h2 class="page-title">Program Explorer</h2>
-        <p class="page-desc">Browse top university programs. Click any card for full requirements and tips.</p>
       </div>
-
-      <div class="programs-toolbar">
-        <div class="search-box">
-          <i class="fa-solid fa-search"></i>
-          <input type="text" id="programs-search" placeholder="Search universities or programs…" />
-        </div>
-        <div class="category-filters" id="category-filters"></div>
-      </div>
-
-      <div class="programs-grid" id="programs-grid">
-        <div class="program-card skeleton-card"><div class="skeleton sk-full"></div></div>
-        <div class="program-card skeleton-card"><div class="skeleton sk-full"></div></div>
-        <div class="program-card skeleton-card"><div class="skeleton sk-full"></div></div>
-        <div class="program-card skeleton-card"><div class="skeleton sk-full"></div></div>
-      </div>
-
-      <div class="detail-overlay" id="detail-overlay"></div>
-      <div class="detail-drawer" id="detail-drawer">
-        <button class="drawer-close" id="drawer-close"><i class="fa-solid fa-xmark"></i></button>
-        <div class="drawer-content" id="drawer-content"></div>
-      </div>
-    </section>
-
-    <!-- ── PAGE: CHAT ──────────────────────────────────────────────────── -->
-    <section class="page" id="page-chat">
-      <div class="chat-layout">
-        <div class="chat-sidebar">
-          <div class="sidebar-header">
-            <h3>Program Context</h3>
-            <p>Select a program for specific advice</p>
-          </div>
-          <div class="program-select-list" id="program-select-list">
-            <div class="program-select-item active" data-id="">
-              <div class="psi-dot" style="background:#6366f1"></div>
-              <div class="psi-text">
-                <span class="psi-name">General Admissions</span>
-                <span class="psi-sub">Ask anything about college apps</span>
-              </div>
-            </div>
-          </div>
-          <div class="compression-badge-box" id="compression-badge-box" style="display:none">
-            <div class="cb-header"><i class="fa-solid fa-bolt"></i> Last Response Stats</div>
-            <div class="cb-stats" id="cb-stats"></div>
-          </div>
-        </div>
-
-        <div class="chat-window">
-          <div class="chat-messages" id="chat-messages">
-            <div class="chat-welcome">
-              <div class="welcome-icon"><i class="fa-solid fa-graduation-cap"></i></div>
-              <h3>Hi! I'm your AdmissAI Advisor 👋</h3>
-              <p>I can help with college application strategy, essay tips, program requirements, deadlines, and more. Select a program on the left for school-specific advice, or just ask me anything!</p>
-              <div class="welcome-suggestions">
-                <button class="suggestion-chip" onclick="Chat.sendQuick('What GPA do I need for MIT?')">What GPA for MIT?</button>
-                <button class="suggestion-chip" onclick="Chat.sendQuick('How do I write a strong personal statement?')">Essay tips?</button>
-                <button class="suggestion-chip" onclick="Chat.sendQuick('What are the application deadlines I need to know?')">Key deadlines?</button>
-                <button class="suggestion-chip" onclick="Chat.sendQuick('How important are extracurriculars for top schools?')">Extracurriculars?</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="typing-indicator" id="typing-indicator" style="display:none">
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-          </div>
-
-          <div class="chat-input-area">
-            <div class="chat-input-wrap">
-              <textarea id="chat-input" placeholder="Ask about requirements, essays, deadlines, strategy…" rows="1" maxlength="2000"></textarea>
-              <button class="send-btn" id="send-btn">
-                <i class="fa-solid fa-paper-plane"></i>
-              </button>
-            </div>
-            <div class="chat-input-meta">
-              <span id="char-count">0 / 2000</span>
-              <span><kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</span>
-            </div>
-          </div>
+    </div>
+    <div class="cs-sec"><div class="cs-lab">College</div>
+      <div class="cs-ls" id="chat-colleges">
+        <div class="csi" data-id="" onclick="Chat.sel(this,'college')">
+          <div class="csi-dot" style="background:#475569"></div>
+          <div><div class="csi-nm">No specific college</div></div>
         </div>
       </div>
-    </section>
-
-    <!-- ── PAGE: CHECKLIST ────────────────────────────────────────────── -->
-    <section class="page" id="page-checklist">
-      <div class="page-header">
-        <h2 class="page-title">Application Checklist</h2>
-        <p class="page-desc">Track every step of your application. Progress is saved automatically in your browser.</p>
-      </div>
-
-      <div class="checklist-program-select">
-        <label>Select Program:</label>
-        <div class="cl-select-wrap">
-          <select id="checklist-program-select">
-            <option value="">Choose a program…</option>
-          </select>
-          <i class="fa-solid fa-chevron-down"></i>
+    </div>
+  </div>
+  <div class="cw">
+    <div class="cm" id="chat-msgs">
+      <div class="cwelc">
+        <div class="cwelc-ico"><i class="fa-solid fa-graduation-cap"></i></div>
+        <h3>AdmissAI India Advisor 👋</h3>
+        <p>Ask anything about Indian college admissions — courses, cutoffs, entrance exams, career paths, or college comparisons.</p>
+        <div class="sugg-row">
+          <button class="sg" onclick="Chat.quick('What is the difference between B.Tech and BCA?')">B.Tech vs BCA?</button>
+          <button class="sg" onclick="Chat.quick('JEE Main percentile needed for NIT Trichy CS?')">JEE for NIT Trichy?</button>
+          <button class="sg" onclick="Chat.quick('Career options after BBA?')">BBA careers?</button>
+          <button class="sg" onclick="Chat.quick('I scored 85% in PCM. Which colleges can I get?')">85% PCM options?</button>
+          <button class="sg" onclick="Chat.quick('What is CUET and which colleges accept it?')">About CUET?</button>
+          <button class="sg" onclick="Chat.quick('What scholarships are available for Indian students?')">Scholarships?</button>
+          <button class="sg" onclick="Chat.quick('Tell me about Parul University Vadodara courses and fees')">Parul University?</button>
+          <button class="sg" onclick="Chat.quick('What are the top colleges in Mumbai for engineering?')">Mumbai Engg Colleges?</button>
         </div>
       </div>
-
-      <div class="checklist-body" id="checklist-body">
-        <div class="checklist-empty">
-          <i class="fa-solid fa-list-check"></i>
-          <h3>Select a program above to load your checklist</h3>
-          <p>We'll show you every step organized by category.</p>
-        </div>
+    </div>
+    <div class="typing" id="typing" style="display:none"><span></span><span></span><span></span></div>
+    <div class="chat-inp">
+      <div class="cib">
+        <textarea id="chat-ta" placeholder="Ask about courses, colleges, exams, cutoffs, career paths…" rows="1" maxlength="2000" oninput="Chat.resize(this)"></textarea>
+        <button class="send" id="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
       </div>
-    </section>
+      <div class="cib-meta"><span id="char-cnt">0 / 2000</span><span><kbd>Enter</kbd> send &nbsp;<kbd>Shift+Enter</kbd> new line</span></div>
+    </div>
+  </div>
+</div>
+</section>
 
-  </main>
+</main>
+<div class="toast-wrap" id="toasts"></div>
 
-  <!-- Toast -->
-  <div class="toast-container" id="toast-container"></div>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+const COURSES = [
+  {id:'btech',name:'B.Tech',full:'Bachelor of Technology',level:'UG',dur:'4 Years',cat:'Engineering',
+   desc:'Most sought-after UG degree for technical careers. Covers CS, ECE, Mechanical, Civil, AI/ML and more.',
+   streams:['pcm'],minPct:75,icon:'fa-microchip',color:'#4f46e5',
+   exams:['JEE Main','JEE Advanced','BITSAT','VITEEE','MET','SRMJEE'],
+   salary:'₹6–25 LPA',careers:['Software Engineer','Data Scientist','Core Engineer','Product Manager','Research Scientist'],
+   specs:['Computer Science','ECE','Mechanical','Civil','Data Science','AI & ML'],
+   sems:{'Sem 1-2':'Engineering Maths, Physics, Chemistry, Programming basics',
+         'Sem 3-4':'Data Structures, Algorithms, DBMS, Circuits',
+         'Sem 5-6':'Operating Systems, Networks, ML basics, Electives',
+         'Sem 7-8':'Major projects, Internship, Advanced electives'},
+   fees:'₹2.2L/yr (IIT) — ₹4L/yr (Private)',nirf:'#1–100 varies by college'},
+  {id:'bca',name:'BCA',full:'Bachelor of Computer Applications',level:'UG',dur:'3 Years',cat:'Computer Science',
+   desc:'Focused CS program. Great alternative to B.Tech CS — open to commerce and arts students with Maths.',
+   streams:['pcm','commerce_maths','arts_maths'],minPct:50,icon:'fa-laptop-code',color:'#0891b2',
+   exams:['CUET','IPU CET','Symbiosis SET','College-specific'],
+   salary:'₹3–10 LPA',careers:['Software Developer','Web Developer','System Analyst','Database Admin'],
+   specs:['Software Development','Cybersecurity','Cloud Computing','Data Analytics'],
+   sems:{'Sem 1-2':'C Programming, Web Basics, Maths, Office Tools',
+         'Sem 3-4':'Java, DBMS, Data Structures, Networking',
+         'Sem 5-6':'Python, Cloud, Android Dev, Minor project'},
+   fees:'₹50K–1.5L/yr',nirf:'N/A (3-yr program)'},
+  {id:'bba',name:'BBA',full:'Bachelor of Business Administration',level:'UG',dur:'3 Years',cat:'Management',
+   desc:'Foundation in business and management. Strong base for MBA. Open to all streams.',
+   streams:['pcm','pcb','commerce','commerce_maths','arts','arts_maths'],minPct:50,icon:'fa-briefcase',color:'#d97706',
+   exams:['CUET','IPMAT','DU JAT','SET','College-specific'],
+   salary:'₹3–8 LPA',careers:['Business Analyst','Marketing Executive','HR Manager','Entrepreneur'],
+   specs:['Finance','Marketing','HR','International Business','Entrepreneurship'],
+   sems:{'Sem 1-2':'Business Communication, Principles of Management, Accounting, Economics',
+         'Sem 3-4':'Marketing, HRM, Business Law, Statistics',
+         'Sem 5-6':'Strategic Management, Entrepreneurship, International Business, Project'},
+   fees:'₹80K–3L/yr',nirf:'Top BBA: NMIMS, Symbiosis, IIM Indore (IPM)'},
+  {id:'bcom',name:'B.Com',full:'Bachelor of Commerce',level:'UG',dur:'3 Years',cat:'Commerce',
+   desc:'Core commerce degree covering accounting, taxation, economics and finance. Path to CA, CS, or MBA.',
+   streams:['commerce','commerce_maths','pcm'],minPct:45,icon:'fa-coins',color:'#059669',
+   exams:['CUET','DU Cutoff','College-specific'],
+   salary:'₹3–7 LPA',careers:['Accountant','CA (after ICAI exams)','Tax Consultant','Finance Analyst','Banking'],
+   specs:['Accounting & Taxation','Banking & Insurance','Computers','Hons (Economics)'],
+   sems:{'Sem 1-2':'Financial Accounting, Business Eco, Business Law, Maths/Stats',
+         'Sem 3-4':'Corporate Accounting, Cost Accounting, Income Tax, Auditing',
+         'Sem 5-6':'Financial Management, Indirect Tax (GST), Project, Advanced Accounting'},
+   fees:'₹15K–1L/yr',nirf:'SRCC, LSR, Hansraj (DU) are top'},
+  {id:'bsc',name:'B.Sc',full:'Bachelor of Science',level:'UG',dur:'3 Years',cat:'Science',
+   desc:'Science degree across Physics, Chemistry, Biology, Maths. Gateway to research, M.Sc, and government science roles.',
+   streams:['pcm','pcb'],minPct:50,icon:'fa-flask',color:'#7c3aed',
+   exams:['CUET','BHU UET','JNU Entrance','College-specific'],
+   salary:'₹3–8 LPA',careers:['Research Scientist','Lab Technician','Science Teacher','Data Analyst','GATE → M.Tech'],
+   specs:['Physics','Chemistry','Biology','Maths','Data Science','Biotechnology'],
+   sems:{'Yr 1':'Core theory + lab work in 2-3 main subjects',
+         'Yr 2':'Advanced theory, electives introduction, mini projects',
+         'Yr 3':'Specialization, dissertations, practical exams'},
+   fees:'₹10K–80K/yr',nirf:'Miranda House, St. Stephen\'s, Presidency'},
+  {id:'ba',name:'B.A.',full:'Bachelor of Arts',level:'UG',dur:'3 Years',cat:'Arts & Humanities',
+   desc:'Humanities and social sciences. Opens paths to civil services, law (after LLB), teaching, journalism.',
+   streams:['arts','arts_maths','commerce','pcm','pcb'],minPct:45,icon:'fa-landmark',color:'#be185d',
+   exams:['CUET','DU Cutoff','College-specific'],
+   salary:'₹2.5–6 LPA (wider range with PG)',careers:['Civil Services (IAS/IPS)','Journalist','Lawyer (after LLB)','Teacher','Content Writer'],
+   specs:['Economics','Political Science','Psychology','English Literature','History','Sociology'],
+   sems:{'Yr 1':'Core + one elective from humanities disciplines',
+         'Yr 2':'Advanced papers, optional interdisciplinary',
+         'Yr 3':'Specialisation, dissertation/project, compulsory English'},
+   fees:'₹8K–60K/yr',nirf:'Miranda House, Lady Shri Ram, Presidency'},
+  {id:'mba',name:'MBA',full:'Master of Business Administration',level:'PG',dur:'2 Years',cat:'Management',
+   desc:'Premier PG management degree. Requires graduation + entrance exam. IIMs can transform careers. Most competitive PG program.',
+   streams:['any_graduate'],minPct:50,icon:'fa-chart-line',color:'#dc2626',
+   exams:['CAT','XAT','SNAP','NMAT','CMAT','MAT','IIFT'],
+   salary:'₹8–50 LPA (IIM avg ₹25+ LPA)',careers:['Management Consultant','Investment Banker','Marketing Head','Operations Manager','Entrepreneur'],
+   specs:['Finance','Marketing','Operations','HR','Strategy','Consulting'],
+   sems:{'Sem 1':'Financial Accounting, Marketing, OB, Stats, Economics, Communication',
+         'Sem 2':'Corporate Finance, Strategy, Operations, Law, Electives',
+         'Summer':'Internship (mandatory 8–10 weeks)',
+         'Sem 3-4':'Specialization electives, Leadership, Capstone project'},
+   fees:'₹12L–34L (2 yrs, IIMs)',nirf:'IIM A, B, C, L, K are top 5'},
+  {id:'mca',name:'MCA',full:'Master of Computer Applications',level:'PG',dur:'2 Years',cat:'Computer Science',
+   desc:'PG in computer applications. Good path for BCA/B.Sc CS grads to enter software roles at MNC level.',
+   streams:['bca_grad','bsc_cs_grad','btech_grad'],minPct:50,icon:'fa-server',color:'#0284c7',
+   exams:['NIMCET','IPU CET','MAH MCA CET','TANCET'],
+   salary:'₹5–15 LPA',careers:['Software Engineer','System Analyst','App Developer','IT Consultant'],
+   specs:['Software Engineering','Cybersecurity','Data Science','Cloud Computing'],
+   sems:{'Sem 1-2':'Advanced OOP, DBMS, Web Technologies, Software Engineering',
+         'Sem 3-4':'ML, Cloud, Mobile Dev, Major project'},
+   fees:'₹80K–3L/yr',nirf:'NIT MCA, IIIT, VIT MCA are top'},
+  {id:'mtech',name:'M.Tech',full:'Master of Technology',level:'PG',dur:'2 Years',cat:'Engineering',
+   desc:'PG engineering. Requires B.Tech + GATE score. Best for deep specialisation, R&D, PSU jobs, or IIT/NIT faculty.',
+   streams:['btech_grad'],minPct:60,icon:'fa-cogs',color:'#1d4ed8',
+   exams:['GATE'],
+   salary:'₹8–25 LPA (IIT M.Tech avg ₹15+ LPA)',careers:['Senior Engineer','R&D Researcher','IIT/NIT Faculty','PSU (ONGC, BHEL, IOCL)','PhD'],
+   specs:['CSE','VLSI','Structural Engg','Power Systems','AI & ML','Robotics'],
+   sems:{'Sem 1-2':'Advanced courses in specialization, research methodology',
+         'Sem 3-4':'Thesis/dissertation (60% of credit), labs, publications'},
+   fees:'₹17K/sem (IIT with scholarship) — ₹3L/yr (Private)',nirf:'IIT, NIT, IIIT top for M.Tech'},
+  {id:'llb',name:'LLB / BA LLB',full:'Bachelor of Laws',level:'UG/PG',dur:'3 Yrs (after grad) / 5 Yrs (integrated)',cat:'Law',
+   desc:'5-year integrated BA LLB straight after 12th is now the most popular route via NLUs through CLAT.',
+   streams:['pcm','pcb','commerce','arts','arts_maths','commerce_maths'],minPct:45,icon:'fa-scale-balanced',color:'#92400e',
+   exams:['CLAT','AILET','LSAT India','MH CET Law'],
+   salary:'₹4–30 LPA',careers:['Advocate','Corporate Lawyer','Judge (via PCS-J)','Legal Consultant','Govt Law Officer'],
+   specs:['Corporate Law','Criminal Law','Constitutional Law','IPR','Cyber Law'],
+   sems:{'Yr 1-2':'Law of Contracts, Torts, Constitutional Law, Criminal Law, Legal Methods',
+         'Yr 3-4':'Family Law, Property, Jurisprudence, Company Law, Arbitration',
+         'Yr 5':'Clinical legal education, Moot Court, Dissertation, Internship'},
+   fees:'₹1.5L–3L/yr (NLU) — ₹80K/yr (state law colleges)',nirf:'NLSIU, NALSAR, NUJS top 3'},
+  {id:'mbbs',name:'MBBS',full:'Bachelor of Medicine & Surgery',level:'UG',dur:'5.5 Years (with internship)',cat:'Medicine',
+   desc:'Only path to become a doctor in India. 18 lakh+ students compete for ~1 lakh seats. NEET-UG is mandatory.',
+   streams:['pcb'],minPct:50,icon:'fa-stethoscope',color:'#0f766e',
+   exams:['NEET-UG'],
+   salary:'₹6–30 LPA (specialist private practice can be much higher)',careers:['General Physician','Surgeon','Specialist (after MD/MS)','Medical Researcher','Public Health Officer'],
+   specs:['General Medicine','Surgery','Paediatrics (PG)','Cardiology (PG)','Dermatology (PG)'],
+   sems:{'Yr 1 (Pre-Clinical)':'Anatomy, Physiology, Biochemistry',
+         'Yr 2 (Para-Clinical)':'Pathology, Pharmacology, Microbiology, Community Medicine',
+         'Yr 3-4 (Clinical)':'Medicine, Surgery, OBG, Paediatrics, Psychiatry, ENT, Ophthalmology',
+         'Yr 5 (Internship)':'Rotations across all departments'},
+   fees:'₹1,500/yr (AIIMS) — ₹60L total (private)',nirf:'AIIMS Delhi, JIPMER, CMC Vellore top 3'},
+  {id:'bpharm',name:'B.Pharm',full:'Bachelor of Pharmacy',level:'UG',dur:'4 Years',cat:'Pharmacy',
+   desc:'Growing field with Indian pharma booming. Careers in drug manufacturing, hospitals, retail pharmacy.',
+   streams:['pcb','pcm'],minPct:50,icon:'fa-pills',color:'#16a34a',
+   exams:['State pharmacy CETs','College-specific','GPAT for PG'],
+   salary:'₹3–8 LPA',careers:['Pharmacist','Drug Inspector','Research Associate','Quality Control','Medical Representative'],
+   specs:['Clinical Pharmacy','Pharmaceutical Chemistry','Pharmacology','Drug Regulatory Affairs'],
+   sems:{'Yr 1-2':'Pharmaceutical Chemistry, Pharmacognosy, Human Anatomy, Physiology',
+         'Yr 3-4':'Pharmacology, Clinical Pharmacy, Drug Store Management, Project'},
+   fees:'₹50K–2L/yr',nirf:'JSS, Manipal, Jamia top pharmacy colleges'},
+];
 
-  <!-- Scripts -->
-  <script src="/static/js/app.js"></script>
-  <script src="/static/js/programs.js"></script>
-  <script src="/static/js/chat.js"></script>
-  <script src="/static/js/checklist.js"></script>
+const COLLEGES = [
+  // ── IITs ────────────────────────────────────────────────────────
+  {id:'iit-bombay',name:'IIT Bombay',city:'Mumbai',state:'Maharashtra',type:'Government',tier:'tier1',color:'#1d4ed8',short:'IITB',courses:['btech','mtech'],ranking:'NIRF #3',est:1958,about:'Best placement record among all IITs. Strong startup ecosystem via Society for Innovation and Entrepreneurship (SINE).',cutoffs:{btech:'JEE Adv Rank: Top 500 (CS), Top 2000 (others)',mtech:'GATE 750+ (CS), 650+ (others)'},fees:{btech:'₹2.2L/yr',mtech:'₹17K/sem (with MHRD scholarship)'},pkg:{btech:'₹21 LPA median',mtech:'₹18 LPA'},web:'iitb.ac.in'},
+  {id:'iit-delhi',name:'IIT Delhi',city:'New Delhi',state:'Delhi',type:'Government',tier:'tier1',color:'#1e40af',short:'IITD',courses:['btech','mtech'],ranking:'NIRF #2',est:1961,about:'Located in Delhi — strong alumni network and proximity to central government institutions and industry.',cutoffs:{btech:'JEE Adv Rank: Top 400 (CS), Top 1800 (others)',mtech:'GATE 760+ (CS)'},fees:{btech:'₹2.2L/yr'},pkg:{btech:'₹22 LPA median'},web:'iitd.ac.in'},
+  {id:'iit-madras',name:'IIT Madras',city:'Chennai',state:'Tamil Nadu',type:'Government',tier:'tier1',color:'#1e3a5f',short:'IITM',courses:['btech','mtech'],ranking:'NIRF #1 (8 consecutive years)',est:1959,about:'NIRF #1 for 8 consecutive years. Exceptionally strong in research and deep-tech startups.',cutoffs:{btech:'JEE Adv Rank: Top 350 (CS), Top 1600 (others)'},fees:{btech:'₹2.2L/yr'},pkg:{btech:'₹20 LPA median'},web:'iitm.ac.in'},
+  // ── NITs ────────────────────────────────────────────────────────
+  {id:'nit-trichy',name:'NIT Trichy',city:'Tiruchirappalli',state:'Tamil Nadu',type:'Government',tier:'tier1',color:'#7c2d12',short:'NITT',courses:['btech','mtech'],ranking:'NIRF #8 Engg',est:1964,about:'Best NIT for placements — consistently highest median package. Strong alumni in FAANG companies.',cutoffs:{btech:'JEE Main: 98.5%ile (CS), 95%ile (ECE/Mech)'},fees:{btech:'₹1.49L/yr (Home State)'},pkg:{btech:'₹12 LPA median'},web:'nitt.edu'},
+  {id:'nit-surathkal',name:'NIT Surathkal (NITK)',city:'Mangaluru',state:'Karnataka',type:'Government',tier:'tier1',color:'#065f46',short:'NITK',courses:['btech','mtech'],ranking:'NIRF #15 Engg',est:1960,about:'Top NIT on west coast. Strong ECE and CS departments. Well-regarded in core engineering too.',cutoffs:{btech:'JEE Main: 98%ile (CS), 94%ile (ECE)'},fees:{btech:'₹1.49L/yr'},pkg:{btech:'₹10 LPA median'},web:'nitk.ac.in'},
+  // ── BITS ────────────────────────────────────────────────────────
+  {id:'bits-pilani',name:'BITS Pilani',city:'Pilani',state:'Rajasthan',type:'Deemed',tier:'tier1',color:'#92400e',short:'BITS',courses:['btech'],ranking:'NIRF #25',est:1964,about:'Own entrance (BITSAT — no JEE needed). Unique Dual Degree and Practice School program with industry.',cutoffs:{btech:'BITSAT: 380+ (CS Pilani), 355+ (ECE), 340+ (Mech)'},fees:{btech:'₹5.58L/yr'},pkg:{btech:'₹16 LPA median'},web:'bits-pilani.ac.in'},
+  // ── IIMs ────────────────────────────────────────────────────────
+  {id:'iim-ahmedabad',name:'IIM Ahmedabad',city:'Ahmedabad',state:'Gujarat',type:'Government',tier:'tier1',color:'#7c2d12',short:'IIMA',courses:['mba'],ranking:'NIRF #1 Management',est:1961,about:'Most prestigious MBA in India. Average package ₹35+ LPA. One of the hardest to get into in the world.',cutoffs:{mba:'CAT 99+ overall, 95+ sectional, work-ex preferred'},fees:{mba:'₹34L (total 2 yrs)'},pkg:{mba:'₹35 LPA median'},web:'iima.ac.in'},
+  {id:'iim-bangalore',name:'IIM Bangalore',city:'Bengaluru',state:'Karnataka',type:'Government',tier:'tier1',color:'#1d4ed8',short:'IIMB',courses:['mba'],ranking:'NIRF #2 Management',est:1973,about:'Top choice for consulting and tech MBA. Strongest alumni density in Bangalore startup ecosystem.',cutoffs:{mba:'CAT 99+ overall'},fees:{mba:'₹24L (total 2 yrs)'},pkg:{mba:'₹34 LPA median'},web:'iimb.ac.in'},
+  // ── Private ─────────────────────────────────────────────────────
+  {id:'vit-vellore',name:'VIT Vellore',city:'Vellore',state:'Tamil Nadu',type:'Deemed',tier:'tier2',color:'#1d4ed8',short:'VIT',courses:['btech','mtech','mca'],ranking:'NIRF #11 Engg',est:1984,about:'Largest private intake in India. Good placements for CS/ECE. Accessible via VITEEE — far easier than JEE.',cutoffs:{btech:'VITEEE Rank: Top 10K (CS), Top 30K (others)',mtech:'GATE 500+ preferred'},fees:{btech:'₹2.2L/yr',mtech:'₹1.87L/yr'},pkg:{btech:'₹7 LPA median CS'},web:'vit.ac.in'},
+  {id:'manipal',name:'Manipal University',city:'Manipal',state:'Karnataka',type:'Deemed',tier:'tier2',color:'#b45309',short:'Manipal',courses:['btech','mba','bpharm'],ranking:'NIRF #18',est:1953,about:'Strong across engineering, medicine, management and pharmacy. One of India\'s oldest private universities.',cutoffs:{btech:'MET score, 60%+ in 12th',mba:'75+ CAT or GMAT/GRE'},fees:{btech:'₹3.5L/yr',mba:'₹5L/yr'},pkg:{btech:'₹6 LPA'},web:'manipal.edu'},
+  {id:'srm',name:'SRM Institute',city:'Chennai',state:'Tamil Nadu',type:'Deemed',tier:'tier2',color:'#0f766e',short:'SRM',courses:['btech','mba','mca'],ranking:'NIRF #30',est:1985,about:'Large campus. SRMJEE accessible with 75%+ PCM. Good for CS/IT placements with top tech companies visiting.',cutoffs:{btech:'SRMJEE rank or 75%+ 12th merit'},fees:{btech:'₹2.5L/yr'},pkg:{btech:'₹5.5 LPA'},web:'srmist.edu.in'},
+  // ── NLUs ────────────────────────────────────────────────────────
+  {id:'nlsiu',name:'NLSIU Bangalore',city:'Bengaluru',state:'Karnataka',type:'Government',tier:'tier1',color:'#92400e',short:'NLS',courses:['llb'],ranking:'NIRF #1 Law',est:1987,about:'Best law school in India. CLAT cutoff among the highest. Alumni at Supreme Court, Big Law, top government positions.',cutoffs:{llb:'CLAT Rank: Top 70 (General), Top 30 (SC/ST)'},fees:{llb:'₹2.4L/yr'},pkg:{llb:'₹12 LPA median'},web:'nls.ac.in'},
+  // ── Medical ─────────────────────────────────────────────────────
+  {id:'aiims',name:'AIIMS New Delhi',city:'New Delhi',state:'Delhi',type:'Government',tier:'tier1',color:'#0f766e',short:'AIIMS',courses:['mbbs'],ranking:'NIRF #1 Medical',est:1956,about:'Most prestigious medical college in India. Heavily subsidised fees. NEET rank under 50 required.',cutoffs:{mbbs:'NEET Rank: Under 50 (General)'},fees:{mbbs:'₹1,628/yr'},pkg:{},web:'aiims.edu'},
+  // ── DU ──────────────────────────────────────────────────────────
+  {id:'srcc',name:'SRCC — Delhi University',city:'New Delhi',state:'Delhi',type:'Government',tier:'tier1',color:'#1e3a5f',short:'SRCC',courses:['bcom','ba'],ranking:'Top Commerce College India',est:1926,about:'Most prestigious commerce college in India. Near-perfect CUET score needed. Strong placement culture.',cutoffs:{bcom:'Near-perfect CUET score'},fees:{bcom:'₹18K/yr'},pkg:{bcom:'₹8 LPA campus'},web:'srcc.edu'},
+  {id:'miranda',name:'Miranda House — DU',city:'New Delhi',state:'Delhi',type:'Government',tier:'tier1',color:'#7c3aed',short:'Miranda',courses:['bsc','ba'],ranking:'NIRF #1 Colleges',est:1948,about:"India's best women's college. Top in arts and sciences. CUET cutoff extremely high.",cutoffs:{ba:'High CUET score',bsc:'High CUET score'},fees:{ba:'₹12K/yr',bsc:'₹15K/yr'},pkg:{},web:'mirandahouse.ac.in'},
+  // ── Gujarat private ─────────────────────────────────────────────
+  {id:'parul',name:'Parul University',city:'Vadodara',state:'Gujarat',type:'Private',tier:'tier3',color:'#7c3aed',short:'Parul',courses:['btech','bca','bba','bcom','mba','mca'],ranking:'State Ranked',est:2015,about:'One of the fastest-growing universities in Gujarat. Large campus, diverse programs, international collaborations.',cutoffs:{btech:'12th 60%+ PCM, Parul-SET or JEE score',mba:'Graduation 50%+, CAT/MAT/GMAT or university exam',bca:'12th 50%+ with Maths'},fees:{btech:'₹1.2L/yr',mba:'₹2L/yr',bca:'₹80K/yr'},pkg:{btech:'₹4–5 LPA',mba:'₹4 LPA'},web:'paruluniversity.ac.in'},
+  {id:'marwadi',name:'Marwadi University',city:'Rajkot',state:'Gujarat',type:'Private',tier:'tier3',color:'#dc2626',short:'Marwadi',courses:['btech','bba','mba','bca'],ranking:'State Ranked',est:2014,about:'Tech-focused private university in Rajkot. Growing industry connections, especially in manufacturing and IT.',cutoffs:{btech:'12th 60%+ PCM',mba:'Graduation 50%+',bca:'12th 45%+ with Maths'},fees:{btech:'₹1L/yr',mba:'₹1.5L/yr'},pkg:{btech:'₹3.5–4.5 LPA'},web:'marwadiuniversity.ac.in'},
+  {id:'sigma',name:'Sigma University',city:'Vadodara',state:'Gujarat',type:'Private',tier:'tier3',color:'#0891b2',short:'Sigma',courses:['btech','bca','bba','bcom'],ranking:'Emerging',est:2020,about:'Newer university in Vadodara (Baroda). Focused on industry-relevant curriculum, skill-based programs, and entrepreneurship.',cutoffs:{btech:'12th 55%+ PCM',bca:'12th 45%+ with Maths',bba:'12th 45%+ any stream'},fees:{btech:'₹90K/yr',bca:'₹60K/yr',bba:'₹55K/yr'},pkg:{btech:'₹3–4 LPA'},web:'sigmauniversity.ac.in'},
+  // ── Mumbai University colleges ───────────────────────────────
+  {id:'mu-ict',name:'ICT Mumbai (UDCT)',city:'Mumbai',state:'Maharashtra',type:'Government',tier:'tier1',color:'#0f766e',short:'ICT',courses:['btech','mtech','bpharm'],ranking:'Top Chemical Engg Institute India',est:1933,about:'Institute of Chemical Technology — one of the best for Chemical, Pharma, and Polymer engineering. Admission via MH CET.',cutoffs:{btech:'MH CET 99.5%ile (Chemical), 98%ile (Pharma)',mtech:'GATE 700+ preferred'},fees:{btech:'₹1.08L/yr',mtech:'₹60K/yr'},pkg:{btech:'₹8 LPA median'},web:'ictmumbai.edu.in'},
+  {id:'mu-vit',name:'Veermata Jijabai Tech (VJTI)',city:'Mumbai',state:'Maharashtra',type:'Government',tier:'tier1',color:'#1e40af',short:'VJTI',courses:['btech','mtech'],ranking:'Top Mumbai Engineering College',est:1887,about:'Premier government engineering college in Mumbai. One of the oldest and most prestigious. Strong in Mechanical, Civil, ECE.',cutoffs:{btech:'MH CET 98%ile+ for CS, 96%ile ECE',mtech:'GATE 600+ preferred'},fees:{btech:'₹1.5L/yr'},pkg:{btech:'₹7 LPA median'},web:'vjti.ac.in'},
+  {id:'mu-spit',name:'SPIT — SP Jain',city:'Mumbai',state:'Maharashtra',type:'Government (Aided)',tier:'tier2',color:'#7c3aed',short:'SPIT',courses:['btech'],ranking:'Top 5 Mumbai Engg Colleges',est:1957,about:'Sardar Patel Institute of Technology. One of the best aided colleges under Mumbai University. Strong CS and ECE programs.',cutoffs:{btech:'MH CET 99%ile+ CS, 97%ile ECE'},fees:{btech:'₹60K/yr'},pkg:{btech:'₹8 LPA median CS'},web:'spit.ac.in'},
+  {id:'mu-kc',name:'K.C. College — Mumbai',city:'Mumbai',state:'Maharashtra',type:'Government (Aided)',tier:'tier2',color:'#059669',short:'KC',courses:['bcom','ba','bsc'],ranking:'Top Mumbai Arts & Commerce',est:1954,about:'Kishinchand Chellaram College — one of the top arts and commerce colleges in Mumbai. Known for Economics, Commerce, and Psychology.',cutoffs:{bcom:'HSC 90%+ for open merit',ba:'HSC 85%+'},fees:{bcom:'₹20K/yr',ba:'₹18K/yr'},pkg:{},web:'kccollege.edu.in'},
+  {id:'mu-hr',name:'HR College — Mumbai',city:'Mumbai',state:'Maharashtra',type:'Private (Aided)',tier:'tier2',color:'#d97706',short:'HR',courses:['bcom','bba','bca'],ranking:'Top Commerce College Mumbai',est:1957,about:'Hassaram Rijhumal College. Excellent commerce and business programs. High cutoffs for B.Com. Part of Mumbai University.',cutoffs:{bcom:'HSC 92%+ General',bba:'HSC 85%+'},fees:{bcom:'₹25K/yr',bba:'₹80K/yr'},pkg:{},web:'hrcollege.edu'},
+  // ── More NITs ────────────────────────────────────────────────
+  {id:'nit-warangal',name:'NIT Warangal',city:'Warangal',state:'Telangana',type:'Government',tier:'tier1',color:'#7c2d12',short:'NITW',courses:['btech','mtech'],ranking:'NIRF #5 Engg',est:1959,about:'One of the oldest and highest-ranked NITs. Particularly strong in CS, ECE, and Mechanical. Great placement record.',cutoffs:{btech:'JEE Main 98%ile+ CS, 95%ile ECE'},fees:{btech:'₹1.49L/yr'},pkg:{btech:'₹11 LPA median'},web:'nitw.ac.in'},
+  {id:'nit-calicut',name:'NIT Calicut',city:'Kozhikode',state:'Kerala',type:'Government',tier:'tier1',color:'#065f46',short:'NITC',courses:['btech','mtech'],ranking:'NIRF #12 Engg',est:1961,about:'Top NIT in South India. Strong in ECE, CS, and Civil. Good exposure to Kerala\'s growing tech ecosystem.',cutoffs:{btech:'JEE Main 97%ile+ CS'},fees:{btech:'₹1.49L/yr'},pkg:{btech:'₹9 LPA median'},web:'nitc.ac.in'},
+  // ── IIIT ─────────────────────────────────────────────────────
+  {id:'iiit-hyderabad',name:'IIIT Hyderabad',city:'Hyderabad',state:'Telangana',type:'Deemed',tier:'tier1',color:'#4f46e5',short:'IIITH',courses:['btech'],ranking:'Top CS-focused IIIT',est:1998,about:'Research-focused CS institute. No JEE — own UGEE exam. Outstanding for AI, ML, and core CS. Very selective (under 200 seats).',cutoffs:{btech:'UGEE exam + research aptitude test'},fees:{btech:'₹3.5L/yr'},pkg:{btech:'₹20 LPA median CS'},web:'iiit.ac.in'},
+  // ── Others ───────────────────────────────────────────────────
+  {id:'jadavpur',name:'Jadavpur University',city:'Kolkata',state:'West Bengal',type:'Government',tier:'tier1',color:'#1d4ed8',short:'JU',courses:['btech','mtech'],ranking:'NIRF #17 Engg',est:1955,about:'Top government university in Eastern India. Highly selective — no JEE needed. Own state-level entrance. Strong research tradition.',cutoffs:{btech:'WBJEE rank Top 500 CS, or JEE Main high score'},fees:{btech:'₹25K/yr (very subsidised)'},pkg:{btech:'₹8 LPA median'},web:'jaduniv.edu.in'},
+  {id:'symbiosis',name:'Symbiosis International',city:'Pune',state:'Maharashtra',type:'Deemed',tier:'tier2',color:'#dc2626',short:'SIU',courses:['bca','bba','mba'],ranking:'Top Private Pune University',est:2002,about:'One of India\'s most recognised private universities. Strong in law, management, and computer science. SET exam for admission.',cutoffs:{bba:'SET score + 12th 60%',bca:'SET score + 12th 50% with Maths',mba:'SNAP score'},fees:{bba:'₹2L/yr',bca:'₹1.5L/yr',mba:'₹8L/yr'},pkg:{bba:'₹5 LPA',mba:'₹12 LPA'},web:'siu.edu.in'},
+  {id:'fergusson',name:'Fergusson College — Pune',city:'Pune',state:'Maharashtra',type:'Government (Aided)',tier:'tier2',color:'#92400e',short:'FCP',courses:['bsc','ba','bcom'],ranking:'Top Pune Arts & Science College',est:1885,about:'Historic college in Pune, now an autonomous institution. Excellent B.Sc and BA programs. High academic standards.',cutoffs:{bsc:'HSC 85%+ PCM/PCB',ba:'HSC 80%+',bcom:'HSC 82%+'},fees:{bsc:'₹30K/yr',ba:'₹22K/yr'},pkg:{},web:'fergusson.edu'},
+];
 
-  <script>
-    function toggleFaq(btn) {
-      const item = btn.parentElement;
-      const isOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-      if (!isOpen) item.classList.add('open');
+const EXAMS = [
+  {id:'jee-main',name:'JEE Main',full:'Joint Entrance Exam Main',courses:['btech'],by:'NTA',freq:'Twice a year (Jan & Apr)',mode:'Online CBT',marks:'300',dur:'3 hours',diff:'High',elig:'12th PCM, 75% marks (65% SC/ST)',seats:'~11 lakh appear | NITs, IIITs, GFTIs',tip:'Focus on NCERT thoroughly first. Jan attempt gives buffer for improvement in Apr. Speed and accuracy matter equally.',color:'#1d4ed8',icon:'fa-calculator',deadline:{date:'Nov 30, 2024',event:'JEE Main Session 1 Registration',urgency:'upcoming'}},
+  {id:'jee-adv',name:'JEE Advanced',full:'Joint Entrance Exam Advanced',courses:['btech'],by:'IIT (rotates)',freq:'Once a year (May/Jun)',mode:'Online CBT',marks:'360',dur:'3 hrs × 2 papers',diff:'Very High',elig:'Top 2.5L JEE Main qualifiers, 75% in 12th',seats:'~17,000 seats across 23 IITs',tip:'Deep conceptual understanding beats rote learning. Solve 10 years of papers. Paper 1 and 2 both matter equally.',color:'#7c3aed',icon:'fa-atom',deadline:{date:'May 2025',event:'JEE Advanced 2025',urgency:'later'}},
+  {id:'neet',name:'NEET-UG',full:'National Eligibility cum Entrance Test',courses:['mbbs','bpharm'],by:'NTA',freq:'Once a year (May)',mode:'Offline OMR',marks:'720',dur:'3 hrs 20 min',diff:'High',elig:'12th PCB, 50% marks (40% SC/ST)',seats:'~18L appear | ~1L MBBS seats',tip:'Biology is 50% of paper — master NCERT Biology completely. NCERTs Physics and Chemistry cover 80% of questions.',color:'#0f766e',icon:'fa-stethoscope',deadline:{date:'Mar 7, 2025',event:'NEET UG 2025 Registration',urgency:'soon'}},
+  {id:'cat',name:'CAT',full:'Common Admission Test',courses:['mba'],by:'IIMs (rotates)',freq:'Once a year (Nov)',mode:'Online CBT',marks:'Scaled / 198',dur:'2 hours',diff:'Very High',elig:"Any bachelor's 50% (45% SC/ST)",seats:'~2.3L appear | IIMs take 99+ percentile',tip:'RC is the heart of VARC — read quality English daily. For DILR, solve 30 complete sets before the exam. Accuracy over speed in Quant.',color:'#dc2626',icon:'fa-chart-bar',deadline:{date:'Aug 2025',event:'CAT 2025 Registration Opens',urgency:'later'}},
+  {id:'gate',name:'GATE',full:'Graduate Aptitude Test in Engineering',courses:['mtech','mca'],by:'IITs/IISc',freq:'Once a year (Feb)',mode:'Online CBT',marks:'100',dur:'3 hours',diff:'High',elig:'B.Tech/B.E./B.Sc (Research) or final year',seats:'~9L appear | IIT M.Tech + PSU jobs',tip:'GATE score valid 3 years. PSU recruitment (ONGC, BHEL, IOCL) via GATE score is equally valuable. Revise core subjects deeply.',color:'#1d4ed8',icon:'fa-gear',deadline:{date:'Sep 2, 2025',event:'GATE 2026 Registration',urgency:'later'}},
+  {id:'clat',name:'CLAT',full:'Common Law Admission Test',courses:['llb'],by:'Consortium of NLUs',freq:'Once a year (Dec)',mode:'Offline',marks:'120',dur:'2 hours',diff:'Moderate–High',elig:'12th any stream, 45% (40% SC/ST)',seats:'~70K appear | 25 NLUs',tip:'Legal reasoning does NOT need legal knowledge — it is reading comprehension on legal passages. Current affairs section is scoring.',color:'#92400e',icon:'fa-scale-balanced',deadline:{date:'Nov 15, 2024',event:'CLAT 2025 Registration',urgency:'upcoming'}},
+  {id:'cuet',name:'CUET',full:'Common University Entrance Test',courses:['bca','bba','bcom','bsc','ba','llb'],by:'NTA',freq:'Once a year (May/Jun)',mode:'Online CBT',marks:'Scaled per subject',dur:'Varies by subjects',diff:'Moderate',elig:'12th in relevant stream',seats:'Central + many private universities',tip:'Domain subject questions are straight from NCERT — score high there first. General Test is mostly the tiebreaker.',color:'#0891b2',icon:'fa-university',deadline:{date:'Mar 2025',event:'CUET UG 2025 Registration',urgency:'upcoming'}},
+  {id:'bitsat',name:'BITSAT',full:'BITS Admission Test',courses:['btech'],by:'BITS Pilani',freq:'Once a year (May–Jun)',mode:'Online CBT',marks:'390',dur:'3 hours',diff:'High',elig:'12th PCM, 75% in PCM subjects',seats:'~2,100 seats (Pilani + Goa + Hyderabad)',tip:'Speed is critical — no negative for unattempted questions. Finish 150 Qs to unlock 12 bonus questions. BITS CS > many NITs for placements.',color:'#b45309',icon:'fa-bolt',deadline:{date:'Jan 2025',event:'BITSAT 2025 Registration',urgency:'upcoming'}},
+];
+
+const DEADLINES = [
+  {date:'Nov 30, 2024',name:'JEE Main Jan Session Registration Last Date',urgency:'soon'},
+  {date:'Nov 15, 2024',name:'CLAT 2025 Registration Deadline',urgency:'soon'},
+  {date:'Jan 15, 2025',name:'BITSAT 2025 Registration Opens',urgency:'upcoming'},
+  {date:'Feb 2025',name:'JEE Main Session 1 Exam',urgency:'upcoming'},
+  {date:'Mar 2025',name:'CUET UG 2025 Registration',urgency:'upcoming'},
+  {date:'Mar 7, 2025',name:'NEET UG 2025 Application',urgency:'upcoming'},
+  {date:'May 2025',name:'NEET UG 2025 Exam',urgency:'later'},
+  {date:'May 2025',name:'JEE Advanced 2025 Exam',urgency:'later'},
+  {date:'May–Jun 2025',name:'CUET UG 2025 Exam Window',urgency:'later'},
+  {date:'Aug 2025',name:'CAT 2025 Registration Opens',urgency:'later'},
+  {date:'Nov 2025',name:'CAT 2025 Exam',urgency:'later'},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// ROUTER
+// ═══════════════════════════════════════════════════════════════
+const PAGES = ['home','courses','colleges','eligibility','career','exams','compare','finder','chat'];
+let currentPage = 'home';
+
+function go(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
+  document.getElementById('page-'+p).classList.add('on');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.toggle('on', b.dataset.p===p));
+  currentPage = p;
+  const nl = document.getElementById('nl');
+  if(nl.classList.contains('open')) nl.classList.remove('open');
+  // lazy init
+  if(p==='courses') Courses.init();
+  if(p==='colleges') Colleges.init();
+  if(p==='exams') Exams.init();
+  if(p==='compare') Cmp.init();
+  if(p==='finder') Finder.init();
+  if(p==='chat') Chat.init();
+  if(p==='home') Home.init();
+  window.scrollTo(0,0);
+}
+function toggleNav(){document.getElementById('nl').classList.toggle('open')}
+function quickElig(stream){
+  const btns = document.querySelectorAll('.sbtn');
+  btns.forEach(b=>{b.classList.remove('on'); if(b.dataset.v===stream)b.classList.add('on')});
+  Elig._stream = stream;
+  go('eligibility');
+}
+function toast(msg,type='inf'){
+  const w=document.getElementById('toasts');
+  const t=document.createElement('div');
+  const icons={ok:'fa-check-circle',err:'fa-circle-xmark',inf:'fa-circle-info'};
+  t.className=`toast ${type}`;
+  t.innerHTML=`<i class="fa-solid ${icons[type]}"></i> ${msg}`;
+  w.appendChild(t);
+  setTimeout(()=>t.remove(),3200);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════════════════════
+const Home = {
+  inited: false,
+  init(){
+    if(this.inited) return; this.inited=true;
+    const c = document.getElementById('home-pills');
+    COURSES.forEach(co=>{
+      const b=document.createElement('button');
+      b.className='pill';
+      b.innerHTML=`<i class="fa-solid ${co.icon}" style="color:${co.color}"></i> ${co.name}`;
+      b.onclick=()=>{ Courses.init(); Courses.open(co.id); go('courses'); };
+      c.appendChild(b);
+    });
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// COURSES
+// ═══════════════════════════════════════════════════════════════
+const Courses = {
+  inited:false, lvl:'all',
+  init(){
+    if(this.inited)return; this.inited=true;
+    this.render();
+    // also populate chat sidebar
+    const cl = document.getElementById('chat-courses');
+    COURSES.forEach(c=>{
+      const d=document.createElement('div');
+      d.className='csi'; d.dataset.id=c.id;
+      d.onclick=function(){Chat.sel(this,'course')};
+      d.innerHTML=`<div class="csi-dot" style="background:${c.color}"></div><div><div class="csi-nm">${c.name}</div><div class="csi-sub">${c.dur}</div></div>`;
+      cl.appendChild(d);
+    });
+  },
+  render(){
+    const q=(document.getElementById('cs-q')||{}).value||'';
+    const g=document.getElementById('courses-grid'); g.innerHTML='';
+    COURSES.filter(c=>{
+      if(this.lvl!=='all'&&c.level!==this.lvl) return false;
+      if(q&&!c.name.toLowerCase().includes(q.toLowerCase())&&!c.full.toLowerCase().includes(q.toLowerCase())&&!c.cat.toLowerCase().includes(q.toLowerCase())) return false;
+      return true;
+    }).forEach(c=>{
+      const el=document.createElement('div');
+      el.className='cc'; el.onclick=()=>this.open(c.id);
+      el.innerHTML=`
+        <div class="cc-top">
+          <div class="cc-ico" style="background:${c.color}40"><i class="fa-solid ${c.icon}" style="color:${c.color}"></i></div>
+          <span class="badge ${c.level==='UG'?'ug':'pg'}">${c.level}</span>
+        </div>
+        <div class="cc-nm">${c.name}</div>
+        <div class="cc-fn">${c.full}</div>
+        <div class="cc-desc">${c.desc}</div>
+        <div class="cc-tags">${c.specs.slice(0,3).map(s=>`<span class="ctag">${s}</span>`).join('')}</div>
+        <div class="cc-ft">
+          <span><i class="fa-solid fa-clock"></i> ${c.dur}</span>
+          <span>${c.salary}</span>
+          <i class="fa-solid fa-arrow-right arr"></i>
+        </div>`;
+      g.appendChild(el);
+    });
+  },
+  filter(){this.render()},
+  level(v,btn){
+    this.lvl=v;
+    document.querySelectorAll('#page-courses .ch').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on'); this.render();
+  },
+  open(id){
+    const c=COURSES.find(x=>x.id===id); if(!c)return;
+    const semHtml = Object.entries(c.sems).map(([sem,sub])=>`<div class="sem-box"><div class="sem-n">${sem}</div><div class="sem-sub">${sub}</div></div>`).join('');
+    document.getElementById('co-body').innerHTML=`
+      <div class="d-ico" style="background:${c.color}30"><i class="fa-solid ${c.icon}" style="color:${c.color}"></i></div>
+      <div class="d-nm">${c.name}</div><div class="d-fn">${c.full}</div>
+      <div class="d-chips">
+        <span class="d-chip"><i class="fa-solid fa-clock"></i>${c.dur}</span>
+        <span class="d-chip"><i class="fa-solid fa-layer-group"></i>${c.level}</span>
+        <span class="d-chip"><i class="fa-solid fa-tag"></i>${c.cat}</span>
+        <span class="d-chip"><i class="fa-solid fa-money-bill"></i>${c.fees}</span>
+      </div>
+      <div class="dsec"><div class="dsec-t"><i class="fa-solid fa-circle-info"></i>About</div><p style="font-size:.83rem">${c.desc}</p></div>
+      <div class="dsec"><div class="dsec-t"><i class="fa-solid fa-book"></i>Subjects by Semester</div><div class="sem-grid">${semHtml}</div></div>
+      <div class="dsec"><div class="dsec-t"><i class="fa-solid fa-pen-to-square"></i>Entrance Exams</div><div class="d-exams2">${c.exams.map(e=>`<span class="d-exam2">${e}</span>`).join('')}</div></div>
+      <div class="dsec"><div class="dsec-t"><i class="fa-solid fa-road"></i>Career Paths</div><div class="d-careers">${c.careers.map(x=>`<span class="d-career">${x}</span>`).join('')}</div></div>
+      <div class="dsec"><div class="dsec-t"><i class="fa-solid fa-indian-rupee-sign"></i>Average Salary</div><p style="font-size:.9rem;color:var(--pl);font-weight:700">${c.salary}</p></div>
+      <div class="dsec"><div class="dsec-t"><i class="fa-solid fa-graduation-cap"></i>Top Colleges</div><ul class="d-list">${COLLEGES.filter(col=>col.courses.includes(c.id)).slice(0,5).map(col=>`<li>${col.name} — ${col.city}</li>`).join('')}</ul></div>
+      <div class="d-btns">
+        <button class="btn-p" onclick="go('eligibility')"><i class="fa-solid fa-bolt"></i> Check My Eligibility</button>
+        <button class="btn-s" onclick="Cmp.add('${c.id}')"><i class="fa-solid fa-scale-balanced"></i> Add to Compare</button>
+      </div>`;
+    document.getElementById('co-ovl').classList.add('on');
+    document.getElementById('co-drw').classList.add('on');
+  },
+  close(){
+    document.getElementById('co-ovl').classList.remove('on');
+    document.getElementById('co-drw').classList.remove('on');
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// COLLEGES
+// ═══════════════════════════════════════════════════════════════
+const Colleges = {
+  inited:false, typ:'all',
+  init(){
+    if(this.inited)return; this.inited=true;
+    this.render();
+    const cl=document.getElementById('chat-colleges');
+    COLLEGES.forEach(c=>{
+      const d=document.createElement('div');
+      d.className='csi'; d.dataset.id=c.id;
+      d.onclick=function(){Chat.sel(this,'college')};
+      d.innerHTML=`<div class="csi-dot" style="background:${c.color}"></div><div><div class="csi-nm">${c.short}</div><div class="csi-sub">${c.city}</div></div>`;
+      cl.appendChild(d);
+    });
+  },
+  render(){
+    const q=(document.getElementById('col-q')||{}).value||'';
+    const g=document.getElementById('colleges-grid'); g.innerHTML='';
+    const tierMap={tier1:'tier1',tier2:'tier2',tier3:'tier3'};
+    COLLEGES.filter(c=>{
+      if(this.typ==='Government'&&!c.type.startsWith('Government')) return false;
+      if(this.typ==='Private'&&!c.type.startsWith('Private')) return false;
+      if(this.typ==='Deemed'&&c.type!=='Deemed') return false;
+      if(q&&!c.name.toLowerCase().includes(q.toLowerCase())&&!c.city.toLowerCase().includes(q.toLowerCase())) return false;
+      return true;
+    }).forEach(c=>{
+      const tierLabel={tier1:'Tier 1 — Premier',tier2:'Tier 2 — Top Private',tier3:'Tier 3 — Regional'}[c.tier]||c.tier;
+      const tierCls={tier1:'tier1',tier2:'tier2',tier3:'tier3'}[c.tier]||'tier3';
+      const el=document.createElement('div');
+      el.className='colc'; el.onclick=()=>this.open(c.id);
+      el.innerHTML=`
+        <div class="colc-top">
+          <div class="colc-logo" style="background:${c.color}">${c.short.slice(0,3)}</div>
+          <div><div class="colc-nm">${c.name}</div><div class="colc-loc"><i class="fa-solid fa-location-dot"></i>${c.city}, ${c.state}</div></div>
+        </div>
+        <div class="tier-badge ${tierCls}">${tierLabel}</div>
+        <div style="font-size:.77rem;color:var(--t2);margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-trophy" style="color:#fbbf24;font-size:.7rem"></i>${c.ranking}</div>
+        <div class="colc-courses">${c.courses.map(id=>{const co=COURSES.find(x=>x.id===id);return co?`<span class="ctag2">${co.name}</span>`:''}).join('')}</div>
+        <div class="colc-ft">
+          <span>${c.type}</span>
+          <span>Est. ${c.est}</span>
+        </div>`;
+      g.appendChild(el);
+    });
+  },
+  filter(){this.render()},
+  type(v,btn){
+    this.typ=v;
+    document.querySelectorAll('#page-colleges .ch').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on'); this.render();
+  },
+  open(id){
+    const c=COLLEGES.find(x=>x.id===id); if(!c)return;
+    const coList = c.courses.map(cid=>{const co=COURSES.find(x=>x.id===cid);return co?co.name:cid}).join(', ');
+    const cutoffRows = Object.entries(c.cutoffs).map(([k,v])=>{
+      const co=COURSES.find(x=>x.id===k);
+      return `<div class="d-row"><span class="dk">${co?co.name:k}</span><span class="dv">${v}</span></div>`;
+    }).join('');
+    const feeRows = Object.entries(c.fees).map(([k,v])=>{
+      const co=COURSES.find(x=>x.id===k);
+      return `<div class="d-row"><span class="dk">${co?co.name:k}</span><span class="dv">${v}</span></div>`;
+    }).join('');
+    const pkgRows = Object.entries(c.pkg).map(([k,v])=>{
+      const co=COURSES.find(x=>x.id===k);
+      return `<div class="d-row"><span class="dk">${co?co.name:k}</span><span class="dv" style="color:var(--pl);font-weight:600">${v}</span></div>`;
+    }).join('');
+    document.getElementById('col-body').innerHTML=`
+      <div class="colc-logo" style="background:${c.color};width:52px;height:52px;border-radius:13px;font-size:.9rem;margin-bottom:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800">${c.short.slice(0,4)}</div>
+      <div class="d-nm">${c.name}</div>
+      <div class="d-fn">${c.city}, ${c.state} · Est. ${c.est}</div>
+      <div class="d-chips">
+        <span class="d-chip"><i class="fa-solid fa-trophy"></i>${c.ranking}</span>
+        <span class="d-chip"><i class="fa-solid fa-building"></i>${c.type}</span>
+        <span class="d-chip"><i class="fa-solid fa-book-open"></i>${coList}</span>
+      </div>
+      <div class="dsec"><div class="dsec-t"><i class="fa-solid fa-circle-info"></i>About</div><p style="font-size:.83rem;color:var(--t2)">${c.about}</p></div>
+      ${cutoffRows?`<div class="dsec"><div class="dsec-t"><i class="fa-solid fa-chart-bar"></i>Cutoffs / Eligibility</div>${cutoffRows}</div>`:''}
+      ${feeRows?`<div class="dsec"><div class="dsec-t"><i class="fa-solid fa-indian-rupee-sign"></i>Fees</div>${feeRows}</div>`:''}
+      ${pkgRows?`<div class="dsec"><div class="dsec-t"><i class="fa-solid fa-suitcase"></i>Average Package</div>${pkgRows}</div>`:''}
+      <div class="dsec"><div class="dsec-t"><i class="fa-solid fa-globe"></i>Website</div><p style="font-size:.83rem"><a href="https://${c.web}" target="_blank" style="color:var(--bl)">${c.web}</a></p></div>
+      <div class="d-btns">
+        <button class="btn-p" onclick="go('eligibility')"><i class="fa-solid fa-bolt"></i> Check Eligibility</button>
+        <button class="btn-s" onclick="Chat.askAbout('${c.name}')"><i class="fa-solid fa-comments"></i> Ask AI About This</button>
+      </div>`;
+    document.getElementById('col-ovl').classList.add('on');
+    document.getElementById('col-drw').classList.add('on');
+  },
+  close(){
+    document.getElementById('col-ovl').classList.remove('on');
+    document.getElementById('col-drw').classList.remove('on');
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ELIGIBILITY CHECKER
+// ═══════════════════════════════════════════════════════════════
+const Elig = {
+  _stream: '', _level: 'ug',
+  stream(v,btn){
+    this._stream=v;
+    document.querySelectorAll('#page-eligibility .sbtn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+  },
+  marks(inp){
+    const v=parseFloat(inp.value)||0;
+    const pct=Math.min(v,100);
+    document.getElementById('mbar').style.width=pct+'%';
+    const lbl=['','Below 45% — Very limited options','45–59% — Some options available','60–74% — Good range of choices','75–84% — Strong eligibility','85–94% — Excellent profile','95–100% — Outstanding'];
+    const idx=v<45?1:v<60?2:v<75?3:v<85?4:v<95?5:6;
+    document.getElementById('mlabel').textContent=v?lbl[idx]:'';
+  },
+  lvl(v,btn){
+    this._level=v;
+    document.querySelectorAll('.lvl-btn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById('grad-fg').style.display=v==='pg'?'block':'none';
+  },
+  check(e){
+    e.preventDefault();
+    if(!this._stream){toast('Please select your 12th stream','err'); return;}
+    const marks=parseFloat(document.getElementById('m-inp').value);
+    if(!marks||marks<0||marks>100){toast('Please enter a valid percentage','err'); return;}
+    const scores={
+      jee_main:parseFloat(document.getElementById('s-jee').value)||0,
+      neet_rank:parseFloat(document.getElementById('s-neet').value)||99999,
+      cat:parseFloat(document.getElementById('s-cat').value)||0,
+      gate:parseFloat(document.getElementById('s-gate').value)||0,
+      clat_rank:parseFloat(document.getElementById('s-clat').value)||99999,
+      cuet:parseFloat(document.getElementById('s-cuet').value)||0,
+    };
+    const results = this.compute(this._stream, marks, this._level, scores);
+    this.showResults(results, marks, scores);
+  },
+  compute(stream, marks, level, scores){
+    const streamMap = {
+      pcm:['PCM'], pcb:['PCB'],
+      commerce_maths:['Commerce with Maths','Commerce','PCM'],
+      commerce:['Commerce'],
+      arts_maths:['Arts with Maths','Arts'],
+      arts:['Arts'],
+      any_graduate:['Any Bachelor\'s Degree'],
+      btech_grad:['B.Tech / B.E.'],
+      bca_grad:['BCA'], bsc_cs_grad:['B.Sc CS/IT'],
+    };
+    const studentStreams = streamMap[stream]||[stream];
+    const isGrad = level==='pg';
+    const results=[];
+    COURSES.forEach(course=>{
+      if(isGrad && course.level==='UG') return;
+      if(!isGrad && course.level==='PG') return;
+      const streamMatch = course.streams.some(s=>studentStreams.some(ss=>ss.toLowerCase().includes(s.toLowerCase())||s.toLowerCase().includes(ss.toLowerCase())||s==='any_graduate'||ss.includes('Any')));
+      if(!streamMatch) return;
+      if(marks < course.minPct) return;
+      let str=10, reasons=[];
+      // marks
+      if(marks>=95){str+=30;reasons.push(`Outstanding 12th % (${marks}%)`);}
+      else if(marks>=85){str+=22;reasons.push(`Strong 12th % (${marks}%)`);}
+      else if(marks>=75){str+=15;reasons.push(`Good 12th % (${marks}%)`);}
+      else{str+=6;reasons.push(`Meets minimum marks (${marks}%)`)}
+      // exam scores
+      if(course.exams.includes('JEE Main')&&scores.jee_main>0){
+        if(scores.jee_main>=99){str+=40;reasons.push(`JEE Main ${scores.jee_main}%ile — IIT zone`);}
+        else if(scores.jee_main>=97){str+=30;reasons.push(`JEE Main ${scores.jee_main}%ile — NIT/BITS zone`);}
+        else if(scores.jee_main>=90){str+=18;reasons.push(`JEE Main ${scores.jee_main}%ile — good private colleges`);}
+        else{str+=8;reasons.push(`JEE Main ${scores.jee_main}%ile`)}
+      }
+      if(course.exams.includes('CAT')&&scores.cat>0){
+        if(scores.cat>=99){str+=40;reasons.push(`CAT ${scores.cat}%ile — IIM A/B/C zone`);}
+        else if(scores.cat>=95){str+=30;reasons.push(`CAT ${scores.cat}%ile — Top IIMs possible`);}
+        else if(scores.cat>=85){str+=18;reasons.push(`CAT ${scores.cat}%ile — newer IIMs + top private`);}
+        else{str+=8;reasons.push(`CAT ${scores.cat}%ile`)}
+      }
+      if(course.exams.includes('GATE')&&scores.gate>0){
+        if(scores.gate>=700){str+=38;reasons.push(`GATE ${scores.gate} — IIT M.Tech zone`);}
+        else if(scores.gate>=550){str+=24;reasons.push(`GATE ${scores.gate} — NIT M.Tech + PSU`);}
+        else{str+=10;reasons.push(`GATE ${scores.gate}`)}
+      }
+      if(course.exams.includes('NEET-UG')&&scores.neet_rank<99999){
+        if(scores.neet_rank<=50){str+=40;reasons.push(`NEET ${scores.neet_rank} — AIIMS level`);}
+        else if(scores.neet_rank<=5000){str+=30;reasons.push(`NEET ${scores.neet_rank} — Govt medical`);}
+        else if(scores.neet_rank<=50000){str+=15;reasons.push(`NEET ${scores.neet_rank} — Private medical`);}
+        else{str+=5}
+      }
+      if(course.exams.includes('CLAT')&&scores.clat_rank<99999){
+        if(scores.clat_rank<=100){str+=38;reasons.push(`CLAT ${scores.clat_rank} — Top NLU possible`);}
+        else if(scores.clat_rank<=1000){str+=24;reasons.push(`CLAT ${scores.clat_rank} — Good NLU`);}
+        else{str+=10;reasons.push(`CLAT ${scores.clat_rank}`)}
+      }
+      if(course.exams.includes('CUET')&&scores.cuet>0){
+        if(scores.cuet>=700){str+=28;reasons.push(`CUET ${scores.cuet} — DU top colleges`);}
+        else if(scores.cuet>=550){str+=16;reasons.push(`CUET ${scores.cuet} — good college`);}
+        else{str+=8;reasons.push(`CUET ${scores.cuet}`)}
+      }
+      str=Math.min(str,100);
+      const match=str>=70?'Strong Match':str>=50?'Good Match':str>=30?'Possible':'Low Match';
+      // admission probability per college
+      const probColleges=COLLEGES.filter(col=>col.courses.includes(course.id)).slice(0,4).map(col=>{
+        let p=50;
+        if(col.tier==='tier1') p=Math.max(5, Math.min(90, str-20));
+        else if(col.tier==='tier2') p=Math.max(15, Math.min(95, str-5));
+        else p=Math.max(30, Math.min(98, str+10));
+        const label=p>=70?'High':p>=45?'Moderate':'Low';
+        const cls=p>=70?'ph-bar':p>=45?'pm-bar':'pl-bar';
+        const ico=p>=70?'🟢':p>=45?'🟡':'🔴';
+        return {name:col.short||col.name,p,label,cls,ico};
+      });
+      results.push({course,str,match,reasons,probColleges});
+    });
+    return results.sort((a,b)=>b.str-a.str);
+  },
+  showResults(results, marks, scores){
+    document.getElementById('er-empty').style.display='none';
+    const out=document.getElementById('er-results');
+    out.style.display='flex'; out.style.flexDirection='column'; out.style.gap='13px';
+    const matchClass={'Strong Match':'m-s','Good Match':'m-g','Possible':'m-p','Low Match':'m-l'};
+    const barColor=s=>s>=70?'linear-gradient(90deg,#22c55e,#4ade80)':s>=50?'linear-gradient(90deg,var(--b),var(--bl))':s>=30?'linear-gradient(90deg,var(--p),var(--pl))':'linear-gradient(90deg,#475569,#64748b)';
+    // summary
+    const sum=document.createElement('div');
+    sum.className='er-sum';
+    sum.innerHTML=`<div class="er-cnt">${results.length}</div><div class="er-txt"><strong>Courses you qualify for</strong><span>${marks}% · ${this._stream.toUpperCase().replace('_',' ')}</span></div>`;
+    out.innerHTML='';
+    out.appendChild(sum);
+    results.forEach(r=>{
+      const el=document.createElement('div'); el.className='rc';
+      const probHtml=r.probColleges.map(p=>`
+        <div class="prob-row">
+          <span class="prob-ico">${p.ico}</span>
+          <span class="prob-col">${p.name}</span>
+          <div class="prob-bar-w"><div class="prob-bar ${p.cls}" style="width:${p.p}%"></div></div>
+          <span class="prob-pct" style="color:${p.p>=70?'#4ade80':p.p>=45?'#fbbf24':'#fb7185'}">${p.p}%</span>
+        </div>`).join('');
+      el.innerHTML=`
+        <div class="rc-top">
+          <div class="rc-ico" style="background:${r.course.color}30"><i class="fa-solid ${r.course.icon}" style="color:${r.course.color}"></i></div>
+          <div class="rc-info"><div class="rc-nm">${r.course.name}</div><div class="rc-fn">${r.course.full} · ${r.course.dur}</div></div>
+          <span class="match-badge ${matchClass[r.match]}">${r.match}</span>
+        </div>
+        <div class="rc-bar-w"><div class="rc-bar" style="background:${barColor(r.str)};width:${r.str}%"></div></div>
+        <div class="rc-reasons">${r.reasons.map(x=>`<span class="r-tag">${x}</span>`).join('')}</div>
+        ${probHtml?`<div class="prob-section"><div class="prob-title"><i class="fa-solid fa-chart-bar"></i> Admission Probability by College</div><div class="prob-list">${probHtml}</div></div>`:''}
+        <div class="rc-btns">
+          <button class="rcb pri" onclick="Courses.open('${r.course.id}')"><i class="fa-solid fa-info-circle"></i> Course Details</button>
+          <button class="rcb" onclick="Chat.quick('Tell me more about ${r.course.name} admissions for someone with ${marks}%')"><i class="fa-solid fa-comments"></i> Ask AI</button>
+        </div>`;
+      out.appendChild(el);
+    });
+    if(!results.length){
+      out.innerHTML='<div class="er-empty"><i class="fa-solid fa-circle-xmark"></i><h3>No courses found</h3><p>Try a different stream or lower the marks threshold.</p></div>';
     }
-  </script>
+  }
+};
 
+// ═══════════════════════════════════════════════════════════════
+// CAREER ADVISOR
+// ═══════════════════════════════════════════════════════════════
+const CA = {
+  interests:[], strengths:[], _stream:'', _step:1,
+  tog(btn){
+    btn.classList.toggle('on');
+    const v=btn.dataset.v;
+    this.interests=this.interests.includes(v)?this.interests.filter(x=>x!==v):[...this.interests,v];
+  },
+  togStr(btn){
+    btn.classList.toggle('on');
+    const v=btn.dataset.v;
+    this.strengths=this.strengths.includes(v)?this.strengths.filter(x=>x!==v):[...this.strengths,v];
+  },
+  stream(v,btn){
+    this._stream=v;
+    document.querySelectorAll('#ca-s3 .sbtn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+  },
+  next(step){
+    if(step===1&&!this.interests.length){toast('Select at least one interest','err');return;}
+    if(step===2&&!this.strengths.length){toast('Select at least one strength','err');return;}
+    document.getElementById('ca-s'+step).style.display='none';
+    document.getElementById('ca-s'+(step+1)).style.display='block';
+    this._step=step+1;
+    this.updateSteps();
+  },
+  back(step){
+    document.getElementById('ca-s'+step).style.display='none';
+    document.getElementById('ca-s'+(step-1)).style.display='block';
+    this._step=step-1;
+    this.updateSteps();
+  },
+  updateSteps(){
+    [1,2,3,4].forEach(i=>{
+      const el=document.getElementById('cas-'+i);
+      el.className='cstep'+(i<this._step?' done':i===this._step?' cur':'');
+    });
+  },
+  getResults(){
+    if(!this._stream){toast('Please select your stream','err');return;}
+    const marks=parseFloat(document.getElementById('ca-marks').value)||60;
+    const recs=this.recommend(this.interests, this.strengths, this._stream, marks);
+    document.getElementById('ca-s3').style.display='none';
+    const res=document.getElementById('ca-s4'); res.style.display='block';
+    this._step=4; this.updateSteps();
+    const out=document.getElementById('ca-results'); out.innerHTML='';
+    recs.forEach((r,i)=>{
+      const el=document.createElement('div'); el.className='ar-card';
+      el.innerHTML=`
+        <div class="ar-head">
+          <div class="ar-rank">#${i+1}</div>
+          <div class="ar-title"><h4>${r.course.name} — ${r.course.full}</h4><span>${r.reason}</span></div>
+          <span class="ar-match">${r.fit}% Fit</span>
+        </div>
+        <div class="ar-body">
+          <div class="ar-row">
+            <div class="ar-block"><label>Career Paths</label><ul>${r.course.careers.map(c=>`<li>${c}</li>`).join('')}</ul></div>
+            <div class="ar-block"><label>Specialisations</label><div class="tags">${r.course.specs.slice(0,4).map(s=>`<span>${s}</span>`).join('')}</div></div>
+          </div>
+          <div class="ar-row">
+            <div class="ar-block"><label>Entrance Exams</label><div class="stags">${r.course.exams.slice(0,3).map(e=>`<span>${e}</span>`).join('')}</div></div>
+            <div class="ar-block"><label>Duration</label><ul><li>${r.course.dur}</li><li>${r.course.level} Program</li></ul></div>
+          </div>
+          <div class="ar-salary"><span>Average Salary</span><strong>${r.course.salary}</strong></div>
+          <div class="rc-btns" style="margin-top:12px">
+            <button class="rcb pri" onclick="Courses.open('${r.course.id}')"><i class="fa-solid fa-info-circle"></i> Full Details</button>
+            <button class="rcb" onclick="Chat.quick('I am interested in ${this.interests.join(', ')} and good at ${this.strengths.join(', ')}. Should I do ${r.course.name}?')"><i class="fa-solid fa-comments"></i> Ask AI</button>
+          </div>
+        </div>`;
+      out.appendChild(el);
+    });
+  },
+  recommend(interests, strengths, stream, marks){
+    const interestMap={
+      coding:['btech','bca','mca','mtech'],
+      business:['bba','mba','bcom'],
+      medicine:['mbbs','bpharm'],
+      design:['bca','btech'],
+      law:['llb','ba'],
+      finance:['bcom','bba','mba'],
+      research:['bsc','mtech','mbbs'],
+      arts:['ba','bba','llb'],
+      entrepreneurship:['bba','mba','btech'],
+      gaming:['btech','bca'],
+    };
+    const strengthMap={
+      maths:['btech','mtech','bca','bsc','mca'],
+      communication:['bba','mba','llb','ba'],
+      memory:['mbbs','bpharm','llb'],
+      creativity:['bca','bba','ba'],
+      leadership:['mba','bba'],
+      analytical:['btech','mtech','mba','bsc'],
+    };
+    const streamElig={
+      pcm:['btech','bca','bsc','bba','bcom','ba','mtech','mba','mca'],
+      pcb:['mbbs','bpharm','bsc','bba','ba','bca'],
+      commerce_maths:['bca','bba','bcom','ba','mba'],
+      commerce:['bba','bcom','ba','mba'],
+      arts:['ba','bba','llb'],
+      arts_maths:['ba','bca','bba','llb'],
+    };
+    const eligible=streamElig[stream]||[];
+    const scores={};
+    COURSES.forEach(c=>{if(eligible.includes(c.id)) scores[c.id]=0});
+    interests.forEach(int=>{(interestMap[int]||[]).forEach(id=>{if(scores[id]!==undefined) scores[id]+=25;})});
+    strengths.forEach(str=>{(strengthMap[str]||[]).forEach(id=>{if(scores[id]!==undefined) scores[id]+=20;})});
+    // marks boost
+    COURSES.forEach(c=>{if(scores[c.id]!==undefined && marks>=c.minPct) scores[c.id]+=15;});
+    return Object.entries(scores)
+      .filter(([id,s])=>s>0)
+      .sort(([,a],[,b])=>b-a)
+      .slice(0,4)
+      .map(([id,s])=>{
+        const course=COURSES.find(c=>c.id===id);
+        const topInt=interests.find(i=>(interestMap[i]||[]).includes(id));
+        const topStr=strengths.find(i=>(strengthMap[i]||[]).includes(id));
+        const reason=topInt&&topStr?`Matches your interest in ${topInt} + strength in ${topStr}`:topInt?`Matches your interest in ${topInt}`:topStr?`Aligns with your ${topStr} strength`:'Good overall match for your profile';
+        return {course, fit:Math.min(s,100), reason};
+      });
+  },
+  restart(){
+    this.interests=[]; this.strengths=[]; this._stream=''; this._step=1;
+    document.querySelectorAll('.int-btn,.str-btn,.sbtn').forEach(b=>b.classList.remove('on'));
+    ['ca-s1'].forEach(id=>document.getElementById(id).style.display='block');
+    ['ca-s2','ca-s3','ca-s4'].forEach(id=>document.getElementById(id).style.display='none');
+    this.updateSteps();
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// EXAMS
+// ═══════════════════════════════════════════════════════════════
+const Exams = {
+  inited:false, fil:'all',
+  init(){
+    if(this.inited)return; this.inited=true;
+    this.renderDeadlines(); this.render();
+  },
+  renderDeadlines(){
+    const c=document.getElementById('dl-list');
+    DEADLINES.forEach(d=>{
+      const el=document.createElement('div'); el.className='dl-row';
+      const cls=d.urgency==='soon'?'soon':d.urgency==='upcoming'?'upcoming':'later';
+      const lbl=d.urgency==='soon'?'Coming Soon':d.urgency==='upcoming'?'Upcoming':'Later';
+      el.innerHTML=`<span class="dl-date">${d.date}</span><span class="dl-name">${d.name}</span><span class="dl-badge ${cls}">${lbl}</span>`;
+      c.appendChild(el);
+    });
+  },
+  render(){
+    const c=document.getElementById('exams-list'); c.innerHTML='';
+    EXAMS.filter(e=>this.fil==='all'||(e.courses&&e.courses.includes(this.fil))).forEach(e=>{
+      const diffCls=e.diff.includes('Very')?'diff-vh':e.diff.includes('High')?'diff-h':'diff-m';
+      const el=document.createElement('div'); el.className='ec';
+      el.innerHTML=`
+        <div class="ec-head" onclick="this.parentElement.classList.toggle('open')">
+          <div class="e-ico" style="background:${e.color}"><i class="fa-solid ${e.icon}"></i></div>
+          <div class="e-title"><div class="e-nm">${e.name}</div><div class="e-sub">${e.full}</div></div>
+          <div class="e-chips"><span class="${diffCls}">${e.diff}</span></div>
+          <i class="fa-solid fa-chevron-down e-toggle"></i>
+        </div>
+        <div class="ec-body">
+          <div class="e-grid">
+            <div class="eg"><div class="eg-v">${e.by}</div><div class="eg-l">Conducting Body</div></div>
+            <div class="eg"><div class="eg-v">${e.freq}</div><div class="eg-l">Frequency</div></div>
+            <div class="eg"><div class="eg-v">${e.mode}</div><div class="eg-l">Mode</div></div>
+            <div class="eg"><div class="eg-v">${e.marks}</div><div class="eg-l">Total Marks</div></div>
+            <div class="eg"><div class="eg-v">${e.dur}</div><div class="eg-l">Duration</div></div>
+            <div class="eg"><div class="eg-v">${e.seats.split('|')[0]}</div><div class="eg-l">Seats/Appear</div></div>
+          </div>
+          <div class="d-row"><span class="dk">Eligibility</span><span class="dv">${e.elig}</span></div>
+          <div class="d-row"><span class="dk">Syllabus</span><span class="dv">${e.syllabus}</span></div>
+          <div class="e-tip"><i class="fa-solid fa-lightbulb"></i><span><strong>Tip: </strong>${e.tip}</span></div>
+        </div>`;
+      c.appendChild(el);
+    });
+  },
+  filter(v,btn){
+    this.fil=v;
+    document.querySelectorAll('#page-exams .ch').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on'); this.render();
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// COMPARE
+// ═══════════════════════════════════════════════════════════════
+const Cmp = {
+  selected:[], inited:false,
+  init(){if(!this.inited){this.inited=true;}},
+  add(id){
+    if(this.selected.includes(id)){toast('Already in comparison','inf');return;}
+    if(this.selected.length>=4){toast('Maximum 4 courses','err');return;}
+    this.selected.push(id);
+    this.renderTable();
+    toast(`Added ${COURSES.find(c=>c.id===id)?.name||id} to comparison`,'ok');
+  },
+  remove(id){this.selected=this.selected.filter(x=>x!==id);this.renderTable()},
+  search(){
+    const q=document.getElementById('cmp-q').value.toLowerCase();
+    const dd=document.getElementById('cmp-dd-abs');
+    if(!q){dd.style.display='none';return;}
+    const matches=COURSES.filter(c=>c.name.toLowerCase().includes(q)||c.full.toLowerCase().includes(q)).slice(0,6);
+    dd.style.display=matches.length?'block':'none';
+    dd.style.top='52px'; dd.style.left='36px';
+    dd.innerHTML=matches.map(c=>`<div onclick="Cmp.add('${c.id}');document.getElementById('cmp-q').value='';document.getElementById('cmp-dd-abs').style.display='none'"
+      style="padding:10px 14px;cursor:pointer;font-size:.83rem;color:var(--t2);display:flex;align-items:center;gap:9px;transition:background var(--tr)"
+      onmouseover="this.style.background='var(--glass)'" onmouseout="this.style.background=''">${c.name} — ${c.full}</div>`).join('');
+  },
+  openDD(){const q=document.getElementById('cmp-q').value;if(q)this.search();},
+  renderTable(){
+    document.getElementById('cmp-count').textContent=`${this.selected.length} / 4 selected`;
+    const courses=this.selected.map(id=>COURSES.find(c=>c.id===id)).filter(Boolean);
+    if(!courses.length){
+      document.getElementById('cmp-empty').style.display='flex';
+      document.getElementById('cmp-table').style.display='none';
+      return;
+    }
+    document.getElementById('cmp-empty').style.display='none';
+    const t=document.getElementById('cmp-table'); t.style.display='block';
+    const cols=courses.length+1;
+    const colGrid=`grid-template-columns: 160px ${courses.map(()=>'1fr').join(' ')}`;
+    const rows=[
+      ['Duration',...courses.map(c=>c.dur)],
+      ['Level',...courses.map(c=>c.level)],
+      ['Category',...courses.map(c=>c.cat)],
+      ['Min 12th %',...courses.map(c=>c.minPct+'%')],
+      ['Entrance Exams',...courses.map(c=>c.exams.slice(0,2).join(', '))],
+      ['Avg Salary',...courses.map(c=>c.salary)],
+      ['Top Careers',...courses.map(c=>c.careers.slice(0,2).join(', '))],
+      ['Fees (approx)',...courses.map(c=>c.fees)],
+    ];
+    t.innerHTML=`
+      <div class="cmp-table">
+        <div class="cmp-hdr" style="${colGrid}">
+          <div class="cmp-col-hd" style="font-size:.7rem;color:var(--t3)">Comparison</div>
+          ${courses.map(c=>`
+            <div class="cmp-col-hd">
+              <div class="cmp-course-nm">${c.name}</div>
+              <div class="cmp-course-fn">${c.full}</div>
+              <button onclick="Cmp.remove('${c.id}')" style="font-size:.68rem;color:var(--t3);background:none;border:none;cursor:pointer;margin-top:4px">✕ Remove</button>
+            </div>`).join('')}
+        </div>
+        <div class="cmp-tbody">
+          ${rows.map(row=>`
+            <div class="cmp-tr" style="${colGrid}">
+              ${row.map((cell,i)=>`<div class="cmp-td" style="${i===0?'background:var(--glass)':''}">${cell}</div>`).join('')}
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// CHAT
+// ═══════════════════════════════════════════════════════════════
+const Chat = {
+  inited:false, history:[], ctx:{type:'',id:''},
+  init(){if(this.inited)return;this.inited=true;
+    Courses.init(); Colleges.init();
+    const ta=document.getElementById('chat-ta');
+    ta.addEventListener('keydown',e=>{
+      if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();this.send();}
+    });
+    ta.addEventListener('input',()=>{
+      document.getElementById('char-cnt').textContent=ta.value.length+' / 2000';
+    });
+    document.getElementById('send-btn').onclick=()=>this.send();
+  },
+  sel(el,type){
+    document.querySelectorAll(`#chat-${type==='course'?'courses':'colleges'} .csi`).forEach(e=>e.classList.remove('on'));
+    el.classList.add('on');
+    this.ctx.type=type; this.ctx.id=el.dataset.id;
+  },
+  quick(msg){document.getElementById('chat-ta').value=msg; this.send();go('chat');},
+  askAbout(name){this.quick(`Tell me about ${name} — admissions, cutoffs, placements, and fees.`);go('chat');},
+  resize(ta){ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,140)+'px';},
+  send(){
+    const ta=document.getElementById('chat-ta');
+    const msg=ta.value.trim(); if(!msg)return;
+    // hide welcome if shown
+    const wel=document.querySelector('.cwelc');
+    if(wel)wel.style.display='none';
+    this.addMsg('usr',msg);
+    ta.value=''; ta.style.height='auto';
+    document.getElementById('char-cnt').textContent='0 / 2000';
+    document.getElementById('typing').style.display='flex';
+    this.history.push({role:'user',content:msg});
+    this.callAI(msg).then(reply=>{
+      document.getElementById('typing').style.display='none';
+      this.addMsg('ai',reply);
+      this.history.push({role:'assistant',content:reply});
+      if(this.history.length>20) this.history=this.history.slice(-20);
+    });
+  },
+  addMsg(role,text){
+    const c=document.getElementById('chat-msgs');
+    const d=document.createElement('div'); d.className=`msg ${role}`;
+    const av=role==='usr'?'<i class="fa-solid fa-user"></i>':'<i class="fa-solid fa-graduation-cap"></i>';
+    const bbl=this.md(text);
+    d.innerHTML=`<div class="msg-av">${av}</div><div class="bbl">${bbl}</div>`;
+    c.appendChild(d); c.scrollTop=c.scrollHeight;
+  },
+  md(t){
+    return t
+      .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g,'<em>$1</em>')
+      .replace(/`(.*?)`/g,'<code style="background:var(--glass);padding:1px 5px;border-radius:4px;font-family:var(--fm);font-size:.85em">$1</code>')
+      .replace(/^### (.+)$/gm,'<h4 style="font-size:.88rem;margin:8px 0 3px;color:var(--t)">$1</h4>')
+      .replace(/^## (.+)$/gm,'<h3 style="font-size:.92rem;margin:9px 0 4px;color:var(--t)">$1</h3>')
+      .replace(/^- (.+)$/gm,'<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>')
+      .replace(/\n\n/g,'</p><p>')
+      .replace(/\n/g,'<br>');
+  },
+  async callAI(msg){
+    const ctxData = this.buildContext();
+    const systemPrompt = `You are AdmissAI India, a friendly and expert Indian college admissions counselor. You help students with:
+- Indian college admissions (B.Tech, BCA, BBA, B.Com, MBA, MCA, M.Tech, MBBS, LLB, B.Pharm, B.Sc, BA)
+- Entrance exams (JEE Main, JEE Advanced, NEET, CAT, GATE, CLAT, CUET, BITSAT)
+- College comparisons (IITs, NITs, IIMs, NLUs, AIIMS, private colleges)
+- Career guidance and course selection
+- Admission cutoffs, fees, placements, and scholarship information
+
+${ctxData ? 'Context about what the student is asking about:\n' + ctxData : ''}
+
+Always be specific, accurate, and helpful. Use Indian context (mention INR for fees, Indian colleges and exams). If you don't know something specific, say so rather than guessing. Keep responses concise but complete.`;
+
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:1000,
+          system: systemPrompt,
+          messages: [...this.history.slice(-8), {role:'user',content:msg}]
+        })
+      });
+      const data = await resp.json();
+      if(data.content&&data.content[0]) return data.content[0].text;
+      return "I couldn't get a response. Please check your API key or try again.";
+    } catch(e) {
+      return this.localAnswer(msg);
+    }
+  },
+  buildContext(){
+    if(!this.ctx.id) return '';
+    if(this.ctx.type==='course'){
+      const c=COURSES.find(x=>x.id===this.ctx.id);
+      if(!c) return '';
+      return `Course: ${c.name} (${c.full})\nDuration: ${c.dur}\nEligibility: ${c.streams.join(', ')}, min ${c.minPct}%\nEntrance Exams: ${c.exams.join(', ')}\nCareer paths: ${c.careers.join(', ')}\nAvg Salary: ${c.salary}`;
+    }
+    if(this.ctx.type==='college'){
+      const c=COLLEGES.find(x=>x.id===this.ctx.id);
+      if(!c) return '';
+      return `College: ${c.name}\nLocation: ${c.city}, ${c.state}\nRanking: ${c.ranking}\nCourses: ${c.courses.join(', ')}\nAbout: ${c.about}`;
+    }
+    return '';
+  },
+  localAnswer(msg){
+    const m=msg.toLowerCase();
+    if(m.includes('jee')&&(m.includes('nit')||m.includes('trichy'))) return '**JEE Main for NITs:** You generally need 97%ile+ for top NITs like NIT Trichy (CS), 95%ile for ECE/Mech at top NITs, and 90%ile+ for other NITs. NIT Warangal CS needs 98%ile+. Home state candidates get a slight advantage in JoSAA. Check JoSAA cutoffs for exact branch-wise data.';
+    if((m.includes('btech')&&m.includes('bca'))||(m.includes('b.tech')&&m.includes('bca'))) return '**B.Tech vs BCA:**\n- **B.Tech** is a 4-year engineering degree — deeper technical depth, required for core engineering or research. Needs PCM in 12th. JEE/BITSAT for top colleges. ₹6–25 LPA average salary.\n- **BCA** is a 3-year CS program — faster, cheaper, open to commerce students with Maths. ₹3–10 LPA average. Both paths can reach software engineering roles. B.Tech gives more flexibility and slightly higher starting salaries at MNCs.';
+    if(m.includes('cat')&&(m.includes('iim')||m.includes('mba'))) return '**CAT for IIMs:** IIM A, B, C require 99+ percentile overall with 95+ in each section. IIM L, K, I require 97–98%ile. Newer IIMs (Shillong, Raipur, Trichy) accept 95%ile+. Work experience (2–3 yrs) and academics (10th, 12th, graduation %) also matter significantly in shortlisting. CAT has 3 sections: VARC, DILR, Quant — each scored separately.';
+    if(m.includes('neet')) return '**NEET 2025:** Conducted by NTA, offline OMR paper. 720 marks — Physics 180, Chemistry 180, Biology 360. For AIIMS Delhi, score 715+ (rank under 50). Government medical college cutoff: General ~600–620 score. Private medical: 500+ score. NEET is mandatory for ALL MBBS/BDS/BAMS/BHMS seats in India since 2020.';
+    if(m.includes('gate')) return '**GATE Exam:** Annual exam for M.Tech admissions and PSU recruitment. 100 marks — 65% subject questions, 15% Engineering Maths, 15% Aptitude. For IIT M.Tech (CS), score 750+ (rank under 200). NIT M.Tech: 550–650. PSU jobs (ONGC, BHEL, IOCL, PGCIL) use GATE score directly — no M.Tech needed. Score valid for 3 years.';
+    if(m.includes('cuet')) return '**CUET UG:** NTA-conducted exam for central universities (DU, JNU, BHU, AMU) and many private universities. Replaces college-specific cutoffs for DU. Choose domain subjects (same as 12th subjects) + General Test. Domain questions are NCERT-based — high scoring if you know your 12th syllabus. DU SRCC needs near-perfect CUET score for B.Com.';
+    if(m.includes('parul')) return '**Parul University (Vadodara, Gujarat):** Offers B.Tech, BCA, BBA, B.Com, MBA, MCA. B.Tech admission through Parul-SET exam or JEE score merit. 60%+ in 12th PCM needed. Fees: ₹1.2L/yr (B.Tech). Growing campus with 40+ courses, international MoUs. Placed students in Infosys, Wipro, TCS, and local Gujarat companies. Best for students looking for quality education in Gujarat without the IIT/NIT cutoff pressure.';
+    if(m.includes('marwadi')) return '**Marwadi University (Rajkot, Gujarat):** Engineering and management focused private university. B.Tech needs 60%+ PCM. Fees: ₹1L/yr. Strong industry ties in manufacturing sector (Rajkot is an industrial hub). Good choice for students in Saurashtra-Kutch region. Placements average ₹3.5–4.5 LPA for B.Tech.';
+    if(m.includes('sigma')) return '**Sigma University (Vadodara, Gujarat):** Newer university (est. 2020) with skill-based, industry-aligned curriculum. Offers B.Tech, BCA, BBA, B.Com. Fees: ₹90K/yr B.Tech. Focuses on entrepreneurship and practical learning. Good option for students who want affordable education in Vadodara with modern curriculum. Placements: ₹3–4 LPA.';
+    if(m.includes('vjti')||m.includes('veermata')) return '**VJTI Mumbai:** One of the oldest and most prestigious engineering colleges in Maharashtra (est. 1887). Admission via MH CET — need 98%ile+ for CS, 96%ile for ECE. Fees: ₹1.5L/yr (government). Placements average ₹7 LPA median. Alumni in top companies. Part of Mumbai University.';
+    if(m.includes('mumbai')&&(m.includes('college')||m.includes('university'))) return '**Mumbai University Top Colleges:**\n- **VJTI** — Best for engineering (MH CET 98%ile+)\n- **ICT Mumbai** — Best for Chemical/Pharma engineering\n- **SPIT** — Top private-aided engineering\n- **KC College** — Top for B.Com/Arts\n- **HR College** — Top commerce college\n\nMumbai University admission for arts/commerce is HSC merit-based. For engineering: MH CET. CUET for some autonomous colleges.';
+    if(m.includes('iiit')&&m.includes('hyderabad')) return '**IIIT Hyderabad:** Extremely selective, research-focused CS institute. Admission through UGEE (their own exam, not JEE). Around 170–200 B.Tech seats per year. Strong in AI, ML, Computational Linguistics. Average placement ₹20+ LPA. Alumni at Google, Microsoft, Amazon Research, top PhD programs. One of the best CS institutes in India for those interested in research.';
+    if(m.includes('jadavpur')) return '**Jadavpur University (Kolkata):** Top government university in Eastern India. B.Tech admission through WBJEE (state exam) — very low fees (₹25K/yr). Ranks in NIRF top 20 engineering. Strong research culture. Alumni in top companies and academia globally. No JEE required — great value for West Bengal students.';
+    if(m.includes('bba')&&m.includes('career')) return '**Career after BBA:**\n- Direct jobs: Business Analyst, Marketing Executive, HR Trainee, Sales — ₹3–6 LPA starting\n- MBA after BBA: Most BBA students do MBA (CAT/XAT/SNAP) — IIM MBA can take salary to ₹20–35 LPA\n- CA/CS alongside: Some do BBA + CA simultaneously\n- Entrepreneurship: Strong foundation for starting a business\n- Government exams: UPSC, Bank PO, SSC with BBA background\nTop BBA colleges: NMIMS, Symbiosis, IIM Indore (5-yr IPM), Christ University, Amity.';
+    if(m.includes('scholarship')) return '**Scholarships for Indian Students:**\n- **NSP (National Scholarship Portal):** Central government — SC/ST/OBC/Minority/Disabled students\n- **Post-Matric Scholarship:** State government scholarships for 12th+\n- **Merit-cum-Means (MCM):** For minority students — ₹25K/yr\n- **AICTE Pragati/Saksham:** For girl students in technical education — ₹50K/yr\n- **IIT/NIT Scholarship:** Fee waiver + monthly stipend for families earning <₹5L/yr\n- **PM-YASASVI:** For OBC/EWS students\n- **Sitaram Jindal Foundation:** Merit-based, open to all\nApply via nationaalscholarships.gov.in';
+    if(m.includes('85%')||m.includes('85 percent')) return '**With 85% in 12th (PCM assumed):**\n- **B.Tech:** VIT, SRM, Manipal, BITS Hyderabad via BITSAT, many good NITs with JEE 94%ile+\n- **BCA:** Almost all colleges — Symbiosis, NMIMS, Christ, DU\n- **BBA:** NMIMS, Symbiosis, Christ, DU (with good CUET)\n- **B.Sc:** Miranda House, St. Stephen\'s, Presidency (with CUET)\n85% is a solid score — the key factor for IITs/top NITs will be your JEE percentile, not just board marks.';
+    return 'I can help you with Indian college admissions, entrance exams, course selection, and career guidance. Try asking about specific exams like JEE or NEET, B.Tech vs BCA comparisons, or which colleges suit your profile. You can also use the **Eligibility Checker** and **Career Advisor** tabs for personalised results!';
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// COLLEGE FINDER
+// ═══════════════════════════════════════════════════════════════
+const Finder = {
+  inited: false,
+  init(){
+    if(this.inited) return; this.inited = true;
+    // populate course dropdown
+    const sel = document.getElementById('ff-course');
+    COURSES.forEach(c=>{
+      const o = document.createElement('option');
+      o.value = c.id; o.textContent = `${c.name} — ${c.full}`;
+      sel.appendChild(o);
+    });
+  },
+  search(){
+    const courseId = document.getElementById('ff-course').value;
+    const state    = document.getElementById('ff-state').value;
+    const type     = document.getElementById('ff-type').value;
+
+    let results = COLLEGES.filter(c=>{
+      if(courseId && !c.courses.includes(courseId)) return false;
+      if(state && c.state !== state) return false;
+      if(type){
+        if(type === 'Government' && c.type !== 'Government') return false;
+        if(type === 'Deemed' && !c.type.includes('Deemed')) return false;
+        if(type === 'Private' && c.type !== 'Private') return false;
+      }
+      return true;
+    });
+
+    // sort: tier1 first, then tier2, tier3
+    const tierOrder = {tier1:0, tier2:1, tier3:2};
+    results.sort((a,b)=>(tierOrder[a.tier]||9)-(tierOrder[b.tier]||9));
+
+    const out = document.getElementById('finder-results');
+    document.getElementById('finder-empty').style.display = 'none';
+
+    if(!results.length){
+      out.innerHTML = `<div class="finder-empty"><i class="fa-solid fa-circle-xmark"></i><h3>No colleges found</h3><p>Try different filters — fewer restrictions show more results.</p></div>`;
+      return;
+    }
+
+    const tierLabel = {tier1:'Tier 1 — Premier', tier2:'Tier 2 — Top Private', tier3:'Tier 3 — Regional'};
+    const tierCls   = {tier1:'tier1', tier2:'tier2', tier3:'tier3'};
+
+    out.innerHTML = `<div style="font-size:.78rem;color:var(--t3);margin-bottom:12px;padding:0 2px">${results.length} college${results.length>1?'s':''} found</div>` +
+      results.map(c=>{
+        const courseTagsHtml = c.courses
+          .filter(id => !courseId || id === courseId)
+          .map(id=>{ const co=COURSES.find(x=>x.id===id); return co?`<span class="ctag2">${co.name}</span>`:'' })
+          .join('');
+        const pkgEntries = Object.entries(c.pkg);
+        const pkgTarget = courseId ? pkgEntries.find(([k])=>k===courseId) : pkgEntries[0];
+        const pkgHtml = pkgTarget
+          ? `<div class="fc-pkg">${pkgTarget[1]}</div><div class="fc-pkg-lab">Avg Package</div>`
+          : `<div class="fc-pkg" style="color:var(--t3);font-size:.78rem">—</div>`;
+        return `<div class="finder-card" onclick="go('colleges');setTimeout(()=>Colleges.open('${c.id}'),50)">
+          <div class="fc-logo" style="background:${c.color}">${c.short.slice(0,4)}</div>
+          <div class="fc-info">
+            <div class="fc-nm">${c.name}</div>
+            <div class="fc-meta">
+              <span><i class="fa-solid fa-location-dot"></i>${c.city}, ${c.state}</span>
+              <span><i class="fa-solid fa-building"></i>${c.type}</span>
+              <span><i class="fa-solid fa-trophy"></i>${c.ranking}</span>
+            </div>
+            <div class="fc-tags">
+              <span class="tier-badge ${tierCls[c.tier]||'tier3'}">${tierLabel[c.tier]||c.tier}</span>
+              ${courseTagsHtml}
+            </div>
+          </div>
+          <div class="fc-right">${pkgHtml}</div>
+        </div>`;
+      }).join('');
+  }
+};
+
+// ── INIT ────────────────────────────────────────────────────────
+Home.init();
+// click outside compare dropdown
+document.addEventListener('click',e=>{
+  const dd=document.getElementById('cmp-dd-abs');
+  if(!e.target.closest('#cmp-q')&&!e.target.closest('#cmp-dd-abs')) dd.style.display='none';
+});
+</script>
 </body>
 </html>
