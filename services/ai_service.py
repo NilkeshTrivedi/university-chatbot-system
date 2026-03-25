@@ -1,132 +1,103 @@
 """
-AI service using Groq API via direct HTTP requests.
-No groq SDK needed — only 'requests' which is already installed.
+AI service — Groq API via HTTP.
 
-KEY FLOW:
-  .env file → GROQ_API_KEY=gsk_xxx
-      ↓ (auto-loaded by load_dotenv())
-  os.getenv("GROQ_API_KEY") reads it here
-      ↓
-  sent as Bearer token to Groq's API
-  
-You ONLY put the key in .env. Nowhere else.
+Setup:
+  1. Create a .env file in the project root
+  2. Add:  GROQ_API_KEY=gsk_your_actual_key_here
+  3. Run:  python app.py
+
+The key is read once from environment. No changes needed anywhere else.
 """
 
 import os
 import logging
 import requests as http
 from dotenv import load_dotenv
-from services.compression import compress as scaledown_compress
 
 load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL   = "llama-3.3-70b-versatile"
+GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = "llama-3.3-70b-versatile"
 
-SYSTEM_PROMPT = """You are AdmissAI, a friendly and knowledgeable assistant. You are an expert college admissions counselor but you can also answer general questions on any topic.
+SYSTEM_PROMPT = """You are AdmissAI India — a knowledgeable, warm assistant for Indian college admissions.
 
-For college admissions topics, your expertise includes:
-- University program requirements (GPA, test scores, essays, recommendations)
-- Application strategy and timeline management
-- Essay writing guidance and tips
-- Interview preparation advice
-- Financial aid and scholarship information
-- Program comparisons and fit assessment
+Your expertise:
+- Indian UG and PG admissions: B.Tech, BCA, BBA, B.Com, B.Sc, B.A, MBA, MCA, M.Tech, MBBS, LLB, B.Pharm
+- Entrance exams: JEE Main, JEE Advanced, NEET, CAT, GATE, CLAT, CUET, BITSAT
+- Colleges: IITs, NITs, IIMs, NLUs, AIIMS, BITS Pilani, VIT, SRM, Symbiosis, Parul, Marwadi, and others
+- Eligibility, cutoffs, fees, placements, scholarships, career paths
 
-For general questions, answer helpfully and accurately like a knowledgeable friend would.
+You also answer general knowledge questions accurately.
 
 Guidelines:
-- Be warm, encouraging, and conversational.
-- Give specific, concrete answers — not vague platitudes.
-- Use bullet points for lists and steps.
-- For college questions, always reference actual requirements when provided.
-- Do NOT make up statistics. Only use data you are given.
-- End responses with something helpful — a tip, a follow-up question, or an encouragement.
+- Be specific and direct. Give real numbers, real cutoffs, real exam names.
+- Use Rs. for Indian fees and salaries (or the rupee symbol if rendering supports it).
+- Use bullet points for lists. Bold key terms with **text**.
+- Never make up statistics. If unsure, say so honestly.
+- End with something useful: a next step, a tip, or a follow-up question.
 """
 
 
 def chat(message: str, history: list, program_context: str = None) -> dict:
     """
-    Send a message to Groq and get a response.
+    Send a message to Groq and return the reply.
 
     Args:
-        message:         User's current message
-        history:         Past messages [{"role": "user"|"assistant", "content": str}]
-        program_context: Optional university program data to inject
+        message:         The user's latest message (NOT already in history)
+        history:         Previous turns only: [{"role": "user"|"assistant", "content": str}, ...]
+                         Do NOT include the current message in history.
+        program_context: Optional extra context string about a selected college/program
 
     Returns:
-        {"reply": str, "compression_stats": dict|None, "model_used": str}
+        {"reply": str, "model_used": str}
     """
-
-    # ── Step 1: Get API key from environment ──────────────────────────────
     api_key = os.getenv("GROQ_API_KEY", "").strip()
 
-    # ── Step 2: Validate the key before doing anything ────────────────────
     if not api_key:
         return {
             "reply": (
-                "⚠️ **Setup needed:** `GROQ_API_KEY` is missing from your `.env` file.\n\n"
-                "1. Go to https://console.groq.com and sign up (free)\n"
-                "2. Create an API key\n"
-                "3. Add this line to your `.env` file:\n"
-                "```\nGROQ_API_KEY=gsk_your_actual_key_here\n```\n"
-                "4. Restart the server with `python app.py`"
+                "**GROQ_API_KEY is missing from your .env file.**\n\n"
+                "Fix it in 3 steps:\n"
+                "1. Create a `.env` file in the project root\n"
+                "2. Add this line:  `GROQ_API_KEY=gsk_your_key_here`\n"
+                "3. Get your free key at https://console.groq.com\n"
+                "4. Restart the server: `python app.py`"
             ),
-            "compression_stats": None,
             "model_used": "error",
         }
 
-    if "your" in api_key.lower() or "placeholder" in api_key.lower() or len(api_key) < 20:
+    if not api_key.startswith("gsk_") or len(api_key) < 20:
         return {
             "reply": (
-                "⚠️ **Setup needed:** Your `GROQ_API_KEY` in `.env` still looks like a placeholder.\n\n"
-                "Replace it with your real key from https://console.groq.com\n\n"
-                "A real Groq key looks like: `gsk_AbCdEf123456...`"
+                "**GROQ_API_KEY looks invalid.**\n\n"
+                "Real Groq keys start with `gsk_` and are ~50 characters long.\n"
+                "Check your `.env` file and get a fresh key at https://console.groq.com"
             ),
-            "compression_stats": None,
             "model_used": "error",
         }
 
-    # ── Step 3: Compress program context if a program is selected ─────────
-    compression_stats = None
-    context_block     = ""
-
+    # Build system prompt, optionally injecting program context
+    system = SYSTEM_PROMPT
     if program_context:
-        result = scaledown_compress(program_context, ratio=0.45)
-        compression_stats = {
-            "original_tokens":   result["original_tokens"],
-            "compressed_tokens": result["compressed_tokens"],
-            "compression_ratio": result["compression_ratio"],
-            "tokens_saved":      result["tokens_saved"],
-            "provider":          result["provider"],
-        }
-        context_block = (
-            f"\n\n--- University Program Data "
-            f"(Scaledown compressed {result['compression_ratio']*100:.0f}%) ---\n"
-            f"{result['compressed_text']}\n---"
-        )
+        system += f"\n\n--- Selected Program Context ---\n{program_context}\n---"
 
-    # ── Step 4: Build the messages array ──────────────────────────────────
-    system_content = SYSTEM_PROMPT + context_block
+    # Build messages array: system -> history -> current message
+    # history contains ONLY previous completed turns.
+    messages = [{"role": "system", "content": system}]
 
-    messages = [{"role": "system", "content": system_content}]
-
-    # Append past conversation (keep last 10 turns to avoid token overflow)
     for turn in history[-10:]:
-        role    = turn.get("role", "user")
+        role    = turn.get("role", "").strip()
         content = turn.get("content", "").strip()
         if role in ("user", "assistant") and content:
             messages.append({"role": role, "content": content})
 
-    # Append the current user message
     messages.append({"role": "user", "content": message})
 
-    # ── Step 5: Call Groq API ─────────────────────────────────────────────
     try:
         resp = http.post(
-            GROQ_API_URL,
+            GROQ_URL,
             headers={
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type":  "application/json",
@@ -140,61 +111,39 @@ def chat(message: str, history: list, program_context: str = None) -> dict:
             timeout=30,
         )
 
-        # ── Step 6: Handle API errors with clear messages ─────────────────
         if resp.status_code == 401:
             return {
                 "reply": (
-                    "⚠️ **Invalid API Key (401):** Groq rejected your key.\n\n"
-                    "- Open your `.env` file\n"
-                    "- Make sure `GROQ_API_KEY` is your real key from https://console.groq.com\n"
-                    "- Restart the server after saving"
+                    "**Invalid API key (401 error).**\n\n"
+                    "Groq rejected the key in your `.env` file.\n"
+                    "- Get a fresh key at https://console.groq.com\n"
+                    "- Update `GROQ_API_KEY` in `.env`\n"
+                    "- Restart: `python app.py`"
                 ),
-                "compression_stats": compression_stats,
                 "model_used": "error",
             }
 
         if resp.status_code == 429:
             return {
-                "reply": "⚠️ **Rate limit reached.** You've hit Groq's free tier limit. Wait a minute and try again.",
-                "compression_stats": compression_stats,
+                "reply": "**Rate limit reached.** Groq's free tier has per-minute limits. Wait 30 seconds and try again.",
                 "model_used": "error",
             }
 
         if not resp.ok:
+            logger.error(f"Groq error {resp.status_code}: {resp.text}")
             return {
-                "reply": f"⚠️ **Groq API Error {resp.status_code}:**\n```\n{resp.text}\n```",
-                "compression_stats": compression_stats,
+                "reply": f"**Groq API error {resp.status_code}.** Check your terminal for details.",
                 "model_used": "error",
             }
 
-        # ── Step 7: Extract and return the reply ──────────────────────────
         data  = resp.json()
         reply = data["choices"][0]["message"]["content"]
-
-        return {
-            "reply":             reply,
-            "compression_stats": compression_stats,
-            "model_used":        f"groq/{GROQ_MODEL}",
-        }
+        return {"reply": reply, "model_used": f"groq/{GROQ_MODEL}"}
 
     except http.exceptions.ConnectionError:
-        return {
-            "reply": "⚠️ **No internet connection.** Cannot reach Groq API. Check your network and try again.",
-            "compression_stats": compression_stats,
-            "model_used": "error",
-        }
-
+        return {"reply": "**No connection.** Cannot reach Groq API. Check your internet.", "model_used": "error"}
     except http.exceptions.Timeout:
-        return {
-            "reply": "⚠️ **Request timed out.** Groq took too long to respond. Try again in a moment.",
-            "compression_stats": compression_stats,
-            "model_used": "error",
-        }
-
+        return {"reply": "**Timeout.** Groq took too long to respond. Try again in a moment.", "model_used": "error"}
     except Exception as e:
         logger.error(f"Groq unexpected error: {e}", exc_info=True)
-        return {
-            "reply": f"⚠️ **Unexpected error:** `{str(e)}`\n\nCheck your terminal for the full traceback.",
-            "compression_stats": compression_stats,
-            "model_used": "error",
-        }
+        return {"reply": f"**Unexpected error:** {e}\n\nCheck your terminal.", "model_used": "error"}

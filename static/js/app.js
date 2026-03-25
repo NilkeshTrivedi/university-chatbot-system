@@ -1,19 +1,12 @@
 /**
- * app.js – Core SPA routing, global state, toast utility.
- * Home page is the default. Logo always goes back to home.
+ * app.js
+ * Responsibility: navigation/routing, global toast utility, shared API helper.
+ * Nothing else lives here.
  */
 
 const App = (() => {
-  const state = {
-    currentPage: 'home',
-    programs: [],
-    totalTokensSaved: 0,
-    chatHistory: [],
-    selectedProgram: null,
-    checklistProgram: null,
-  };
 
-  // ── Navigation ──────────────────────────────────────────────────────
+  // ── Navigate between pages ────────────────────────────────────────
   function navigate(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -24,92 +17,70 @@ const App = (() => {
     if (pageEl) pageEl.classList.add('active');
     if (tabEl)  tabEl.classList.add('active');
 
-    state.currentPage = page;
-
-    if (page === 'home'      ) loadHomeUniGrid();
-    if (page === 'programs'  && typeof Programs  !== 'undefined') Programs.init();
-    if (page === 'chat'      && typeof Chat      !== 'undefined') Chat.init();
-    if (page === 'checklist' && typeof Checklist !== 'undefined') Checklist.init();
+    // Close mobile menu on navigation
+    document.getElementById('mobile-nav')?.classList.remove('open');
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Trigger lazy inits
+    if (page === 'home')        Home.init();
+    if (page === 'courses')     Courses.init();
+    if (page === 'eligibility') Eligibility.init();
+    if (page === 'chat')        Chat.init();
   }
 
-  // ── Toast ───────────────────────────────────────────────────────────
-  function toast(message, type = 'info', duration = 3500) {
+  // ── Toast notifications ───────────────────────────────────────────
+  function toast(message, type = 'info', duration = 3200) {
     const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
     const container = document.getElementById('toast-container');
+    if (!container) return;
+
     const el = document.createElement('div');
     el.className = `toast ${type}`;
     el.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i><span>${message}</span>`;
     container.appendChild(el);
+
     setTimeout(() => {
       el.style.opacity = '0';
-      el.style.transform = 'translateX(16px)';
-      el.style.transition = 'all 0.3s ease';
-      setTimeout(() => el.remove(), 300);
+      el.style.transform = 'translateX(8px)';
+      el.style.transition = 'all 0.25s ease';
+      setTimeout(() => el.remove(), 260);
     }, duration);
   }
 
-  // ── Token counter (kept for chat.js compatibility) ──────────────────
-  function addTokensSaved(n) {
-    if (!n || n <= 0) return;
-    state.totalTokensSaved += n;
-  }
-
-  // ── API helper ──────────────────────────────────────────────────────
+  // ── API helper — wraps fetch with JSON and error handling ─────────
   async function api(endpoint, options = {}) {
-    const defaults = { headers: { 'Content-Type': 'application/json' } };
-    const res = await fetch(endpoint, { ...defaults, ...options });
+    const config = {
+      headers: { 'Content-Type': 'application/json' },
+      ...options,
+    };
+    const res = await fetch(endpoint, config);
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: 'Unknown error' }));
+      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
       throw new Error(err.error || `HTTP ${res.status}`);
     }
     return res.json();
   }
 
-  // ── Bind nav tabs ───────────────────────────────────────────────────
+  // ── Bind all [data-nav] elements globally ─────────────────────────
   function bindNav() {
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.addEventListener('click', () => navigate(tab.dataset.page));
+    document.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-nav]');
+      if (target) navigate(target.dataset.nav);
+    });
+
+    document.getElementById('hamburger')?.addEventListener('click', () => {
+      document.getElementById('mobile-nav')?.classList.toggle('open');
     });
   }
 
-  // ── Init ────────────────────────────────────────────────────────────
+  // ── Init ──────────────────────────────────────────────────────────
   function init() {
     bindNav();
-    window.addEventListener('load', () => {
-      loadHomeUniGrid();
-    });
+    Home.init();
   }
 
-  return { navigate, toast, api, state, addTokensSaved, init };
+  return { navigate, toast, api };
 })();
-
-// ── Home page university grid ────────────────────────────────────────
-async function loadHomeUniGrid() {
-  const grid = document.getElementById('home-uni-grid');
-  if (!grid) return;
-
-  let progs = App.state.programs;
-  if (!progs || !progs.length) {
-    try {
-      const data = await App.api('/api/programs');
-      progs = data.programs;
-      App.state.programs = progs;
-    } catch {
-      grid.innerHTML = `<p style="color:var(--text-muted);font-size:0.85rem">Could not load programs.</p>`;
-      return;
-    }
-  }
-
-  grid.innerHTML = progs.map(p => `
-    <div class="uni-card" onclick="App.navigate('programs'); setTimeout(()=>Programs.openDetail('${p.id}'), 300)">
-      <div class="uni-logo" style="background:${p.logo_color}">${p.short_name.substring(0,2)}</div>
-      <div class="uni-name">${p.short_name}</div>
-      <div class="uni-program">${p.program}</div>
-      <span class="uni-rate">${p.acceptance_rate}</span>
-    </div>
-  `).join('');
-}
 
 document.addEventListener('DOMContentLoaded', () => App.init());

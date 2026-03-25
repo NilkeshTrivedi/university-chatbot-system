@@ -1,257 +1,267 @@
 /**
- * chat.js – AI Chat interface with live messaging.
+ * chat.js
+ * Responsibility: AI chat interface.
+ *
+ * KEY FIX — history bug:
+ * history[] stores COMPLETED turns only.
+ * The current message is sent separately to /api/chat as `message`.
+ * The server appends history + message itself.
+ * We push to history ONLY AFTER the API responds successfully.
+ *
+ * This means:
+ *   - history sent: [{role:"user","Hi"}, {role:"assistant","Hello!"}]
+ *   - message sent: "What is JEE?"
+ *   - NOT: [...history, {role:"user","What is JEE?"}] ← this was the bug
  */
 
 const Chat = (() => {
-    let selectedProgramId = '';
-    let history = [];
-    let isLoading = false;
-    let initialized = false;
+  let initialized     = false;
+  let isLoading       = false;
+  let history         = [];           // completed turns only
+  let selectedProgram = '';           // program context id
 
-    // ── Render a message bubble ───────────────────────────────────────
-    function renderMessage(role, content, compressionStats = null) {
-        const container = document.getElementById('chat-messages');
+  // ── Init ──────────────────────────────────────────────────────────
+  function init() {
+    if (initialized) return;
+    initialized = true;
 
-        // Remove welcome screen on first real message
-        const welcome = container.querySelector('.chat-welcome');
-        if (welcome) welcome.remove();
+    bindInput();
+    bindSuggestions();
+    loadProgramList();
+    checkApiStatus();
+  }
 
-        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const isUser = role === 'user';
-        const avatarIcon = isUser ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-robot"></i>';
+  // ── Input bindings ────────────────────────────────────────────────
+  function bindInput() {
+    const textarea = document.getElementById('chat-input');
+    const sendBtn  = document.getElementById('send-btn');
 
-        // Show compression badge only when a program is selected and tokens were saved
-        let compBadgeHtml = '';
-        if (!isUser && compressionStats && compressionStats.tokens_saved > 0) {
-            compBadgeHtml = `
-                <div class="msg-compress-badge">
-                    <i class="fa-solid fa-bolt"></i>
-                    ${compressionStats.tokens_saved} tokens saved
-                </div>`;
+    textarea?.addEventListener('input', () => {
+      // Auto-resize
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 130) + 'px';
+
+      // Char count
+      document.getElementById('char-count').textContent = `${textarea.value.length} / 2000`;
+
+      // Enable/disable send button
+      sendBtn.disabled = !textarea.value.trim() || isLoading;
+    });
+
+    textarea?.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (!textarea.value.trim() || isLoading) return;
+        send(textarea.value.trim());
+      }
+    });
+
+    sendBtn?.addEventListener('click', () => {
+      const msg = textarea?.value.trim();
+      if (msg && !isLoading) send(msg);
+    });
+  }
+
+  // ── Suggestion chips ──────────────────────────────────────────────
+  function bindSuggestions() {
+    document.querySelectorAll('.suggestion[data-q]').forEach(btn => {
+      btn.addEventListener('click', () => send(btn.dataset.q));
+    });
+  }
+
+  // ── Program context sidebar ───────────────────────────────────────
+  function loadProgramList() {
+    const list = document.getElementById('program-list');
+    if (!list || list.querySelectorAll('[data-prog]').length > 0) return;
+
+    // Build list from DATA (no API call needed — data.js has it)
+    DATA.courses.forEach(c => {
+      const item = document.createElement('div');
+      item.className = 'program-item';
+      item.dataset.prog = c.id;
+      item.innerHTML = `
+        <div class="prog-dot" style="background:${c.color}"></div>
+        <div class="prog-info">
+          <div class="prog-name">${c.name}</div>
+          <div class="prog-sub">${c.full}</div>
+        </div>
+      `;
+      item.addEventListener('click', () => selectProgram(c.id, item));
+      list.appendChild(item);
+    });
+
+    // First item (General) — select on click
+    const general = list.querySelector('[data-prog=""]') || list.firstElementChild;
+    general?.addEventListener('click', () => {
+      selectProgram('', general);
+    });
+  }
+
+  function selectProgram(id, clickedEl) {
+    selectedProgram = id;
+    document.querySelectorAll('.program-item').forEach(el => el.classList.remove('active'));
+    clickedEl?.classList.add('active');
+  }
+
+  // ── Check API key status via /api/health ──────────────────────────
+  async function checkApiStatus() {
+    const dot  = document.getElementById('ks-dot');
+    const text = document.getElementById('ks-text');
+    const help = document.getElementById('key-help');
+
+    try {
+      const data = await fetch('/api/health').then(r => r.json());
+
+      if (data.groq_key_configured) {
+        dot.className  = 'ks-dot ok';
+        text.textContent = 'AI ready';
+        if (help) help.style.display = 'none';
+      } else {
+        dot.className  = 'ks-dot err';
+        text.textContent = 'API key missing';
+        if (help) {
+          help.style.display = 'block';
+          help.innerHTML = 'Add <code>GROQ_API_KEY=gsk_...</code> to your <code>.env</code> file, then restart the server.';
         }
-
-        const formattedContent = formatMarkdown(content);
-
-        const msgEl = document.createElement('div');
-        msgEl.className = `message ${role}`;
-        msgEl.innerHTML = `
-            <div class="msg-avatar">${avatarIcon}</div>
-            <div class="msg-body">
-                <div class="msg-bubble">${formattedContent}</div>
-                <div class="msg-meta">
-                    <span class="msg-time">${now}</span>
-                    ${compBadgeHtml}
-                </div>
-            </div>
-        `;
-
-        container.appendChild(msgEl);
-        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+      }
+    } catch {
+      dot.className  = 'ks-dot err';
+      text.textContent = 'Cannot reach server';
     }
+  }
 
-    // ── Basic markdown → HTML ─────────────────────────────────────────
-    function formatMarkdown(text) {
-        // Process lists line by line to avoid broken regex
-        const lines = text.split('\n');
-        const processed = [];
-        let inUl = false;
+  // ── Send a message ────────────────────────────────────────────────
+  async function send(message) {
+    if (!message || isLoading) return;
 
-        for (const line of lines) {
-            if (/^[-*] (.+)$/.test(line)) {
-                if (!inUl) { processed.push('<ul>'); inUl = true; }
-                processed.push('<li>' + line.replace(/^[-*] /, '') + '</li>');
-            } else if (/^\d+\. (.+)$/.test(line)) {
-                if (!inUl) { processed.push('<ul>'); inUl = true; }
-                processed.push('<li>' + line.replace(/^\d+\. /, '') + '</li>');
-            } else {
-                if (inUl) { processed.push('</ul>'); inUl = false; }
-                processed.push(line);
-            }
-        }
-        if (inUl) processed.push('</ul>');
+    // Hide welcome screen on first message
+    const welcome = document.getElementById('chat-welcome');
+    if (welcome) welcome.style.display = 'none';
 
-        return processed.join('\n')
-            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.+?)\*/g, '<em>$1</em>')
-            .replace(/`(.+?)`/g, '<code>$1</code>')
-            .replace(/^### (.+)$/gm, '<h4 style="margin:10px 0 4px;color:var(--text-primary)">$1</h4>')
-            .replace(/^## (.+)$/gm, '<h3 style="margin:12px 0 6px;color:var(--text-primary)">$1</h3>')
-            .replace(/^---$/gm, '<hr style="border-color:rgba(255,255,255,0.08);margin:10px 0">')
-            .replace(/\n{2,}/g, '</p><p>')
-            .replace(/\n/g, '<br>');
+    // Clear input
+    const textarea = document.getElementById('chat-input');
+    if (textarea) {
+      textarea.value = '';
+      textarea.style.height = 'auto';
+      document.getElementById('char-count').textContent = '0 / 2000';
     }
+    const sendBtn = document.getElementById('send-btn');
+    if (sendBtn) sendBtn.disabled = true;
 
-    // ── Send message ──────────────────────────────────────────────────
-    async function send() {
-        if (isLoading) return;
+    isLoading = true;
 
-        const input = document.getElementById('chat-input');
-        const message = input?.value?.trim();
-        if (!message) return;
+    // Render user message
+    addMessage('user', message);
 
-        input.value = '';
-        input.style.height = 'auto';
-        input.dispatchEvent(new Event('input'));
+    // Show typing indicator
+    const typingEl = document.getElementById('typing-indicator');
+    if (typingEl) typingEl.style.display = 'flex';
+    scrollToBottom();
 
-        isLoading = true;
-        renderMessage('user', message);
-        history.push({ role: 'user', content: message });
+    try {
+      // KEY FIX: send history (completed turns) + message (current turn) separately.
+      // Do NOT push message to history before sending.
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message,
+          history: history.slice(-10),          // last 10 completed turns
+          program_id: selectedProgram || undefined,
+        }),
+      });
 
-        // Show typing indicator
-        const typingEl = document.getElementById('typing-indicator');
-        if (typingEl) typingEl.style.display = 'flex';
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || `Server error ${response.status}`);
+      }
 
-        const messagesEl = document.getElementById('chat-messages');
-        if (messagesEl) messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
+      const data = await response.json();
+      const reply = data.reply || 'No response received.';
 
-        try {
-            const response = await App.api('/api/chat', {
-                method: 'POST',
-                body: JSON.stringify({
-                    message,
-                    history: history.slice(-12),
-                    program_id: selectedProgramId || undefined,
-                }),
-            });
+      // Now push both turns to history (after successful response)
+      history.push({ role: 'user',      content: message });
+      history.push({ role: 'assistant', content: reply });
 
-            history.push({ role: 'assistant', content: response.reply });
+      // Keep history manageable
+      if (history.length > 20) history = history.slice(-20);
 
-            // Safely update compression badge if stats exist
-            if (response.compression_stats) {
-                updateCompressionBadge(response.compression_stats);
-                // addTokensSaved exists safely in app.js now
-                App.addTokensSaved(response.compression_stats.tokens_saved ?? 0);
-            }
+      addMessage('assistant', reply);
 
-            renderMessage('assistant', response.reply, response.compression_stats);
-
-        } catch (e) {
-            renderMessage('assistant', `⚠️ Error: ${e.message}`);
-        } finally {
-            isLoading = false;
-            if (typingEl) typingEl.style.display = 'none';
-        }
+    } catch (err) {
+      addMessage('assistant', `**Error:** ${err.message}`);
+    } finally {
+      isLoading = false;
+      if (typingEl) typingEl.style.display = 'none';
+      if (sendBtn) sendBtn.disabled = false;
+      scrollToBottom();
     }
+  }
 
-    // ── Send from suggestion chip or quick prompt ─────────────────────
-    function sendQuick(text) {
-        const input = document.getElementById('chat-input');
-        if (input) {
-            input.value = text;
-            input.dispatchEvent(new Event('input'));
-        }
-        send();
+  // ── Public: send a pre-filled question (from other pages) ─────────
+  function sendQuestion(text) {
+    // Navigate to chat then send
+    const ta = document.getElementById('chat-input');
+    if (ta) ta.value = text;
+    // Use setTimeout so the page transition completes first
+    setTimeout(() => send(text), 50);
+  }
+
+  // ── Render a message bubble ───────────────────────────────────────
+  function addMessage(role, content) {
+    const container = document.getElementById('chat-messages');
+    if (!container) return;
+
+    const el = document.createElement('div');
+    el.className = `message ${role}`;
+
+    const icon = role === 'user'
+      ? '<i class="fa-solid fa-user"></i>'
+      : '<i class="fa-solid fa-graduation-cap"></i>';
+
+    el.innerHTML = `
+      <div class="msg-avatar">${icon}</div>
+      <div class="msg-bubble">${formatMarkdown(content)}</div>
+    `;
+
+    container.appendChild(el);
+    scrollToBottom();
+  }
+
+  function scrollToBottom() {
+    const c = document.getElementById('chat-messages');
+    if (c) c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' });
+  }
+
+  // ── Simple markdown renderer ──────────────────────────────────────
+  function formatMarkdown(text) {
+    const lines = text.split('\n');
+    const out   = [];
+    let inList  = false;
+
+    for (const line of lines) {
+      if (/^[-*•] (.+)/.test(line)) {
+        if (!inList) { out.push('<ul>'); inList = true; }
+        out.push(`<li>${line.replace(/^[-*•] /, '')}</li>`);
+      } else if (/^\d+\. (.+)/.test(line)) {
+        if (!inList) { out.push('<ul>'); inList = true; }
+        out.push(`<li>${line.replace(/^\d+\. /, '')}</li>`);
+      } else {
+        if (inList) { out.push('</ul>'); inList = false; }
+        out.push(line);
+      }
     }
+    if (inList) out.push('</ul>');
 
-    // ── Update sidebar compression stats box ──────────────────────────
-    function updateCompressionBadge(stats) {
-        const box     = document.getElementById('compression-badge-box');
-        const statsEl = document.getElementById('cb-stats');
-        if (!box || !statsEl) return;
+    return out.join('\n')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+      .replace(/`(.+?)`/g,       '<code>$1</code>')
+      .replace(/^### (.+)$/gm,   '<h4 style="margin:10px 0 4px;color:var(--text)">$1</h4>')
+      .replace(/^## (.+)$/gm,    '<h3 style="margin:12px 0 6px;color:var(--text)">$1</h3>')
+      .replace(/\n{2,}/g,        '<br><br>')
+      .replace(/\n/g,            '<br>');
+  }
 
-        box.style.display = 'block';
-        statsEl.innerHTML = `
-            <div class="cb-stat">
-                <span class="cb-val">${stats.original_tokens ?? '—'}</span>
-                <span class="cb-lab">Original Tokens</span>
-            </div>
-            <div class="cb-stat">
-                <span class="cb-val">${stats.compressed_tokens ?? '—'}</span>
-                <span class="cb-lab">Compressed</span>
-            </div>
-            <div class="cb-stat">
-                <span class="cb-val">${stats.tokens_saved ?? '—'}</span>
-                <span class="cb-lab">Tokens Saved</span>
-            </div>
-            <div class="cb-stat">
-                <span class="cb-val">${stats.compression_ratio ? Math.round(stats.compression_ratio * 100) + '%' : '—'}</span>
-                <span class="cb-lab">Reduction</span>
-            </div>
-        `;
-    }
-
-    // ── Load program list into sidebar ────────────────────────────────
-    async function loadProgramList() {
-        const list = document.getElementById('program-select-list');
-        if (!list) return;
-
-        let progs = App.state.programs;
-        if (!progs || !progs.length) {
-            try {
-                const data = await App.api('/api/programs');
-                progs = data.programs;
-                App.state.programs = progs;
-            } catch { return; }
-        }
-
-        // Remove old dynamically added items
-        list.querySelectorAll('.dynamic-prog-item').forEach(el => el.remove());
-
-        progs.forEach(p => {
-            const item = document.createElement('div');
-            item.className = 'program-select-item dynamic-prog-item';
-            item.dataset.id = p.id;
-            item.innerHTML = `
-                <div class="psi-dot" style="background:${p.logo_color}"></div>
-                <div class="psi-text">
-                    <span class="psi-name">${p.short_name}</span>
-                    <span class="psi-sub">${p.program}</span>
-                </div>
-            `;
-            item.addEventListener('click', () => selectProgram(p.id));
-            list.appendChild(item);
-        });
-
-        // Bind the "General" item
-        const generalItem = list.querySelector('[data-id=""]');
-        if (generalItem) {
-            generalItem.addEventListener('click', () => selectProgram(''));
-        }
-    }
-
-    // ── Select a program context ──────────────────────────────────────
-    function selectProgram(programId) {
-        selectedProgramId = programId;
-        document.querySelectorAll('.program-select-item').forEach(item => {
-            item.classList.toggle('active', item.dataset.id === programId);
-        });
-
-        // Hide compression box when switching to general
-        if (!programId) {
-            const box = document.getElementById('compression-badge-box');
-            if (box) box.style.display = 'none';
-        }
-    }
-
-    // ── Auto-resize textarea ──────────────────────────────────────────
-    function bindInputAutoResize() {
-        const textarea  = document.getElementById('chat-input');
-        const charCount = document.getElementById('char-count');
-        if (!textarea) return;
-
-        textarea.addEventListener('input', () => {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 180) + 'px';
-            if (charCount) charCount.textContent = `${textarea.value.length} / 2000`;
-        });
-
-        textarea.addEventListener('keydown', e => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                send();
-            }
-        });
-    }
-
-    // ── Init ──────────────────────────────────────────────────────────
-    function init() {
-        if (!initialized) {
-            initialized = true;
-            bindInputAutoResize();
-            document.getElementById('send-btn')?.addEventListener('click', send);
-        }
-        loadProgramList();
-    }
-
-    return { init, send, sendQuick, selectProgram };
+  return { init, sendQuestion };
 })();
